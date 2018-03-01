@@ -124,9 +124,9 @@ function MSE1(tree::KDTree,
     for q in R_test[1:end-1] # Remove last state,
                             #because there is nothing to compare the preciction to
         idxs,dists = neighborhood(q,tree,method)
+        xnn = R[idxs]
         ynn = R[f(idxs)]
-        q = LocalModel(ynn, dists)
-        push!(y_pred,LocalModel(ynn, dists)[end])
+        push!(y_pred,LocalModel(q,xnn,ynn, dists)[end])
     end
     return norm(y_test-y_pred)^2/length(y_test)
 end
