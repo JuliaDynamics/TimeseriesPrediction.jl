@@ -21,6 +21,7 @@ function (W::LocalAverageModel)(q,xnn,ynn,dists)
     @assert length(ynn)>0 "No Nearest Neighbors given"
     #Weight Function
     ω(r) = (1-r^W.n)^W.n
+    ω(r) = (1-r^M.n)^M.n
     dmax = maximum(dists)
     y_pred = zeros(size(ynn[1]))
     Ω = 0
@@ -34,6 +35,7 @@ end
 
 
 function (W::LocalLinearModel)(
+function (M::LocalLinearModel)(
     q,
     xnn::Vector{SVector{D,T}},
     ynn,
@@ -44,6 +46,7 @@ function (W::LocalLinearModel)(
     k= length(xnn) #Can this be inferred? Nope, and probably not worth it.
     #Weight Function
     ω(r) = (1-r^W.n)^W.n
+    ω(r) = (1-r^M.n)^M.n
     dmax = maximum(dists)
     #Create Weight Matrix
     W = diagm([ω(di/dmax) for di in dists])
