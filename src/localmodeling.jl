@@ -1,6 +1,11 @@
 using NearestNeighbors, StaticArrays
 using DynamicalSystemsBase
 
+export AbstractLocalModel
+export LocalAverageModel,LocalLinearModel
+export TSP
+export MSE1,MSEp
+
 abstract type AbstractLocalModel end
 
 struct LocalAverageModel <: AbstractLocalModel
