@@ -2,7 +2,7 @@ using NearestNeighbors, StaticArrays
 using DynamicalSystemsBase
 
 export AbstractLocalModel
-export LocalAverageModel,LocalLinearModel
+export LocalAverageModel,LocalLinearModel,LocalPolynomialModel
 export TSP
 export MSE1,MSEp
 
@@ -17,10 +17,14 @@ struct LocalLinearModel <: AbstractLocalModel
 end
 LocalLinearModel() = LocalLinearModel(1)
 
-function (W::LocalAverageModel)(q,xnn,ynn,dists)
+struct LocalPolynomialModel <: AbstractLocalModel
+    n::Int #n=0,1,2,3 Exponent in weighting function
+    m::Int #m=1,2,3,4 degree of Polynome
+end
+
+function (M::LocalAverageModel)(q,xnn,ynn,dists)
     @assert length(ynn)>0 "No Nearest Neighbors given"
     #Weight Function
-    ω(r) = (1-r^W.n)^W.n
     ω(r) = (1-r^M.n)^M.n
     dmax = maximum(dists)
     y_pred = zeros(size(ynn[1]))
@@ -34,7 +38,6 @@ function (W::LocalAverageModel)(q,xnn,ynn,dists)
 end
 
 
-function (W::LocalLinearModel)(
 function (M::LocalLinearModel)(
     q,
     xnn::Vector{SVector{D,T}},
@@ -45,7 +48,6 @@ function (M::LocalLinearModel)(
     y_pred = zeros(size(ynn[1]))
     k= length(xnn) #Can this be inferred? Nope, and probably not worth it.
     #Weight Function
-    ω(r) = (1-r^W.n)^W.n
     ω(r) = (1-r^M.n)^M.n
     dmax = maximum(dists)
     #Create Weight Matrix
@@ -73,6 +75,54 @@ function (M::LocalLinearModel)(
         #Coefficient Vector
         ν = Xw_inv * W* y
         y_pred[i] = [1 q']* ν
+    end
+
+    return y_pred
+end
+
+function (M::LocalPolynomialModel)(
+    q,
+    xnn::Vector{SVector{D,T}},
+    ynn,
+    dists) where {D,T}
+
+    @assert length(ynn)>0 "No Nearest Neighbors given"
+    y_pred = zeros(size(ynn[1]))
+    k= length(xnn) #Can this be inferred? Nope, and probably not worth it.
+    #Weight Function
+    ω(r) = (1-r^M.n)^M.n
+    dmax = maximum(dists)
+    #Create Weight Matrix
+    W = diagm([ω(di/dmax) for di in dists])
+    #Create X
+    X = zeros(k,M.m*D+1)
+    X[:,1] = 1
+    for i=1:k, j=1:M.m
+        X[i,2+(j-1)*D:j*D+1] = xnn[i].^j
+    end
+
+    #Pseudo Inverse
+    U,S,V = svd(W*X)
+
+    #Regularization
+    #D+1 Singular Values
+    μ = 0.01
+    f(σ) = σ^2/(μ^2+σ^2)
+    Xw_inv = V*diagm(f.(S)./S)*U'
+
+    #The following code is meant for 1D ynn values
+    #Repeat for all components
+    for i=1:length(ynn[1])
+        y = map(ynn->ynn[i], ynn)
+        #Coefficient Vector
+        ν = Xw_inv * W* y
+        #Query Matrix
+        q_mat = T[]; sizehint!(q_mat, 1+M.m*D)
+        push!(q_mat,1)
+        for j=1:M.m
+            append!(q_mat,q.^j)
+        end
+        y_pred[i] = dot(q_mat,ν)
     end
 
     return y_pred
