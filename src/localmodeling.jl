@@ -106,11 +106,12 @@ function (M::LocalPolynomialModel)(
     end
     #Pseudo Inverse
     U,S,V = svd(W*X)
-    #println(S)
     #Regularization
-    #D+1 Singular Values
-    μ = 0.8
+    #μ = 0.8
     #f(σ) = σ^2/(μ^2+σ^2)
+
+    #This could be a field "Regularization function"
+    #in LocalPolynomialModel
     smin = 0.08
     smax = 1
     function f(σ)
@@ -143,6 +144,40 @@ function neighborhood(q,tree::KDTree,method::FixedMassNeighborhood)
     idxs, dists = knn(tree, q,method.K, false)
 end
 
+
+"""
+`TSP(tree,R,p,LocalModel,method,f)`
+
+This function is a simple tool for Time Series Prediction.
+Makes steps as defined in given function `f` i.e. `f(idx)=idx+1`.
+
+Finds nearest neighbors of query point in the given `KDTree` with the supplied method
+(`FixedMassNeighborhood`, `FixedSizeNeighborhood`). The nearest neighbors xnn and the points
+they map to (ynn) are used to make a prediction.
+(With the provided `LocalModel <: AbstractLocalModel`)
+
+This method is applied iteratively until a prediction time series of length num_points has
+been created.
+
+Call it with code that might look like this
+```
+ds = DynamicalSystemsBase.Systems.roessler()
+data = trajectory(ds,200)
+Ntraining = 10000
+p = 1000 # Points to predict
+s = data[1:Ntraining,1] # Select first component as Timeseries
+dim = 3 # Embedding dimension and delay
+τ = 50
+R = Reconstruction(s,dim,τ)
+tree = KDTree(R.data[1:end-50]) # Leave off a few points at the end so that there
+                                # will always be a "next" point in the Reconstruction
+f(i) = i+1 # This means step size = 1
+method = FixedMassNeighborhood(5) # Always find 5 nearest neighbors
+LocalModel = LocalAverageModel(2) #Use local averaging and a biquadratic weight function
+
+s_pred = TSP(tree,R,p,LocalModel,method,f)
+```
+"""
 function TSP(
     tree::KDTree,
     R::Reconstruction{D,T,τ}, # is τ used anywhere? if not ::AbstractDataset{D, T}
@@ -165,7 +200,8 @@ function TSP(
     return s_pred
 end
 
-TSP(tree,R,num_points,LocalModel,method,f) = TSP(tree,R,R[end], num_points,LocalModel,method,f)
+TSP(tree,R,num_points,LocalModel,method,f) =
+    TSP(tree,R,R[end], num_points,LocalModel,method,f)
 
 #####################################################################################
 #                                  Error Measures                                   #
