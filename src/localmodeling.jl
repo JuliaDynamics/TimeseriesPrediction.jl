@@ -52,29 +52,31 @@ function (M::LocalLinearModel)(
     dmax = maximum(dists)
     #Create Weight Matrix
     W = diagm([ω(di/dmax) for di in dists])
+    x_mean = mean(xnn)
+    y_mean = mean(ynn)
     #Create X
-    X = zeros(k,D+1)
-    X[:,1] = 1
+    X = zeros(k,D)
+    #X[:,1] = 1
     for i=1:k
-        X[i,2:end] = xnn[i]
+        X[i,1:end] = xnn[i] - x_mean
     end
     #Pseudo Inverse
     U,S,V = svd(W*X)
 
     #Regularization
     #D+1 Singular Values
-    μ = 0.1
+    μ = 2
     f(σ) = σ^2/(μ^2+σ^2)
-    Xw_inv = V*diagm(f.(S)./S)*U'
+    Sp = diagm([σ>0 ? f(σ)/σ : 0 for σ in S])
+    Xw_inv = V*Sp*U'
 
-    #Just a comment
     #The following code is meant for 1D ynn values
     #Repeat for all components
     for i=1:length(ynn[1])
         y = map(ynn->ynn[i], ynn)
         #Coefficient Vector
         ν = Xw_inv * W* y
-        y_pred[i] = [1 q']* ν
+        y_pred[i] = y_mean[i] + (q-x_mean)'* ν
     end
 
     return y_pred
@@ -94,21 +96,31 @@ function (M::LocalPolynomialModel)(
     dmax = maximum(dists)
     #Create Weight Matrix
     W = diagm([ω(di/dmax) for di in dists])
-    #Create X
-    X = zeros(k,M.m*D+1)
-    X[:,1] = 1
-    for i=1:k, j=1:M.m
-        X[i,2+(j-1)*D:j*D+1] = xnn[i].^j
-    end
+    x_mean = mean(xnn)
+    y_mean = mean(ynn)
 
+    #Create X
+    X = zeros(k,M.m*D)
+    for i=1:k, j=1:M.m
+        X[i,1+(j-1)*D:j*D] = (xnn[i] - x_mean).^j
+    end
     #Pseudo Inverse
     U,S,V = svd(W*X)
-
+    #println(S)
     #Regularization
     #D+1 Singular Values
-    μ = 0.01
-    f(σ) = σ^2/(μ^2+σ^2)
-    Xw_inv = V*diagm(f.(S)./S)*U'
+    μ = 0.8
+    #f(σ) = σ^2/(μ^2+σ^2)
+    smin = 0.08
+    smax = 1
+    function f(σ)
+        if σ < smin return 0
+        elseif σ > smin return 1
+        else return (1-((smax-σ)/(smax-smin))^2)^2
+        end
+    end
+    Sp = diagm([σ>0 ? f(σ)/σ : 0 for σ in S])
+    Xw_inv = V*Sp*U'
 
     #The following code is meant for 1D ynn values
     #Repeat for all components
@@ -117,12 +129,11 @@ function (M::LocalPolynomialModel)(
         #Coefficient Vector
         ν = Xw_inv * W* y
         #Query Matrix
-        q_mat = T[]; sizehint!(q_mat, 1+M.m*D)
-        push!(q_mat,1)
+        q_mat = T[]; sizehint!(q_mat, M.m*D)
         for j=1:M.m
-            append!(q_mat,q.^j)
+            append!(q_mat,(q-x_mean).^j)
         end
-        y_pred[i] = dot(q_mat,ν)
+        y_pred[i] = y_mean[i] + dot(q_mat,ν)
     end
 
     return y_pred
@@ -141,7 +152,7 @@ function TSP(
     method::AbstractNeighborhood,
     f) where {D,T,τ} # no reason to declare f::Function
 
-    s_pred = []; sizehint!(s_pred,num_points+1) #Prepare estimated Timeseries
+    s_pred = T[]; sizehint!(s_pred,num_points+1) #Prepare estimated Timeseries
     push!(s_pred, q[end]) #Push query
 
     for n=1:num_points   #Iteratively estimate Timeseries
