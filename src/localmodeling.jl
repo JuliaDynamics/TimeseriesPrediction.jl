@@ -26,10 +26,17 @@ struct LocalAverageModel <: AbstractLocalModel
     n::Int #n=0,1,2,3
 end
 LocalAverageModel() = LocalAverageModel(1)
-struct LocalLinearModel <: AbstractLocalModel
+struct LocalLinearModel{F} <: AbstractLocalModel
     n::Int #n=0,1,2,3
+    f::F
 end
-LocalLinearModel() = LocalLinearModel(1)
+
+LocalLinearModel() = LocalLinearModel(1, 2.0)
+svchooser_default(σ, μ) = σ^2/(μ^2 + σ^2)
+
+LocalLinearModel(n::Int, μ::Real) =
+LocalLinearModel(n, (σ) -> svchooser_default(σ, μ))
+
 
 struct LocalPolynomialModel <: AbstractLocalModel
     n::Int #n=0,1,2,3 Exponent in weighting function
@@ -79,9 +86,7 @@ function (M::LocalLinearModel)(
 
     #Regularization
     #D+1 Singular Values
-    μ = 2
-    f(σ) = σ^2/(μ^2+σ^2)
-    Sp = diagm([σ>0 ? f(σ)/σ : 0 for σ in S])
+    Sp = diagm([σ>0 ? M.f(σ)/σ : 0 for σ in S])
     Xw_inv = V*Sp*U'
 
     #The following code is meant for 1D ynn values
