@@ -8,6 +8,20 @@ export MSE1,MSEp
 
 abstract type AbstractLocalModel end
 
+
+"""
+    LocalAverageModel  <: AbstractLocalModel
+A Model functor that computes an estimate `y_pred` for a query `q`.
+Given the nearest neighbors `xnn` and their images `ynn`,
+it averages over `ynn` weighted by the distances of the `xnn` to `q`.
+
+```math
+\\begin{aligned}
+y\_{pred} = \\frac{\\sum(ω_i^2) y_{nn,i}}{\\sum{ω_i^2}}
+\\end{aligned}
+```
+
+"""
 struct LocalAverageModel <: AbstractLocalModel
     n::Int #n=0,1,2,3
 end
