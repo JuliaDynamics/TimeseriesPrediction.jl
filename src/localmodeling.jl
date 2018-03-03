@@ -46,7 +46,7 @@ end
 function (M::LocalAverageModel)(q,xnn,ynn,dists)
     @assert length(ynn)>0 "No Nearest Neighbors given"
     #Weight Function
-    ω(r) = (1-r^M.n)^M.n
+    @inline ω(r) = (1-r^M.n)^M.n
     dmax = maximum(dists)
     y_pred = zeros(size(ynn[1]))
     Ω = 0
@@ -254,19 +254,17 @@ end
 
 
 """mean squared error of iterated predictions of length p
-Needs as input a Tree and a suffiently long timeseries.
+Needs as input a Tree and a suffiently Reconstructed long timeseries.
 (length >> dim*τ)
 """
 function MSEp(tree::KDTree,
-    R::Reconstruction{D,T,τ},
-    s_test::Vector{T},
+    R::AbstractDataset{D,T},
+    R_test::AbstractDataset{D,T},
     p::Int,
     LocalModel::AbstractLocalModel,
     method::AbstractNeighborhood,
-    f::Function) where {D,T,τ}
+    f::Function) where {D,T}
 
-    @assert length(s_test)>(p+(D-1)*τ) "Given Timeseries is too short"
-    R_test  = Reconstruction(s_test, D, τ)
     y_test = map(q-> q[end], R_test[2:end])
 
     Tref = (length(R_test)-p-1)
