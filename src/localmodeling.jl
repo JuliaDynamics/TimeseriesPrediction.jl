@@ -5,7 +5,7 @@ export AbstractLocalModel
 export LocalAverageModel,LocalLinearModel,LocalPolynomialModel
 export TSP
 export MSE1,MSEp
-
+export estimate_param
 abstract type AbstractLocalModel end
 
 
@@ -276,3 +276,43 @@ function MSEp(tree::KDTree,
     return error
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
+
+
+"""
+    estimate_param(s::AbstractVector,dims,delay,K,N; valid_len=100, num_tries=50)
+
+Brute Force approach to finding good parameters for the model.
+Takes as arguments the timeseries `s` and all the parameters to try.
+Therefore `dims`,`delay`,`K`,`N` need to be Iterables of Integers,
+where `K` is the number of nearest neighbors and `N` is the degree
+of the weighting function. (See `LocalAverageModel`)
+
+Optional keyword arguments are the Validation length `valid_len`
+which is the number of predicted points in MSEp and the number `num_tries`
+of how many different starting points for the prediction should be used.
+
+Returns the optimal parameter set found
+and a dictionary of all parameters and their respective errors.
+"""
+function estimate_param(s::AbstractVector,
+    dims,delay,K,N; valid_len=100, num_tries=50)
+    Result = Dict{SVector{4,Int},Float64}()
+    f(i) = i+1
+    for n ∈ N
+        LocalModel = LocalAverageModel(n)
+        for D ∈ dims, τ ∈ delay
+            s_train = @view s[1:end-D*τ-valid_len-num_tries-50]
+            s_test = @view s[end-(D-1)*τ-valid_len-num_tries:end]
+            R = Reconstruction(s_train,D,τ)
+            R_test = Reconstruction(s_test,D,τ)
+            tree = KDTree(R[1:end-1])
+            for k ∈ K
+                method = FixedMassNeighborhood(k)
+                Result[@SVector([D,τ,k,n])] =
+                MSEp(tree,R,R_test,valid_len,LocalModel,method,f)
+            end
+        end
+    end
+    best_param = collect(keys(Result))[findmin(values(Result))[2]]
+    return best_param, Result
+end
