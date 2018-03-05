@@ -21,6 +21,11 @@ y\_{pred} = \\frac{\\sum(ω_i^2) y_{nn,i}}{\\sum{ω_i^2}}
 \\end{aligned}
 ```
 
+```math
+\\begin{aligned}
+ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^n\\right]^n
+\\end{aligned}
+```
 """
 struct LocalAverageModel <: AbstractLocalModel
     n::Int #n=0,1,2,3
