@@ -9,5 +9,6 @@ using Reexport
 @reexport using DynamicalSystemsBase
 
 include("localmodeling.jl")
+include("dimestimation.jl")
 
 end
