@@ -50,13 +50,11 @@ end
 
 function (M::LocalAverageModel)(q,xnn,ynn,dists)
     @assert length(ynn)>0 "No Nearest Neighbors given"
-    #Weight Function
-    @inline ω(r) = (1-r^M.n)^M.n
     dmax = maximum(dists)
     y_pred = zeros(typeof(ynn[1]))
     Ω = 0.
     for (y,d) in zip(ynn,dists)
-        Ω += ω2 = ω(d/dmax)^2
+        Ω += ω2 = (1-(d/dmax)^M.n)^2M.n
         y_pred += ω2*y
     end
     y_pred /= Ω
@@ -204,13 +202,12 @@ s_pred = TSP(tree,R,p,LocalModel,method,f)
 """
 function TSP(
     tree::KDTree,
-    R::Reconstruction{D,T,τ}, # is τ used anywhere? if not ::AbstractDataset{D, T}
+    R::AbstractDataset{D,T},
     q::SVector{D,T},
     num_points::Int,
     LocalModel::AbstractLocalModel,
     method::AbstractNeighborhood,
-    f) where {D,T,τ} # no reason to declare f::Function
-
+    f) where {D,T}
     s_pred = T[]; sizehint!(s_pred,num_points+1) #Prepare estimated Timeseries
     push!(s_pred, q[end]) #Push query
 
