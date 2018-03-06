@@ -50,13 +50,11 @@ end
 
 function (M::LocalAverageModel)(q,xnn,ynn,dists)
     @assert length(ynn)>0 "No Nearest Neighbors given"
-    #Weight Function
-    @inline ω(r) = (1-r^M.n)^M.n
     dmax = maximum(dists)
     y_pred = zeros(typeof(ynn[1]))
     Ω = 0.
     for (y,d) in zip(ynn,dists)
-        Ω += ω2 = ω(d/dmax)^2
+        Ω += ω2 = (1-(d/dmax)^M.n)^2M.n
         y_pred += ω2*y
     end
     y_pred /= Ω
