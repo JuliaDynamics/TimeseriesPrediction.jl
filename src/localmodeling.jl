@@ -204,13 +204,12 @@ s_pred = TSP(tree,R,p,LocalModel,method,f)
 """
 function TSP(
     tree::KDTree,
-    R::Reconstruction{D,T,τ}, # is τ used anywhere? if not ::AbstractDataset{D, T}
+    R::AbstractDataset{D,T},
     q::SVector{D,T},
     num_points::Int,
     LocalModel::AbstractLocalModel,
     method::AbstractNeighborhood,
-    f) where {D,T,τ} # no reason to declare f::Function
-
+    f) where {D,T}
     s_pred = T[]; sizehint!(s_pred,num_points+1) #Prepare estimated Timeseries
     push!(s_pred, q[end]) #Push query
 
