@@ -8,7 +8,7 @@ println("Testing TSP")
 ds = Systems.roessler()
 data = trajectory(ds, 210;dt=0.01)
 N_train = 20000
-s_train = data[1:N_train, 1];
+s_train = data[1:N_train, 1]
 s_test  = data[N_train:end,1]
 
 @testset "TSP" begin
