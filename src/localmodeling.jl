@@ -6,47 +6,48 @@ export LocalAverageModel,LocalLinearModel,LocalPolynomialModel
 export TSP
 export MSE1,MSEp
 export estimate_param
-abstract type AbstractLocalModel end
-
 
 """
-    LocalAverageModel  <: AbstractLocalModel
-A Model functor that computes an estimate `y_pred` for a query `q`.
-Given the nearest neighbors `xnn` and their images `ynn`,
-it averages over `ynn` weighted by the distances of the `xnn` to `q`.
+    AbstractLocalModel
+Supertype of methods for making a prediction `y` for the query `q` given it's nearest
+neighbors `xnn` and their respective images `ynn`. The distances between `q` and the `xnn`
+are given in `dists` to allow for a weighted model.
 
+Concrete subtypes:
+  * `LocalAverageModel(n::Int)`   : Compute a weighted average over the `ynn`.
+  * `LocalLinearModel(n::Int, f::F)` : Compute a weighted linear regression over
+    the given nearest neighbors. `f` is a regularization function to counter unstable
+    models.
+"""
+abstract type AbstractLocalModel end
+
+"""
+    LocalAverageModel <: AbstractLocalModel
+    localmodel = LocalAverageModel(n)
+    localmodel(q,xnn,ynn,dists)
+Return an estimate `y_pred` for a query `q`.
+Given the nearest neighbors `xnn` and their images `ynn`,
+average over `ynn` weighted by the distances of the `xnn` to `q`:
 ```math
 \\begin{aligned}
-y\_{pred} = \\frac{\\sum(ω_i^2) y_{nn,i}}{\\sum{ω_i^2}}
+y\_{pred} = \\frac{\\sum{ω_i^2 y_{nn,i}}}{\\sum{ω_i^2}}
 \\end{aligned}
 ```
+where `y_pred` and `ynn[i]` may be vectors themselves.
 
+The weighting parameter for each neighbor is
 ```math
 \\begin{aligned}
 ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^n\\right]^n
 \\end{aligned}
 ```
+with ``d_i = ||x_{nn,i} -q||_2`` and degree `n` a property of the `LocalAverageModel`
 """
 struct LocalAverageModel <: AbstractLocalModel
     n::Int #n=0,1,2,3
 end
 LocalAverageModel() = LocalAverageModel(1)
-struct LocalLinearModel{F} <: AbstractLocalModel
-    n::Int #n=0,1,2,3
-    f::F
-end
 
-LocalLinearModel() = LocalLinearModel(1, 2.0)
-svchooser_default(σ, μ) = σ^2/(μ^2 + σ^2)
-
-LocalLinearModel(n::Int, μ::Real) =
-LocalLinearModel(n, (σ) -> svchooser_default(σ, μ))
-
-
-struct LocalPolynomialModel <: AbstractLocalModel
-    n::Int #n=0,1,2,3 Exponent in weighting function
-    m::Int #m=1,2,3,4 degree of Polynome
-end
 
 function (M::LocalAverageModel)(q,xnn,ynn,dists)
     @assert length(ynn)>0 "No Nearest Neighbors given"
@@ -61,6 +62,16 @@ function (M::LocalAverageModel)(q,xnn,ynn,dists)
     return y_pred
 end
 
+struct LocalLinearModel{F} <: AbstractLocalModel
+    n::Int #n=0,1,2,3
+    f::F
+end
+
+LocalLinearModel() = LocalLinearModel(1, 2.0)
+svchooser_default(σ, μ) = σ^2/(μ^2 + σ^2)
+
+LocalLinearModel(n::Int, μ::Real) =
+LocalLinearModel(n, (σ) -> svchooser_default(σ, μ))
 
 function (M::LocalLinearModel)(
     q,
@@ -103,6 +114,13 @@ function (M::LocalLinearModel)(
 
     return y_pred
 end
+struct LocalPolynomialModel <: AbstractLocalModel
+    n::Int #n=0,1,2,3 Exponent in weighting function
+    m::Int #m=1,2,3,4 degree of Polynome
+end
+
+
+
 
 function (M::LocalPolynomialModel)(
     q,
