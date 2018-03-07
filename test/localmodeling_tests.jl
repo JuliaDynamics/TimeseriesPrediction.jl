@@ -6,8 +6,8 @@ using TimeseriesPrediction
 println("Testing TSP")
 
 ds = Systems.roessler()
-data = trajectory(ds, 210;dt=0.01)
-N_train = 20000
+data = trajectory(ds, 500;dt=0.01)
+N_train = 40000
 s_train = data[1:N_train, 1]
 s_test  = data[N_train:end,1]
 
@@ -39,6 +39,6 @@ println("Testing MSEp")
         method = FixedMassNeighborhood(2)
         f(i) = i+1
         @test MSEp(tree,R,R_test,p,LocalModel,method,f) < 5e-2
-        @test MSE1(tree,R,R_test,LocalModel,method,f) < 5e-2        
+        @test MSE1(tree,R,R_test,LocalModel,method,f) < 5e-2
     end
 end
