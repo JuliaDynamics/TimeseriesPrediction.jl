@@ -29,7 +29,7 @@ end
 
 println("Testing MSEp")
 
-@testset "MSEp" begin
+@testset "MSE" begin
     @testset "p=$p" for p ∈ [50,100]
         D = 3; τ = 150;
         R = Reconstruction(s_train,D,τ)
@@ -39,5 +39,6 @@ println("Testing MSEp")
         method = FixedMassNeighborhood(2)
         f(i) = i+1
         @test MSEp(tree,R,R_test,p,LocalModel,method,f) < 5e-2
+        @test MSE1(tree,R,R_test,LocalModel,method,f) < 5e-2        
     end
 end

@@ -23,9 +23,11 @@ abstract type AbstractLocalModel end
 
 """
     LocalAverageModel <: AbstractLocalModel
-    localmodel = LocalAverageModel(n)
-    localmodel(q,xnn,ynn,dists)
-Return an estimate `y_pred` for a query `q`.
+    localmodel = LocalAverageModel(n=2)
+    localmodel(q,xnn,ynn,dists) -> y_pred
+Return an estimate `y_pred` for a query point `q`.
+
+##Description
 Given the nearest neighbors `xnn` and their images `ynn`,
 average over `ynn` weighted by the distances of the `xnn` to `q`:
 ```math
@@ -41,12 +43,12 @@ The weighting parameter for each neighbor is
 ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^n\\right]^n
 \\end{aligned}
 ```
-with ``d_i = ||x_{nn,i} -q||_2`` and degree `n` a property of the `LocalAverageModel`
+with ``d_i = ||x_{nn,i} -q||_2`` and degree `n` a property of `LocalAverageModel`
 """
 struct LocalAverageModel <: AbstractLocalModel
     n::Int #n=0,1,2,3
 end
-LocalAverageModel() = LocalAverageModel(1)
+LocalAverageModel() = LocalAverageModel(2)
 
 
 function (M::LocalAverageModel)(q,xnn,ynn,dists)
@@ -62,12 +64,36 @@ function (M::LocalAverageModel)(q,xnn,ynn,dists)
     return y_pred
 end
 
+
+"""
+    LocalLinearModel{F} <: AbstractLocalModel
+    localmodel = LocalLinearModel(n=2 [,f::F])
+    localmodel(q,xnn,ynn,dists) -> y_pred
+Return an estimate `y_pred` for a query point `q`.
+
+## Description
+Given the nearest neighbors `xnn` and their images `ynn`,
+perform a weighted linear regression over `xnn` and `ynn`.
+The method employed is stated in [1].
+
+The weighting parameter for each neighbor is
+```math
+\\begin{aligned}
+ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^n\\right]^n
+\\end{aligned}
+```
+with ``d_i = ||x_{nn,i} -q||_2`` and degree `n` a property of `LocalAverageModel`
+
+## References
+[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
+(2006)
+"""
 struct LocalLinearModel{F} <: AbstractLocalModel
     n::Int #n=0,1,2,3
     f::F
 end
 
-LocalLinearModel() = LocalLinearModel(1, 2.0)
+LocalLinearModel() = LocalLinearModel(2, 2.0)
 svchooser_default(σ, μ) = σ^2/(μ^2 + σ^2)
 
 LocalLinearModel(n::Int, μ::Real) =
@@ -186,37 +212,43 @@ end
 
 
 """
-`TSP(tree,R,p,LocalModel,method,f)`
+    TSP(tree,R,q=R[end],p,LocalModel,method,f) -> s_pred
 
-This function is a simple tool for Time Series Prediction.
+A simple tool for Time Series Prediction.
 Makes steps as defined in given function `f` i.e. `f(idx)=idx+1`.
 
-Finds nearest neighbors of query point in the given `KDTree` with the supplied method
-(`FixedMassNeighborhood`, `FixedSizeNeighborhood`). The nearest neighbors xnn and the points
-they map to (ynn) are used to make a prediction.
+## Description
+Finds nearest neighbors of query point `q` in the given `KDTree` with the supplied method
+(`FixedMassNeighborhood`, `FixedSizeNeighborhood`).
+The nearest neighbors `xnn` and their images `ynn`, determined through `f`,
+are used to make a prediction.
 (With the provided `LocalModel <: AbstractLocalModel`)
 
-This method is applied iteratively until a prediction time series of length num_points has
-been created.
+This method is applied iteratively until a prediction time series of length `p` has
+been created. This method is described in [1].
 
-Call it with code that might look like this
-```
+## Examples
+```julia
 ds = DynamicalSystemsBase.Systems.roessler()
 data = trajectory(ds,200)
-Ntraining = 10000
-p = 1000 # Points to predict
-s = data[1:Ntraining,1] # Select first component as Timeseries
+p = 1000 # Number of points to predict
+s = data[:,1] # Select first component as Timeseries
 dim = 3 # Embedding dimension and delay
-τ = 50
+τ = 150
 R = Reconstruction(s,dim,τ)
-tree = KDTree(R.data[1:end-50]) # Leave off a few points at the end so that there
-                                # will always be a "next" point in the Reconstruction
+tree = KDTree(R.data[1:end-50])
+# Leave off a few points at the end so that there
+# will always be a "next" point in the Reconstruction
 f(i) = i+1 # This means step size = 1
-method = FixedMassNeighborhood(5) # Always find 5 nearest neighbors
+method = FixedMassNeighborhood(2) # Always find 2 nearest neighbors
 LocalModel = LocalAverageModel(2) #Use local averaging and a biquadratic weight function
 
 s_pred = TSP(tree,R,p,LocalModel,method,f)
 ```
+## References
+[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
+(2006)
+
 """
 function TSP(
     tree::KDTree,
@@ -246,18 +278,36 @@ TSP(tree,R,num_points,LocalModel,method,f) =
 #                                  Error Measures                                   #
 #####################################################################################
 
-"""mean squared error of one step each
-Needs as input a KDTree and a suffiently long timeseries.
-(length >> dim*τ)
+"""
+    MSE1(tree,R,R_test,LocalModel,method,f) -> error
+
+Compute mean squared error of single predictions using test set `R_test`.
+
+## Description
+This error measure, as described in [1], takes in a prediction model consisting of `tree`,
+`R`, `LocalModel`, `method` and `f` and evaluates its performance.
+The test set `R_test` is a delay reconstruction with the same delay `τ` and dimension `D` as
+`R`.
+For every point in `R_test` (except for the last) the image `y` is predicted.
+The model error is defined as
+```math
+\\begin{aligned}
+MSE_1 = \\frac{1}{|T_{ref}|}\\sum_{t\\in T_{ref}} \\left(y_{t} - y_{pred,t} \\right)^2
+\\end{aligned}
+```
+where ``|T_{ref}|`` is the total number of predictions made.
+
+## References
+[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
+(2006)
 """
 function MSE1(tree::KDTree,
-    R::Reconstruction{D,T,τ},
-    s_test::Vector{T},
+    R::AbstractDataset{D,T},
+    R_test::AbstractDataset{D,T},
     LocalModel::AbstractLocalModel,
     method::AbstractNeighborhood,
-    f::Function) where {D,T,τ}
+    f::Function) where {D,T}
 
-    R_test = Reconstruction(s_test,D,τ)
     y_test = map(q-> q[end], R_test[2:end])
     y_pred = T[]; sizehint!(y_pred, length(y_test))
     for q in R_test[1:end-1] # Remove last state,
@@ -273,11 +323,28 @@ end
 
 
 
-"""mean squared error of iterated predictions of length p
-Needs as input a Tree and a suffiently Reconstructed long timeseries.
-(length >> dim*τ)
 """
-function MSEp(tree::KDTree,
+    MSEp(tree,R,R_test,p,LocalModel,method,f) -> error
+
+Compute mean squared error of iterated predictions of length `p` using test set `R_test`.
+
+## Description
+This error measure, as described in [1], takes in a prediction model consisting of `tree`,
+`R`, `LocalModel`, `method` and `f` and evaluates its performance. The test set `R_test` is
+a delay reconstruction with the same delay `τ` and dimension `D` as `R`.
+For each subset of `R_test` with length `p` it calls `TSP` to predict the time series.
+The model error is then defined as
+```math
+\\begin{aligned}
+MSE_p = \\frac{1}{p|T_{ref}|}\\sum_{t\\in T_{ref}}\\sum_{i=1}^{p} \\left(y_{t+i} - y_{pred,t+i} \\right)^2
+\\end{aligned}
+```
+where ``|T_{ref}|`` is the number of subsets of `R_test` used.
+## References
+[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
+(2006)
+"""
+function MSEp(tree::KDTree,  #_
     R::AbstractDataset{D,T},
     R_test::AbstractDataset{D,T},
     p::Int,
@@ -299,20 +366,23 @@ end
 
 
 """
-    estimate_param(s::AbstractVector,dims,delay,K,N; valid_len=100, num_tries=50)
+    estimate_param(s::AbstractVector,dims,delay,K,N; kwargs...) -> (D,τ,k,n)
 
 Brute Force approach to finding good parameters for the model.
+
+## Description
 Takes as arguments the timeseries `s` and all the parameters to try.
 Therefore `dims`,`delay`,`K`,`N` need to be Iterables of Integers,
 where `K` is the number of nearest neighbors and `N` is the degree
-of the weighting function. (See `LocalAverageModel`)
+of the weighting function. (See [`LocalAverageModel`](@ref))
 
-Optional keyword arguments are the Validation length `valid_len`
-which is the number of predicted points in MSEp and the number `num_tries`
-of how many different starting points for the prediction should be used.
+Create Delay `Reconstruction`s and `KDTree`s for all parameter combinations.
+Evaluate Models by calling `MSEp` and return best parameter set found.
 
-Returns the optimal parameter set found
-and a dictionary of all parameters and their respective errors.
+## Keyword Arguments
+  * valid_len=100 : Validation length - Number of prediction points used for error
+    calculation.
+  * num_tries=50  : Number of different starting queries for error calculation.
 """
 function estimate_param(s::AbstractVector,
     dims,delay,K,N; valid_len=100, num_tries=50)
@@ -334,5 +404,5 @@ function estimate_param(s::AbstractVector,
         end
     end
     best_param = collect(keys(Result))[findmin(values(Result))[2]]
-    return best_param, Result
+    return best_param
 end
