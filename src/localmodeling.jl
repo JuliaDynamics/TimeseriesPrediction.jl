@@ -15,9 +15,12 @@ are given in `dists` to allow for a weighted model.
 
 Concrete subtypes:
   * `LocalAverageModel(n::Int)`   : Compute a weighted average over the `ynn`.
-  * `LocalLinearModel(n::Int, f::F)` : Compute a weighted linear regression over
-    the given nearest neighbors. `f` is a regularization function to counter unstable
-    models.
+  * `LocalLinearModel(n::Int, μ::Real)` or
+    `LocalLinearModel(n::Int, s_min::Real, s_max::Real)` :
+    Compute a weighted linear regression over
+    the given nearest neighbors.
+    Parameters `μ`,`s_min`,`s_max` decide which method of regularization is used.
+    (See [`LocalLinearModel`](@ref))
 """
 abstract type AbstractLocalModel end
 
@@ -235,20 +238,31 @@ end
 
 
 """
-    TSP(R, q=R[end], p, LocalModel, method, f) -> s_pred
+    TSP(R::AbstractDataset{D,T}, [q=R[end],] p::Int, LocalModel, method, f)
 
-A simple tool for timeseries Prediction.
-Makes steps as defined in given function `f` i.e. `f(idx)=idx+1`.
+A simple tool for timeseries prediction.
 
 ## Description
-Finds nearest neighbors of query point `q` in the given Reconstruction `R` with the supplied method
-(`FixedMassNeighborhood`, `FixedSizeNeighborhood`).
+Finds nearest neighbors of query point `q` in the given Reconstruction `R` with the
+supplied method (`FixedMassNeighborhood`, `FixedSizeNeighborhood`).
 The nearest neighbors `xnn` and their images `ynn`, determined through `f`,
 are used to make a prediction.
 (With the provided `LocalModel <: AbstractLocalModel`)
 
 This method is applied iteratively until a prediction timeseries of length `p` has
 been created. This method is described in [1].
+
+## Arguments
+  * `R::AbstractDataset{D, T}` : Reconstructed state space (See [`Reconstruction`](@ref))
+  * `q::SVector{D,T}` : Optional query point.
+    Defaults to the last reconstructed state `R[end]`
+  * `p::Int` : Number of points to predict
+  * `LocalModel` : Either [`LocalAverageModel`](@ref) or [`LocalLinearModel`](@ref)
+  * `method` : Either `FixedMassNeighborhood` (fixed number of neighbors),
+    `FixedSizeNeighborhood` (fixed size of neighborhood)
+  * `f` : Maps indices of `xnn` neighbors to their images `ynn`.
+    ``f(i) = i+1`` is usually a good choice
+
 
 ## Examples
 ```julia
@@ -266,7 +280,7 @@ f(i) = i+1 # This means step size = 1
 method = FixedMassNeighborhood(2) # Always find 2 nearest neighbors
 LocalModel = LocalAverageModel(2) #Use local averaging and a biquadratic weight function
 
-s_pred = TSP(tree,R,p,LocalModel,method,f)
+s_pred = TSP(R,p,LocalModel,method,f)
 ```
 ## References
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
@@ -307,7 +321,7 @@ TSP(R, q, num_points, LocalModel, method, f) =
 #####################################################################################
 
 """
-    MSE1(R, R_test, LocalModel, method, f) -> error
+    MSE1(R::AbstractDataset{D,T}, LocalModel, method, f) -> error
 
 Compute mean squared error of single predictions using test set `R_test`.
 
@@ -354,7 +368,7 @@ MSE1(KDTree(R[1:end-30]), R, R_test, LocalModel, method, f)
 
 
 """
-    MSEp(R, R_test, p, LocalModel, method, f) -> error
+    MSEp(R::AbstractDataset{D,T}, R_test, p, LocalModel, method, f) -> error
 
 Compute mean squared error of iterated predictions of length `p` using test set `R_test`.
 
