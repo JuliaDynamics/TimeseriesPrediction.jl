@@ -66,9 +66,9 @@ end
 
 
 """
-    LocalLinearModel{F} <: AbstractLocalModel
-    localmodel = LocalLinearModel(n=2 [,f::F])
-    localmodel(q,xnn,ynn,dists) -> y_pred
+    LocalLinearModel (n::Int, μ::Real)
+    LocalLinearModel (n::Int, s_min::Real, s_max::Real)
+
 Return an estimate `y_pred` for a query point `q`.
 
 ## Description
@@ -82,8 +82,24 @@ The weighting parameter for each neighbor is
 ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^n\\right]^n
 \\end{aligned}
 ```
-with ``d_i = ||x_{nn,i} -q||_2`` and degree `n` a property of `LocalAverageModel`
+with ``d_i = ||x_{nn,i} -q||_2`` and degree `n` a property of `LocalLinearModel`
 
+Giving either `μ` or `s_min` and `s_max` determines which type of regularization is applied.
+  * `μ` : Ridge Regression
+    ```math
+    \\begin{aligned}
+    f(σ) = \\frac{σ^2}{μ^2 + σ^2}
+    \\end{aligned}
+    ```
+  *  `s_min`, `s_max` : Soft Threshold
+    ```math
+    \\begin{aligned}
+    f(σ) = \\begin{cases} 0, &σ < s_{min}\\\\
+    \\left(1 - \\left( \\frac{s_{max}-σ}{s_{max}-s_{min}}\\right)^2 \\right)^2, &s_{min} \\leq
+    σ \\leq s_{max} \\\\
+    1, &σ > s_{max}\\end{cases}
+    \\end{aligned}
+    ```
 ## References
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
 (2006)
@@ -94,10 +110,18 @@ struct LocalLinearModel{F} <: AbstractLocalModel
 end
 
 LocalLinearModel() = LocalLinearModel(2, 2.0)
-svchooser_default(σ, μ) = σ^2/(μ^2 + σ^2)
-
+ridge_reg(σ, μ) = σ^2/(μ^2 + σ^2)
+function mcnames_reg(σ,smin,smax)
+    if σ < smin return 0
+    elseif σ > smin return 1
+    else return (1-((smax-σ)/(smax-smin))^2)^2
+    end
+end
 LocalLinearModel(n::Int, μ::Real) =
-LocalLinearModel(n, (σ) -> svchooser_default(σ, μ))
+LocalLinearModel(n, (σ) -> ridge_reg(σ, μ))
+
+LocalLinearModel(n::Int, s_min::Real, s_max::Real) =
+LocalLinearModel(n, (σ) -> mcnames_reg(σ, s_min, s_max))
 
 function (M::LocalLinearModel)(
     q,
