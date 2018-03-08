@@ -212,9 +212,9 @@ end
 
 
 """
-    TSP(tree,R,q=R[end],p,LocalModel,method,f) -> s_pred
+    TSP(tree, R, q=R[end], p, LocalModel, method, f) -> s_pred
 
-A simple tool for Time Series Prediction.
+A simple tool for timeseries Prediction.
 Makes steps as defined in given function `f` i.e. `f(idx)=idx+1`.
 
 ## Description
@@ -224,7 +224,7 @@ The nearest neighbors `xnn` and their images `ynn`, determined through `f`,
 are used to make a prediction.
 (With the provided `LocalModel <: AbstractLocalModel`)
 
-This method is applied iteratively until a prediction time series of length `p` has
+This method is applied iteratively until a prediction timeseries of length `p` has
 been created. This method is described in [1].
 
 ## Examples
@@ -232,7 +232,7 @@ been created. This method is described in [1].
 ds = DynamicalSystemsBase.Systems.roessler()
 data = trajectory(ds,200)
 p = 1000 # Number of points to predict
-s = data[:,1] # Select first component as Timeseries
+s = data[:,1] # Select first component as timeseries
 dim = 3 # Embedding dimension and delay
 τ = 150
 R = Reconstruction(s,dim,τ)
@@ -258,10 +258,10 @@ function TSP(
     LocalModel::AbstractLocalModel,
     method::AbstractNeighborhood,
     f) where {D,T}
-    s_pred = T[]; sizehint!(s_pred,num_points+1) #Prepare estimated Timeseries
+    s_pred = T[]; sizehint!(s_pred,num_points+1) #Prepare estimated timeseries
     push!(s_pred, q[end]) #Push query
 
-    for n=1:num_points   #Iteratively estimate Timeseries
+    for n=1:num_points   #Iteratively estimate timeseries
         idxs,dists = neighborhood(q,tree,method)
         xnn = R[idxs]
         ynn = R[f(idxs)]
@@ -279,7 +279,7 @@ TSP(tree,R,num_points,LocalModel,method,f) =
 #####################################################################################
 
 """
-    MSE1(tree,R,R_test,LocalModel,method,f) -> error
+    MSE1(tree, R, R_test, LocalModel, method, f) -> error
 
 Compute mean squared error of single predictions using test set `R_test`.
 
@@ -324,7 +324,7 @@ end
 
 
 """
-    MSEp(tree,R,R_test,p,LocalModel,method,f) -> error
+    MSEp(tree, R, R_test, p, LocalModel, method, f) -> error
 
 Compute mean squared error of iterated predictions of length `p` using test set `R_test`.
 
@@ -332,7 +332,7 @@ Compute mean squared error of iterated predictions of length `p` using test set 
 This error measure, as described in [1], takes in a prediction model consisting of `tree`,
 `R`, `LocalModel`, `method` and `f` and evaluates its performance. The test set `R_test` is
 a delay reconstruction with the same delay `τ` and dimension `D` as `R`.
-For each subset of `R_test` with length `p` it calls `TSP` to predict the time series.
+For each subset of `R_test` with length `p` it calls `TSP` to predict the timeseries.
 The model error is then defined as
 ```math
 \\begin{aligned}
@@ -366,7 +366,7 @@ end
 
 
 """
-    estimate_param(s::AbstractVector,dims,delay,K,N; kwargs...) -> (D,τ,k,n)
+    estimate_param(s::AbstractVector, dims, delay, K, N; kwargs...) -> (D, τ, k, n)
 
 Brute Force approach to finding good parameters for the model.
 
@@ -385,7 +385,7 @@ Evaluate Models by calling `MSEp` and return best parameter set found.
   * num_tries=50  : Number of different starting queries for error calculation.
 """
 function estimate_param(s::AbstractVector,
-    dims,delay,K,N; valid_len=100, num_tries=50)
+    dims, delay, K, N; valid_len=100, num_tries=50)
     Result = Dict{SVector{4,Int},Float64}()
     f(i) = i+1
     for n ∈ N
