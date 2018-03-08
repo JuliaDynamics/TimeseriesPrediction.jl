@@ -2,50 +2,69 @@ using NearestNeighbors, StaticArrays
 using DynamicalSystemsBase
 
 export AbstractLocalModel
-export LocalAverageModel,LocalLinearModel,LocalPolynomialModel
-export predict
+export LocalAverageModel,LocalLinearModel
+export predict_timeseries
 export MSE1,MSEp
-export estimate_param
 
 """
     AbstractLocalModel
-Supertype of methods for making a prediction `y` for the query `q` given it's nearest
-neighbors `xnn` and their respective images `ynn`. The distances between `q` and the `xnn`
-are given in `dists` to allow for a weighted model.
+Supertype of methods for making a prediction of a query point `q` using local models,
+following the methods of [1]. Concrete subtypes are `LocalAverageModel` and
+`LocalLinearModel`.
 
-Concrete subtypes:
-  * `LocalAverageModel(n::Int)`   : Compute a weighted average over the `ynn`.
-  * `LocalLinearModel(n::Int, μ::Real)` or
-    `LocalLinearModel(n::Int, s_min::Real, s_max::Real)` :
-    Compute a weighted linear regression over
-    the given nearest neighbors.
-    Parameters `μ`,`s_min`,`s_max` decide which method of regularization is used.
-    (See [`LocalLinearModel`](@ref))
-"""
-abstract type AbstractLocalModel end
-
-"""
-    LocalAverageModel(n::Int = 2)
-
-Return an estimate `y_pred` for a query point `q`.
-
-## Description
-Given the nearest neighbors `xnn` and their images `ynn`,
-average over `ynn` weighted by the distances of the `xnn` to `q`:
-```math
-\\begin{aligned}
-y\_{pred} = \\frac{\\sum{ω_i^2 y_{nn,i}}}{\\sum{ω_i^2}}
-\\end{aligned}
-```
-where `y_pred` and `ynn[i]` may be vectors themselves.
-
-The weighting parameter for each neighbor is
+All models weight neighbors with the following weight function
 ```math
 \\begin{aligned}
 ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^n\\right]^n
 \\end{aligned}
 ```
-with ``d_i = ||x_{nn,i} -q||_2`` and degree `n` a property of `LocalAverageModel`
+with ``d_i = ||x_{nn,i} -q||_2`` and degree `n`,
+to ensure smoothness of interpolation.
+
+### Local Average Model
+    LocalAverageModel(n::Int)
+
+The prediction is simply the weighted average of the images of
+the neighbors ``y_{nn, i}`` of the query point `q`:
+```math
+\\begin{aligned}
+y\_{pred} = \\frac{\\sum{ω_i^2 y_{nn,i}}}{\\sum{ω_i^2}}
+\\end{aligned}
+```
+
+### Local Linear Model
+    LocalLinearModel(n::Int, μ::Real)
+    LocalLinearModel(n::Int, s_min::Real, s_max::Real)
+
+The prediction is a weighted linear regression over the neighbors of
+the query ``x_{nn, i}`` and their images ``y_{nn,i}`` as shown in [1].
+
+Giving either `μ` or `s_min` and `s_max` determines which type of regularization is applied.
+  * `μ` : Ridge Regression
+    ```math
+    \\begin{aligned}
+    f(σ) = \\frac{σ^2}{μ^2 + σ^2}
+    \\end{aligned}
+    ```
+  *  `s_min`, `s_max` : Soft Threshold
+    ```math
+    \\begin{aligned}
+    f(σ) = \\begin{cases} 0, &σ < s_{min}\\\\
+    \\left(1 - \\left( \\frac{s_{max}-σ}{s_{max}-s_{min}}\\right)^2 \\right)^2, &s_{min} \\leq
+    σ \\leq s_{max} \\\\
+    1, &σ > s_{max}\\end{cases}
+    \\end{aligned}
+    ```
+
+## References
+[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
+(2006)
+"""
+abstract type AbstractLocalModel end
+
+"""
+    LocalAverageModel(n::Int = 2)
+See [`AbstractLocalModel`](@ref).
 """
 struct LocalAverageModel <: AbstractLocalModel
     n::Int #n=0,1,2,3
@@ -59,7 +78,8 @@ function (M::LocalAverageModel)(q,xnn,ynn,dists)
     y_pred = zeros(typeof(ynn[1]))
     Ω = 0.
     for (y,d) in zip(ynn,dists)
-        Ω += ω2 = (1-(d/dmax)^M.n)^2M.n
+        ω2 = (1-(d/dmax)^M.n)^2M.n
+        Ω += ω2
         y_pred += ω2*y
     end
     y_pred /= Ω
@@ -115,7 +135,7 @@ LocalLinearModel() = LocalLinearModel(2, 2.0)
 ridge_reg(σ, μ) = σ^2/(μ^2 + σ^2)
 function mcnames_reg(σ,smin,smax)
     if σ < smin return 0
-    elseif σ > smin return 1
+    elseif σ > smax return 1
     else return (1-((smax-σ)/(smax-smin))^2)^2
     end
 end
@@ -166,14 +186,13 @@ function (M::LocalLinearModel)(
 
     return y_pred
 end
+
+
+#=
 struct LocalPolynomialModel <: AbstractLocalModel
     n::Int #n=0,1,2,3 Exponent in weighting function
     m::Int #m=1,2,3,4 degree of Polynome
 end
-
-
-
-
 function (M::LocalPolynomialModel)(
     q,
     xnn::Vector{SVector{D,T}},
@@ -231,23 +250,32 @@ function (M::LocalPolynomialModel)(
 
     return y_pred
 end
+=#
+
+
+
 
 function neighborhood(q,tree::KDTree,method::FixedMassNeighborhood)
     idxs, dists = knn(tree, q,method.K, false)
 end
 
-
 """
-    predict(R::AbstractDataset{D,T}, [q=R[end],] p::Int, LocalModel, method, f)
+    predict_timeseries(
+        s::AbstractVector, D::Int, τ::T, p::Int;
+        method::AbstractLocalModel = LocalAverageModel(2)
+        neighborhood_method::AbstractNeighborhood = FixedMassNeighborhood(2),
+        step::Int = 1) where {T}
 
-A simple tool for timeseries prediction.
+A simple tool for timeseries prediction. This couldn't be less descriptive.
+
+First argument can be either `s, D, τ` or an `
 
 ## Description
 Finds nearest neighbors of query point `q` in the given Reconstruction `R` with the
 supplied method (`FixedMassNeighborhood`, `FixedSizeNeighborhood`).
 The nearest neighbors `xnn` and their images `ynn`, determined through `f`,
 are used to make a prediction.
-(With the provided `LocalModel <: AbstractLocalModel`)
+(With the provided `method <: AbstractLocalModel`)
 
 This method is applied iteratively until a prediction timeseries of length `p` has
 been created. This method is described in [1].
@@ -257,39 +285,18 @@ been created. This method is described in [1].
   * `q::SVector{D,T}` : Optional query point.
     Defaults to the last reconstructed state `R[end]`
   * `p::Int` : Number of points to predict
-  * `LocalModel` : Either [`LocalAverageModel`](@ref) or [`LocalLinearModel`](@ref)
-  * `method` : Either `FixedMassNeighborhood` (fixed number of neighbors),
-    `FixedSizeNeighborhood` (fixed size of neighborhood)
-  * `f` : Maps indices of `xnn` neighbors to their images `ynn`.
-    ``f(i) = i+1`` is usually a good choice
+  * `method` : Subtype of [`AbstractLocalModel`](@ref)
+  * `neighborhood_method` : Subtype of [`AbstractNeighborhood`](@ref)
+  * `p` : 1 = i+1`` is usually a good choice
 
-
-## Examples
-```julia
-ds = DynamicalSystemsBase.Systems.roessler()
-data = trajectory(ds,200)
-p = 1000 # Number of points to predict
-s = data[:,1] # Select first component as timeseries
-dim = 3 # Embedding dimension and delay
-τ = 150
-R = Reconstruction(s,dim,τ)
-tree = KDTree(R.data[1:end-50])
-# Leave off a few points at the end so that there
-# will always be a "next" point in the Reconstruction
-f(i) = i+1 # This means step size = 1
-method = FixedMassNeighborhood(2) # Always find 2 nearest neighbors
-LocalModel = LocalAverageModel(2) #Use local averaging and a biquadratic weight function
-
-s_pred = predict(R,p,LocalModel,method,f)
-```
 ## References
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
 (2006)
-
 """
-function predict(
-    tree::KDTree,
+function predict_timeseries(
+    # RESTRUCTURE
     R::AbstractDataset{D,T},
+    tree::KDTree,
     q::SVector{D,T},
     num_points::Int,
     LocalModel::AbstractLocalModel,
@@ -308,26 +315,42 @@ function predict(
     return s_pred
 end
 
-predict(tree::KDTree, R, num_points, LocalModel, method, f) =
-    predict(tree, R, R[end], num_points, LocalModel, method, f)
-predict(R, num_points, LocalModel, method, f) =
-    predict(KDTree(R[1:end-30]), R, R[end], num_points, LocalModel, method, f)
-predict(R, q, num_points, LocalModel, method, f) =
-    predict(KDTree(R[1:end-30]), R, q, num_points, LocalModel, method, f)
+
+### Plan for high level call sign.
+# timeseriespred
+# pred_timeseries
+# predict_ts
+# tspredict
+
+# Expand `predict_timeseries`
+function predict_timeseries(
+    s::AbstractVector, D::Int, τ::T, p::Int;
+    method::AbstractLocalModel = LocalAverageModel(2),
+    neighborhood_method::AbstractNeighborhood = FixedMassNeighborhood(2),
+    step::Int = 1) where {T}
+
+    R = Reconstruction(s, D, τ)
+    tree = KDTree(R)
+
+    return predict_timeseries(R, tree, p, method, neighborhood_method, step)
+end
+predict_timeseries(R::AbstractDataset, p::Int; kwargs...) =
+predict_timeseries(R, KDTree(R), p, R[end]; kwargs...)
 
 
 #####################################################################################
 #                                  Error Measures                                   #
 #####################################################################################
 
+# CHANGE f to integer
 """
-    MSE1(R::AbstractDataset{D,T}, LocalModel, method, f) -> error
+    MSE1(R::AbstractDataset{D,T}, LocalModel, method, step) -> error
 
 Compute mean squared error of single predictions using test set `R_test`.
 
 ## Description
-This error measure, as described in [1], takes in a prediction model consisting of `tree`,
-`R`, `LocalModel`, `method` and `f` and evaluates its performance.
+This error measure, as described in [1], takes in a prediction model consisting of
+`R`, `method`, `neighborhood_method` and `step` and evaluates its performance.
 The test set `R_test` is a delay reconstruction with the same delay `τ` and dimension `D` as
 `R`.
 For every point in `R_test` (except for the last) the image `y` is predicted.
@@ -367,6 +390,7 @@ MSE1(R, R_test, LocalModel, method, f) =
 MSE1(KDTree(R[1:end-30]), R, R_test, LocalModel, method, f)
 
 
+# SAME CHANGES HERE AS ABOVE
 """
     MSEp(R::AbstractDataset{D,T}, R_test, p, LocalModel, method, f) -> error
 
@@ -420,7 +444,7 @@ Brute Force approach to finding good parameters for the model.
 Takes as arguments the timeseries `s` and all the parameters to try.
 Therefore `dims`,`delay`,`K`,`N` need to be Iterables of Integers,
 where `K` is the number of nearest neighbors and `N` is the degree
-of the weighting function. (See [`LocalAverageModel`](@ref))
+of the weighting function. (See [`AbstractLocalModel`](@ref))
 
 Create Delay `Reconstruction`s and `KDTree`s for all parameter combinations.
 Evaluate Models by calling `MSEp` and return best parameter set found.
