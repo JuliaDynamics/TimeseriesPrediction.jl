@@ -3,7 +3,7 @@ using DynamicalSystemsBase
 
 export AbstractLocalModel
 export LocalAverageModel,LocalLinearModel,LocalPolynomialModel
-export TSP
+export predict
 export MSE1,MSEp
 export estimate_param
 
@@ -238,7 +238,7 @@ end
 
 
 """
-    TSP(R::AbstractDataset{D,T}, [q=R[end],] p::Int, LocalModel, method, f)
+    predict(R::AbstractDataset{D,T}, [q=R[end],] p::Int, LocalModel, method, f)
 
 A simple tool for timeseries prediction.
 
@@ -280,14 +280,14 @@ f(i) = i+1 # This means step size = 1
 method = FixedMassNeighborhood(2) # Always find 2 nearest neighbors
 LocalModel = LocalAverageModel(2) #Use local averaging and a biquadratic weight function
 
-s_pred = TSP(R,p,LocalModel,method,f)
+s_pred = predict(R,p,LocalModel,method,f)
 ```
 ## References
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
 (2006)
 
 """
-function TSP(
+function predict(
     tree::KDTree,
     R::AbstractDataset{D,T},
     q::SVector{D,T},
@@ -308,12 +308,12 @@ function TSP(
     return s_pred
 end
 
-TSP(tree::KDTree, R, num_points, LocalModel, method, f) =
-    TSP(tree, R, R[end], num_points, LocalModel, method, f)
-TSP(R, num_points, LocalModel, method, f) =
-    TSP(KDTree(R[1:end-30]), R, R[end], num_points, LocalModel, method, f)
-TSP(R, q, num_points, LocalModel, method, f) =
-    TSP(KDTree(R[1:end-30]), R, q, num_points, LocalModel, method, f)
+predict(tree::KDTree, R, num_points, LocalModel, method, f) =
+    predict(tree, R, R[end], num_points, LocalModel, method, f)
+predict(R, num_points, LocalModel, method, f) =
+    predict(KDTree(R[1:end-30]), R, R[end], num_points, LocalModel, method, f)
+predict(R, q, num_points, LocalModel, method, f) =
+    predict(KDTree(R[1:end-30]), R, q, num_points, LocalModel, method, f)
 
 
 #####################################################################################
@@ -376,7 +376,7 @@ Compute mean squared error of iterated predictions of length `p` using test set 
 This error measure, as described in [1], takes in a prediction model consisting of `tree`,
 `R`, `LocalModel`, `method` and `f` and evaluates its performance. The test set `R_test` is
 a delay reconstruction with the same delay `τ` and dimension `D` as `R`.
-For each subset of `R_test` with length `p` it calls `TSP` to predict the timeseries.
+For each subset of `R_test` with length `p` it calls `predict` to predict the timeseries.
 The model error is then defined as
 ```math
 \\begin{aligned}
@@ -401,7 +401,7 @@ function MSEp(tree::KDTree,  #_
     Tref = (length(R_test)-p-1)
     error = 0
     for t =1:Tref
-        y_pred = TSP(tree,R,R_test[t], p, LocalModel, method,f)
+        y_pred = predict(tree,R,R_test[t], p, LocalModel, method,f)
         error += norm(y_test[t:t+p]-y_pred)^2 /Tref/p
     end
     return error
