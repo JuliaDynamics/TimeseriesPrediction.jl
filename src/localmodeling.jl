@@ -296,6 +296,11 @@ end
 
 TSP(tree,R,num_points,LocalModel,method,f) =
     TSP(tree,R,R[end], num_points,LocalModel,method,f)
+TSP(R,num_points,LocalModel,method,f) =
+    TSP(KDTree(R[1:end-30]),R,R[end], num_points,LocalModel,method,f)
+TSP(R,q,num_points,LocalModel,method,f) =
+    TSP(KDTree(R[1:end-30]),R,q, num_points,LocalModel,method,f)
+
 
 #####################################################################################
 #                                  Error Measures                                   #
@@ -344,6 +349,8 @@ function MSE1(tree::KDTree,
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
 
+MSE1(R, R_test, LocalModel, method, f) =
+MSE1(KDTree(R[1:end-30]), R, R_test, LocalModel, method, f)
 
 
 """
@@ -386,6 +393,8 @@ function MSEp(tree::KDTree,  #_
     return error
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
+MSEp(R, R_test,p, LocalModel, method, f) =
+MSEp(KDTree(R[1:end-30]), R, R_test,p, LocalModel, method, f)
 
 
 """
