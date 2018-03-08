@@ -235,13 +235,13 @@ end
 
 
 """
-    TSP(tree, R, q=R[end], p, LocalModel, method, f) -> s_pred
+    TSP(R, q=R[end], p, LocalModel, method, f) -> s_pred
 
 A simple tool for timeseries Prediction.
 Makes steps as defined in given function `f` i.e. `f(idx)=idx+1`.
 
 ## Description
-Finds nearest neighbors of query point `q` in the given `KDTree` with the supplied method
+Finds nearest neighbors of query point `q` in the given Reconstruction `R` with the supplied method
 (`FixedMassNeighborhood`, `FixedSizeNeighborhood`).
 The nearest neighbors `xnn` and their images `ynn`, determined through `f`,
 are used to make a prediction.
@@ -294,12 +294,12 @@ function TSP(
     return s_pred
 end
 
-TSP(tree,R,num_points,LocalModel,method,f) =
-    TSP(tree,R,R[end], num_points,LocalModel,method,f)
-TSP(R,num_points,LocalModel,method,f) =
-    TSP(KDTree(R[1:end-30]),R,R[end], num_points,LocalModel,method,f)
-TSP(R,q,num_points,LocalModel,method,f) =
-    TSP(KDTree(R[1:end-30]),R,q, num_points,LocalModel,method,f)
+TSP(tree::KDTree, R, num_points, LocalModel, method, f) =
+    TSP(tree, R, R[end], num_points, LocalModel, method, f)
+TSP(R, num_points, LocalModel, method, f) =
+    TSP(KDTree(R[1:end-30]), R, R[end], num_points, LocalModel, method, f)
+TSP(R, q, num_points, LocalModel, method, f) =
+    TSP(KDTree(R[1:end-30]), R, q, num_points, LocalModel, method, f)
 
 
 #####################################################################################
@@ -307,7 +307,7 @@ TSP(R,q,num_points,LocalModel,method,f) =
 #####################################################################################
 
 """
-    MSE1(tree, R, R_test, LocalModel, method, f) -> error
+    MSE1(R, R_test, LocalModel, method, f) -> error
 
 Compute mean squared error of single predictions using test set `R_test`.
 
@@ -354,7 +354,7 @@ MSE1(KDTree(R[1:end-30]), R, R_test, LocalModel, method, f)
 
 
 """
-    MSEp(tree, R, R_test, p, LocalModel, method, f) -> error
+    MSEp(R, R_test, p, LocalModel, method, f) -> error
 
 Compute mean squared error of iterated predictions of length `p` using test set `R_test`.
 
