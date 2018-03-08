@@ -22,12 +22,11 @@ Concrete subtypes:
 abstract type AbstractLocalModel end
 
 """
-    LocalAverageModel <: AbstractLocalModel
-    localmodel = LocalAverageModel(n=2)
-    localmodel(q,xnn,ynn,dists) -> y_pred
+    LocalAverageModel(n::Int = 2)
+
 Return an estimate `y_pred` for a query point `q`.
 
-##Description
+## Description
 Given the nearest neighbors `xnn` and their images `ynn`,
 average over `ynn` weighted by the distances of the `xnn` to `q`:
 ```math
