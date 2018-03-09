@@ -299,15 +299,14 @@ predict_timeseries(R, KDTree(R), R[end], p; kwargs...)
 #                                  Error Measures                                   #
 #####################################################################################
 
-# CHANGE f to integer
 """
-    MSE1(R::AbstractDataset{D,T}, LocalModel, method, step) -> error
+    MSE1(R::AbstractDataset{D,T},R_test, method, ntype, step) -> error
 
 Compute mean squared error of single predictions using test set `R_test`.
 
 ## Description
 This error measure, as described in [1], takes in a prediction model consisting of
-`R`, `method`, `neighborhood_method` and `step` and evaluates its performance.
+`R`, `method`, `ntype` and `step` and evaluates its performance.
 The test set `R_test` is a delay reconstruction with the same delay `τ` and dimension `D` as
 `R`.
 For every point in `R_test` (except for the last) the image `y` is predicted.
@@ -323,41 +322,41 @@ where ``|T_{ref}|`` is the total number of predictions made.
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
 (2006)
 """
-function MSE1(tree::KDTree,
+function MSE1(
     R::AbstractDataset{D,T},
+    tree::KDTree,
     R_test::AbstractDataset{D,T},
-    LocalModel::AbstractLocalModel,
-    method::AbstractNeighborhood,
-    f::Function) where {D,T}
+    method::AbstractLocalModel,
+    ntype::AbstractNeighborhood,
+    step::Int) where {D,T}
 
     y_test = map(q-> q[end], R_test[2:end])
     y_pred = T[]; sizehint!(y_pred, length(y_test))
     for q in R_test[1:end-1] # Remove last state,
                             #because there is nothing to compare the preciction to
-        idxs,dists = neighborhood(q,tree,method)
+        idxs,dists = neighborhood(q,tree,ntype)
         xnn = R[idxs]
-        ynn = R[f(idxs)]
-        push!(y_pred,LocalModel(q,xnn,ynn, dists)[end])
+        ynn = R[idxs+step]
+        push!(y_pred,method(q,xnn,ynn, dists)[end])
     end
     return norm(y_test-y_pred)^2/length(y_test)
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
 
-MSE1(R, R_test, LocalModel, method, f) =
-MSE1(KDTree(R[1:end-30]), R, R_test, LocalModel, method, f)
+MSE1(R, R_test, method, ntype, step) =
+MSE1(R, KDTree(R), R_test, method, ntype, step)
 
 
-# SAME CHANGES HERE AS ABOVE
 """
-    MSEp(R::AbstractDataset{D,T}, R_test, p, LocalModel, method, f) -> error
+    MSEp(R::AbstractDataset{D,T}, R_test, p, method, ntype, step) -> error
 
 Compute mean squared error of iterated predictions of length `p` using test set `R_test`.
 
 ## Description
-This error measure, as described in [1], takes in a prediction model consisting of `tree`,
-`R`, `LocalModel`, `method` and `f` and evaluates its performance. The test set `R_test` is
+This error measure, as described in [1], takes in a prediction model consisting of `R`,
+ `method`, `ntype` and `step` and evaluates its performance. The test set `R_test` is
 a delay reconstruction with the same delay `τ` and dimension `D` as `R`.
-For each subset of `R_test` with length `p` it calls `predict` to predict the timeseries.
+For each subset of `R_test` with length `p` it calls `predict_timeseries`.
 The model error is then defined as
 ```math
 \\begin{aligned}
