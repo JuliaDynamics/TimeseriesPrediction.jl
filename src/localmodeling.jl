@@ -285,7 +285,7 @@ function localmodel_tsp(R::AbstractDataset{D,T},
                         step::Int = 1) where {D,T}
 
 
-    s_pred = zeros(D, p)
+    s_pred = Vector{SVector{D, T}}(p)
     # s_pred = T[]; sizehint!(s_pred,p+1) #Prepare estimated timeseries
     # push!(s_pred, q[end]) #Push query
 
@@ -294,9 +294,9 @@ function localmodel_tsp(R::AbstractDataset{D,T},
         xnn = R[idxs]
         ynn = R[idxs+step]
         q = method(q, xnn, ynn, dists)
-        s_pred[:, n] .= q
+        s_pred[n] = q
     end
-    return reinterpret(Dataset, s_pred)
+    return Dataset(s_pred)
 end
 
 function localmodel_tsp(
