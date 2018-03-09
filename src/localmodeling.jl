@@ -221,87 +221,78 @@ end
 
 
 
-function neighborhood(q,tree::KDTree,method::FixedMassNeighborhood)
-    idxs, dists = knn(tree, q,method.K, false)
+function neighborhood(q,tree::KDTree,ntype::FixedMassNeighborhood)
+    idxs, dists = knn(tree, q,ntype.K, false)
 end
 
 """
     predict_timeseries(
         s::AbstractVector, D::Int, τ::T, p::Int;
         method::AbstractLocalModel = LocalAverageModel(2)
-        neighborhood_method::AbstractNeighborhood = FixedMassNeighborhood(2),
+        ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
         step::Int = 1) where {T}
 
-A simple tool for timeseries prediction. This couldn't be less descriptive.
-
-First argument can be either `s, D, τ` or an `
+Timeseries prediction using local weighted modeling.
+First argument can be either `s, D, τ` or a reconstructed state space `R`.
+(See [`Reconstruction`](@ref)).
 
 ## Description
-Finds nearest neighbors of query point `q` in the given Reconstruction `R` with the
-supplied method (`FixedMassNeighborhood`, `FixedSizeNeighborhood`).
-The nearest neighbors `xnn` and their images `ynn`, determined through `f`,
-are used to make a prediction.
-(With the provided `method <: AbstractLocalModel`)
+Finds nearest neighbors of query point `q` in the reconstruction `R` with the
+supplied `ntype` (`FixedMassNeighborhood`, `FixedSizeNeighborhood`).
+The nearest neighbors `xnn` and their images `ynn` are used to make a prediction,
+with the provided `method <: AbstractLocalModel`.
+The images `ynn` are the futures of `xnn` shifted by `step` into the future.
 
 This method is applied iteratively until a prediction timeseries of length `p` has
 been created. This method is described in [1].
 
 ## Arguments
-  * `R::AbstractDataset{D, T}` : Reconstructed state space (See [`Reconstruction`](@ref))
-  * `q::SVector{D,T}` : Optional query point.
-    Defaults to the last reconstructed state `R[end]`
+  * `s:AbstractVector` : Input time series
+  * `D::Int` : Delay embedding dimension
+  * `τ::T` : Delay time, either `Int` or `Vector{Int}`. See [`Reconstruction`](@ref)
   * `p::Int` : Number of points to predict
   * `method` : Subtype of [`AbstractLocalModel`](@ref)
-  * `neighborhood_method` : Subtype of [`AbstractNeighborhood`](@ref)
-  * `p` : 1 = i+1`` is usually a good choice
+  * `ntype` : Subtype of [`AbstractNeighborhood`](@ref)
+  * `step` : Prediction step size. `step=1` is usually a good choice.
 
 ## References
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
 (2006)
 """
 function predict_timeseries(
-    # RESTRUCTURE
     R::AbstractDataset{D,T},
     tree::KDTree,
     q::SVector{D,T},
-    num_points::Int,
-    LocalModel::AbstractLocalModel,
-    method::AbstractNeighborhood,
-    f) where {D,T}
+    p::Int,
+    method::AbstractLocalModel,
+    ntype::AbstractNeighborhood,
+    step::Int) where {D,T}
     s_pred = T[]; sizehint!(s_pred,num_points+1) #Prepare estimated timeseries
     push!(s_pred, q[end]) #Push query
 
-    for n=1:num_points   #Iteratively estimate timeseries
+    for n=1:p   #Iteratively estimate timeseries
         idxs,dists = neighborhood(q,tree,method)
         xnn = R[idxs]
-        ynn = R[f(idxs)]
-        q = LocalModel(q,xnn,ynn, dists)
+        ynn = R[idxs+step]
+        q = method(q, xnn, ynn, dists)
         push!(s_pred, q[end])
     end
     return s_pred
 end
 
-
-### Plan for high level call sign.
-# timeseriespred
-# pred_timeseries
-# predict_ts
-# tspredict
-
-# Expand `predict_timeseries`
 function predict_timeseries(
     s::AbstractVector, D::Int, τ::T, p::Int;
     method::AbstractLocalModel = LocalAverageModel(2),
-    neighborhood_method::AbstractNeighborhood = FixedMassNeighborhood(2),
+    ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
     step::Int = 1) where {T}
 
     R = Reconstruction(s, D, τ)
     tree = KDTree(R)
 
-    return predict_timeseries(R, tree, p, method, neighborhood_method, step)
+    return predict_timeseries(R, tree, R[end], p; method, ntype, step)
 end
 predict_timeseries(R::AbstractDataset, p::Int; kwargs...) =
-predict_timeseries(R, KDTree(R), p, R[end]; kwargs...)
+predict_timeseries(R, KDTree(R), R[end], p; kwargs...)
 
 
 #####################################################################################
