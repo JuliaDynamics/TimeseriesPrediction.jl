@@ -263,15 +263,15 @@ function predict_timeseries(
     R::AbstractDataset{D,T},
     tree::KDTree,
     q::SVector{D,T},
-    p::Int,
-    method::AbstractLocalModel,
-    ntype::AbstractNeighborhood,
-    step::Int) where {D,T}
-    s_pred = T[]; sizehint!(s_pred,num_points+1) #Prepare estimated timeseries
+    p::Int;
+    method::AbstractLocalModel = LocalAverageModel(2),
+    ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
+    step::Int = 1) where {D,T}
+    s_pred = T[]; sizehint!(s_pred,p+1) #Prepare estimated timeseries
     push!(s_pred, q[end]) #Push query
 
     for n=1:p   #Iteratively estimate timeseries
-        idxs,dists = neighborhood(q,tree,method)
+        idxs,dists = neighborhood(q,tree,ntype)
         xnn = R[idxs]
         ynn = R[idxs+step]
         q = method(q, xnn, ynn, dists)
@@ -287,12 +287,16 @@ function predict_timeseries(
     step::Int = 1) where {T}
 
     R = Reconstruction(s, D, τ)
-    tree = KDTree(R)
+    tree = KDTree(R[1:end-step])
+    #Still take away step elements so that y = R[i+step] is always defined
 
-    return predict_timeseries(R, tree, R[end], p; method, ntype, step)
+    return predict_timeseries(R, tree, R[end], p, method, ntype, step)
 end
-predict_timeseries(R::AbstractDataset, p::Int; kwargs...) =
-predict_timeseries(R, KDTree(R), R[end], p; kwargs...)
+predict_timeseries(R::AbstractDataset, p::Int;
+    method::AbstractLocalModel = LocalAverageModel(2),
+    ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
+    step::Int = 1) =
+predict_timeseries(R, KDTree(R[1:end-step]), R[end], p, method, ntype, step)
 
 
 #####################################################################################
@@ -325,10 +329,10 @@ where ``|T_{ref}|`` is the total number of predictions made.
 function MSE1(
     R::AbstractDataset{D,T},
     tree::KDTree,
-    R_test::AbstractDataset{D,T},
-    method::AbstractLocalModel,
-    ntype::AbstractNeighborhood,
-    step::Int) where {D,T}
+    R_test::AbstractDataset{D,T};
+    method::AbstractLocalModel = LocalAverageModel(2),
+    ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
+    step::Int = 1) where {D,T}
 
     y_test = map(q-> q[end], R_test[2:end])
     y_pred = T[]; sizehint!(y_pred, length(y_test))
@@ -343,8 +347,8 @@ function MSE1(
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
 
-MSE1(R, R_test, method, ntype, step) =
-MSE1(R, KDTree(R), R_test, method, ntype, step)
+MSE1(R, R_test; kwargs...) =
+MSE1(R, KDTree(R), R_test; kwargs...)
 
 
 """
@@ -372,24 +376,22 @@ function MSEp(
     R::AbstractDataset{D,T},
     tree::KDTree,
     R_test::AbstractDataset{D,T},
-    p::Int,
-    method::AbstractLocalModel,
-    ntype::AbstractNeighborhood,
-    step:Int) where {D,T}
+    p::Int;
+    kwargs...) where {D,T}
 
     y_test = map(q-> q[end], R_test[2:end])
 
     Tref = (length(R_test)-p-1)
     error = 0
     for t =1:Tref
-        y_pred = predict(tree,R,R_test[t], p, method, ntype, step)
+        y_pred = predict_timeseries(R,tree,R_test[t], p; kwargs...)
         error += norm(y_test[t:t+p]-y_pred)^2 /Tref/p
     end
     return error
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
-MSEp(R, R_test, p, method, ntype, step) =
-MSEp(R, KDTree(R), R_test, p, method, ntype, step)
+MSEp(R, R_test, p; kwargs...) =
+MSEp(R, KDTree(R[1:end-1]), R_test, p; kwargs...)
 
 
 """
