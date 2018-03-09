@@ -347,8 +347,10 @@ function MSE1(
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
 
-MSE1(R, R_test; kwargs...) =
-MSE1(R, KDTree(R), R_test; kwargs...)
+MSE1(R, R_test; method::AbstractLocalModel = LocalAverageModel(2),
+ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
+step::Int = 1) =
+MSE1(R, KDTree(R[1:end-step]), R_test;  method=method, ntype=ntype, step=step)
 
 
 """
@@ -390,8 +392,10 @@ function MSEp(
     return error
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
-MSEp(R, R_test, p; kwargs...) =
-MSEp(R, KDTree(R[1:end-1]), R_test, p; kwargs...)
+MSEp(R, R_test, p; method::AbstractLocalModel = LocalAverageModel(2),
+ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
+step::Int = 1) =
+MSEp(R, KDTree(R[1:end-step]), R_test, p; method=method, ntype=ntype, step=step)
 
 
 """
