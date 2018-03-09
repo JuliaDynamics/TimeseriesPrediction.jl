@@ -32,9 +32,9 @@ end
 
 @testset "FixedSizeNeighborhood" begin
     @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
-        p = 50
+        p = 25
         method = LocalAverageModel(2)
-        ntype = FixedSizeNeighborhood(0.5)
+        ntype = FixedSizeNeighborhood(0.25)
         step = 1
         s_pred = predict_timeseries(s_train, D, τ, p;
          method=method, ntype=ntype, step=step)
