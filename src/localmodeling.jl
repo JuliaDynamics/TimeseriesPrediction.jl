@@ -90,41 +90,7 @@ end
 """
     LocalLinearModel (n::Int, μ::Real)
     LocalLinearModel (n::Int, s_min::Real, s_max::Real)
-
-Return an estimate `y_pred` for a query point `q`.
-
-## Description
-Given the nearest neighbors `xnn` and their images `ynn`,
-perform a weighted linear regression over `xnn` and `ynn`.
-The method employed is stated in [1].
-
-The weighting parameter for each neighbor is
-```math
-\\begin{aligned}
-ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^n\\right]^n
-\\end{aligned}
-```
-with ``d_i = ||x_{nn,i} -q||_2`` and degree `n` a property of `LocalLinearModel`
-
-Giving either `μ` or `s_min` and `s_max` determines which type of regularization is applied.
-  * `μ` : Ridge Regression
-    ```math
-    \\begin{aligned}
-    f(σ) = \\frac{σ^2}{μ^2 + σ^2}
-    \\end{aligned}
-    ```
-  *  `s_min`, `s_max` : Soft Threshold
-    ```math
-    \\begin{aligned}
-    f(σ) = \\begin{cases} 0, &σ < s_{min}\\\\
-    \\left(1 - \\left( \\frac{s_{max}-σ}{s_{max}-s_{min}}\\right)^2 \\right)^2, &s_{min} \\leq
-    σ \\leq s_{max} \\\\
-    1, &σ > s_{max}\\end{cases}
-    \\end{aligned}
-    ```
-## References
-[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
-(2006)
+See [`AbstractLocalModel`](@ref).
 """
 struct LocalLinearModel{F} <: AbstractLocalModel
     n::Int #n=0,1,2,3
@@ -132,6 +98,7 @@ struct LocalLinearModel{F} <: AbstractLocalModel
 end
 
 LocalLinearModel() = LocalLinearModel(2, 2.0)
+#Regularization functions
 ridge_reg(σ, μ) = σ^2/(μ^2 + σ^2)
 function mcnames_reg(σ,smin,smax)
     if σ < smin return 0
@@ -139,6 +106,7 @@ function mcnames_reg(σ,smin,smax)
     else return (1-((smax-σ)/(smax-smin))^2)^2
     end
 end
+
 LocalLinearModel(n::Int, μ::Real) =
 LocalLinearModel(n, (σ) -> ridge_reg(σ, μ))
 
@@ -148,12 +116,12 @@ LocalLinearModel(n, (σ) -> mcnames_reg(σ, s_min, s_max))
 function (M::LocalLinearModel)(
     q,
     xnn::Vector{SVector{D,T}},
-    ynn,
+    ynn::Vector{SVector{D,T}},
     dists) where {D,T}
 
     @assert length(ynn)>0 "No Nearest Neighbors given"
     y_pred = zeros(size(ynn[1]))
-    k= length(xnn) #Can this be inferred? Nope, and probably not worth it.
+    k= length(xnn)
     #Weight Function
     ω(r) = (1-r^M.n)^M.n
     dmax = maximum(dists)
@@ -163,7 +131,6 @@ function (M::LocalLinearModel)(
     y_mean = mean(ynn)
     #Create X
     X = zeros(k,D)
-    #X[:,1] = 1
     for i=1:k
         X[i,1:end] = xnn[i] - x_mean
     end
@@ -174,7 +141,6 @@ function (M::LocalLinearModel)(
     #D+1 Singular Values
     Sp = diagm([σ>0 ? M.f(σ)/σ : 0 for σ in S])
     Xw_inv = V*Sp*U'
-
     #The following code is meant for 1D ynn values
     #Repeat for all components
     for i=1:length(ynn[1])
