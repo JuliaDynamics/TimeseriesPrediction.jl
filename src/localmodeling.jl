@@ -219,10 +219,27 @@ end
 =#
 
 
+function neighborhood(point::AbstractVector,R, tree,
+                      ntype::FixedMassNeighborhood, n::Int, w::Int = 1)
+    idxs,dists = knn(tree, point, ntype.K, false, i -> abs(i-n) < w)
+    return idxs,dists
+end
+function neighborhood(point::AbstractVector,R, tree, ntype::FixedMassNeighborhood)
+    idxs,dists = knn(tree, point, ntype.K, false)
+    return idxs,dists
+end
 
-
-function neighborhood(q,tree::KDTree,ntype::FixedMassNeighborhood)
-    idxs, dists = knn(tree, q,ntype.K, false)
+function neighborhood(point::AbstractVector,R, tree,
+                      ntype::FixedSizeNeighborhood, n::Int, w::Int = 1)
+    idxs = inrange(tree, point, ntype.ε)
+    filter!((el) -> abs(el - n) ≥ w, idxs)
+    dists = [norm(x-point) for x in R[idxs]]   #Note: this is not an SVector!
+    return idxs,dists
+end
+function neighborhood(point::AbstractVector,R, tree, ntype::FixedSizeNeighborhood)
+    idxs = inrange(tree, point, ntype.ε)
+    dists = [norm(x-point) for x in R[idxs]]   #Note: this is not an SVector!
+    return idxs,dists
 end
 
 """
@@ -271,7 +288,7 @@ function predict_timeseries(
     push!(s_pred, q[end]) #Push query
 
     for n=1:p   #Iteratively estimate timeseries
-        idxs,dists = neighborhood(q,tree,ntype)
+        idxs,dists = neighborhood(q,R, tree,ntype)
         xnn = R[idxs]
         ynn = R[idxs+step]
         q = method(q, xnn, ynn, dists)
@@ -290,13 +307,13 @@ function predict_timeseries(
     tree = KDTree(R[1:end-step])
     #Still take away step elements so that y = R[i+step] is always defined
 
-    return predict_timeseries(R, tree, R[end], p, method, ntype, step)
+    return predict_timeseries(R, tree, R[end], p; method=method, ntype=ntype, step=step)
 end
 predict_timeseries(R::AbstractDataset, p::Int;
     method::AbstractLocalModel = LocalAverageModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
     step::Int = 1) =
-predict_timeseries(R, KDTree(R[1:end-step]), R[end], p, method, ntype, step)
+predict_timeseries(R, KDTree(R[1:end-step]), R[end], p, method=method, ntype=ntype, step=step)
 
 
 #####################################################################################
@@ -338,7 +355,7 @@ function MSE1(
     y_pred = T[]; sizehint!(y_pred, length(y_test))
     for q in R_test[1:end-1] # Remove last state,
                             #because there is nothing to compare the preciction to
-        idxs,dists = neighborhood(q,tree,ntype)
+        idxs,dists = neighborhood(q, R, tree,ntype)
         xnn = R[idxs]
         ynn = R[idxs+step]
         push!(y_pred,method(q,xnn,ynn, dists)[end])
