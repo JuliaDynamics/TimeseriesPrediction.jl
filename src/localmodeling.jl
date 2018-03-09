@@ -267,7 +267,7 @@ If instead an `AbstractDataset` is given, a new `Dataset` is returned.
 Given a query point, the function finds its neighbors using neighborhood `ntype`.
 Then, the neighbors `xnn` and their images `ynn` are used to make a prediction for
 the future of the query point, using the provided `method`.
-The images `ynn` are the futures of `xnn` shifted by `step` into the future.
+The images `ynn` are the futures of `xnn` shifted by `stepsize` into the future.
 
 The algorithm is applied iteratively until a prediction of length `p` has
 been created, starting with the query point to be the last point of the timeseries.
@@ -282,7 +282,7 @@ function localmodel_tsp(R::AbstractDataset{D,T},
                         p::Int;
                         method::AbstractLocalModel = AverageLocalModel(2),
                         ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
-                        step::Int = 1) where {D,T}
+                        stepsize::Int = 1) where {D,T}
 
 
     s_pred = Vector{SVector{D, T}}(p)
@@ -292,7 +292,7 @@ function localmodel_tsp(R::AbstractDataset{D,T},
     for n=1:p   #Iteratively estimate timeseries
         idxs,dists = neighborhood_and_distances(q,R, tree,ntype)
         xnn = R[idxs]
-        ynn = R[idxs+step]
+        ynn = R[idxs+stepsize]
         q = method(q, xnn, ynn, dists)
         s_pred[n] = q
     end
@@ -303,21 +303,21 @@ function localmodel_tsp(
     s::AbstractVector, D::Int, τ::T, p::Int;
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-    step::Int = 1) where {T}
+    stepsize::Int = 1) where {T}
 
     R = Reconstruction(s, D, τ)
-    tree = KDTree(R[1:end-step])
-    #Still take away step elements so that y = R[i+step] is always defined
+    tree = KDTree(R[1:end-stepsize])
+    #Still take away stepsize elements so that y = R[i+stepsize] is always defined
 
     return localmodel_tsp(R, tree, R[end], p;
-    method=method, ntype=ntype, step=step)[:, D]
+    method=method, ntype=ntype, stepsize=stepsize)[:, D]
 end
 localmodel_tsp(R::AbstractDataset, p::Int;
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-    step::Int = 1) =
-localmodel_tsp(R, KDTree(R[1:end-step]), R[end], p;
- method=method, ntype=ntype, step=step)
+    stepsize::Int = 1) =
+localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
+ method=method, ntype=ntype, stepsize=stepsize)
 
 
 #####################################################################################
@@ -325,13 +325,13 @@ localmodel_tsp(R, KDTree(R[1:end-step]), R[end], p;
 #####################################################################################
 
 """
-    MSE1(R::AbstractDataset{D,T},R_test, method, ntype, step) -> error
+    MSE1(R::AbstractDataset{D,T},R_test, method, ntype, stepsize) -> error
 
 Compute mean squared error of single predictions using test set `R_test`.
 
 ## Description
 This error measure, as described in [1], takes in a prediction model consisting of
-`R`, `method`, `ntype` and `step` and evaluates its performance.
+`R`, `method`, `ntype` and `stepsize` and evaluates its performance.
 The test set `R_test` is a delay reconstruction with the same delay `τ` and
 dimension `D` as `R`.
 For every point in `R_test` (except for the last) the image `y` is predicted.
@@ -353,7 +353,7 @@ function MSE1(
     R_test::AbstractDataset{D,T};
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
-    step::Int = 1) where {D,T}
+    stepsize::Int = 1) where {D,T}
 
     y_test = map(q-> q[end], R_test[2:end])
     y_pred = T[]; sizehint!(y_pred, length(y_test))
@@ -361,7 +361,7 @@ function MSE1(
                             #because there is nothing to compare the preciction to
         idxs,dists = neighborhood_and_distances(q, R, tree,ntype)
         xnn = R[idxs]
-        ynn = R[idxs+step]
+        ynn = R[idxs+stepsize]
         push!(y_pred,method(q,xnn,ynn, dists)[end])
     end
     return norm(y_test-y_pred)^2/length(y_test)
@@ -370,18 +370,18 @@ end
 
 MSE1(R, R_test; method::AbstractLocalModel = AverageLocalModel(2),
 ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-step::Int = 1) =
-MSE1(R, KDTree(R[1:end-step]), R_test;  method=method, ntype=ntype, step=step)
+stepsize::Int = 1) =
+MSE1(R, KDTree(R[1:end-stepsize]), R_test;  method=method, ntype=ntype, stepsize=stepsize)
 
 
 """
-    MSEp(R::AbstractDataset{D,T}, R_test, p, method, ntype, step) -> error
+    MSEp(R::AbstractDataset{D,T}, R_test, p, method, ntype, stepsize) -> error
 
 Compute mean squared error of iterated predictions of length `p` using test set `R_test`.
 
 ## Description
 This error measure, as described in [1], takes in a prediction model consisting of `R`,
- `method`, `ntype` and `step` and evaluates its performance. The test set `R_test` is
+ `method`, `ntype` and `stepsize` and evaluates its performance. The test set `R_test` is
 a delay reconstruction with the same delay `τ` and dimension `D` as `R`.
 For each subset of `R_test` with length `p` it calls `localmodel_tsp`.
 The model error is then defined as
@@ -415,5 +415,5 @@ end
 #FIXME: I shouldn't have to square the norm... What is the solution?
 MSEp(R, R_test, p; method::AbstractLocalModel = AverageLocalModel(2),
 ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-step::Int = 1) =
-MSEp(R, KDTree(R[1:end-step]), R_test, p; method=method, ntype=ntype, step=step)
+stepsize::Int = 1) =
+MSEp(R, KDTree(R[1:end-stepsize]), R_test, p; method=method, ntype=ntype, stepsize=stepsize)
