@@ -27,9 +27,22 @@ s_test  = data[N_train:end,1]
         s_pred = predict_timeseries(R, p; method=method, ntype=ntype, step=step)
         @test length(s_pred) == p+1
         @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
-
     end
 end
+
+@testset "FixedSizeNeighborhood" begin
+    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
+        p = 50
+        method = LocalAverageModel(2)
+        ntype = FixedSizeNeighborhood(0.5)
+        step = 1
+        s_pred = predict_timeseries(s_train, D, τ, p;
+         method=method, ntype=ntype, step=step)
+        @test length(s_pred) == p+1
+        @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
+    end
+end
+
 
 @testset "Multivariate Input predict" begin
     sind = SVector(2,1)
