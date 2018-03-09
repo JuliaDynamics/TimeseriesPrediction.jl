@@ -11,7 +11,7 @@ branches:
 notifications:
   - provider: Email
     to:
-      - datseris.george@gmail.com
+      - jonas.isensee@stud.uni-goettingen.de
     on_build_success: false
     on_build_failure: true
     on_build_status_changed: false

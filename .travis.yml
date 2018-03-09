@@ -7,6 +7,7 @@ julia:
   - 0.6
 notifications:
   email:
+    - jonas.isensee@stud.uni-goettingen.de
     on_success: never
     on_failure: always
 script:
