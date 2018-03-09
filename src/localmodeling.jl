@@ -313,7 +313,8 @@ predict_timeseries(R::AbstractDataset, p::Int;
     method::AbstractLocalModel = LocalAverageModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
     step::Int = 1) =
-predict_timeseries(R, KDTree(R[1:end-step]), R[end], p, method=method, ntype=ntype, step=step)
+predict_timeseries(R, KDTree(R[1:end-step]), R[end], p;
+ method=method, ntype=ntype, step=step)
 
 
 #####################################################################################
@@ -328,8 +329,8 @@ Compute mean squared error of single predictions using test set `R_test`.
 ## Description
 This error measure, as described in [1], takes in a prediction model consisting of
 `R`, `method`, `ntype` and `step` and evaluates its performance.
-The test set `R_test` is a delay reconstruction with the same delay `τ` and dimension `D` as
-`R`.
+The test set `R_test` is a delay reconstruction with the same delay `τ` and
+dimension `D` as `R`.
 For every point in `R_test` (except for the last) the image `y` is predicted.
 The model error is defined as
 ```math
