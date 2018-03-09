@@ -261,7 +261,7 @@ If instead an `AbstractDataset` is given, a new `Dataset` is returned.
 ## Keyword Arguments
   * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(2)` : Subtype of [`AbstractNeighborhood`](@ref).
-  * `stepsize = 1` : Prediction step size. The default is usually a good choice.
+  * `stepsize = 1` : Prediction step size.
 
 ## Description
 Given a query point, the function finds its neighbors using neighborhood `ntype`.
@@ -286,8 +286,6 @@ function localmodel_tsp(R::AbstractDataset{D,T},
 
 
     s_pred = Vector{SVector{D, T}}(p)
-    # s_pred = T[]; sizehint!(s_pred,p+1) #Prepare estimated timeseries
-    # push!(s_pred, q[end]) #Push query
 
     for n=1:p   #Iteratively estimate timeseries
         idxs,dists = neighborhood_and_distances(q,R, tree,ntype)
