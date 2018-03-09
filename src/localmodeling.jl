@@ -414,9 +414,9 @@ Evaluate Models by calling `MSEp` and return best parameter set found.
 function estimate_param(s::AbstractVector,
     dims, delay, K, N; valid_len=100, num_tries=50)
     Result = Dict{SVector{4,Int},Float64}()
-    f(i) = i+1
+    step = 1
     for n ∈ N
-        LocalModel = LocalAverageModel(n)
+        method = LocalAverageModel(n)
         for D ∈ dims, τ ∈ delay
             s_train = @view s[1:end-D*τ-valid_len-num_tries-50]
             s_test = @view s[end-(D-1)*τ-valid_len-num_tries:end]
@@ -424,9 +424,9 @@ function estimate_param(s::AbstractVector,
             R_test = Reconstruction(s_test,D,τ)
             tree = KDTree(R[1:end-1])
             for k ∈ K
-                method = FixedMassNeighborhood(k)
+                ntype = FixedMassNeighborhood(k)
                 Result[@SVector([D,τ,k,n])] =
-                MSEp(tree,R,R_test,valid_len,LocalModel,method,f)
+                MSEp(R, tree, R_test, valid_len, method, ntype, step)
             end
         end
     end
