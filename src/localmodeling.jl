@@ -368,27 +368,28 @@ where ``|T_{ref}|`` is the number of subsets of `R_test` used.
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
 (2006)
 """
-function MSEp(tree::KDTree,  #_
+function MSEp(
     R::AbstractDataset{D,T},
+    tree::KDTree,
     R_test::AbstractDataset{D,T},
     p::Int,
-    LocalModel::AbstractLocalModel,
-    method::AbstractNeighborhood,
-    f::Function) where {D,T}
+    method::AbstractLocalModel,
+    ntype::AbstractNeighborhood,
+    step:Int) where {D,T}
 
     y_test = map(q-> q[end], R_test[2:end])
 
     Tref = (length(R_test)-p-1)
     error = 0
     for t =1:Tref
-        y_pred = predict(tree,R,R_test[t], p, LocalModel, method,f)
+        y_pred = predict(tree,R,R_test[t], p, method, ntype, step)
         error += norm(y_test[t:t+p]-y_pred)^2 /Tref/p
     end
     return error
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
-MSEp(R, R_test,p, LocalModel, method, f) =
-MSEp(KDTree(R[1:end-30]), R, R_test,p, LocalModel, method, f)
+MSEp(R, R_test, p, method, ntype, step) =
+MSEp(R, KDTree(R), R_test, p, method, ntype, step)
 
 
 """
