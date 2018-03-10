@@ -58,7 +58,7 @@ end
         @test norm(data[N_train:N_train+num_points, 2] - pred[:, 2])/num_points < 5e-2
     end
 end
-#=
+
 @testset "MSE" begin
     @testset "p=$p" for p ∈ [50,100]
         D = 3; τ = 15;
@@ -72,4 +72,3 @@ end
         @test MSE1(R,R_test; method=method,ntype=ntype,stepsize=stepsize) < 5e-2
     end
 end
-=#

@@ -404,13 +404,11 @@ function MSEp(
     p::Int;
     kwargs...) where {D,T}
 
-    y_test = map(q-> q[end], R_test[2:end])
-
     Tref = (length(R_test)-p-1)
     error = 0
     for t =1:Tref
-        y_pred = localmodel_tsp(R,tree,R_test[t], p; kwargs...)
-        error += norm(y_test[t:t+p]-y_pred)^2 /Tref/p
+        R_pred = localmodel_tsp(R,tree,R_test[t], p; kwargs...)
+        error += norm(R_test[t:t+p]-R_pred.data)^2 /Tref/p
     end
     return error
 end
