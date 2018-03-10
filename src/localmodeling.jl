@@ -272,6 +272,10 @@ The images `ynn` are the futures of `xnn` shifted by `stepsize` into the future.
 The algorithm is applied iteratively until a prediction of length `p` has
 been created, starting with the query point to be the last point of the timeseries.
 
+## Note
+The returned prediction has length `p+1` because the last point of the timeseries
+is always included.
+
 ## References
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*,
 VCH-Wiley, pp 39-65 (2006)
