@@ -285,9 +285,9 @@ function localmodel_tsp(R::AbstractDataset{D,T},
                         stepsize::Int = 1) where {D,T}
 
 
-    s_pred = Vector{SVector{D, T}}(p)
-
-    for n=1:p   #Iteratively estimate timeseries
+    s_pred = Vector{SVector{D, T}}(p+1)
+    s_pred[1] = q
+    for n=2:p+1   #Iteratively estimate timeseries
         idxs,dists = neighborhood_and_distances(q,R, tree,ntype)
         xnn = R[idxs]
         ynn = R[idxs+stepsize]
