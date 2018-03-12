@@ -74,16 +74,19 @@ AverageLocalModel() = AverageLocalModel(2)
 
 function (M::AverageLocalModel)(q,xnn,ynn,dists)
     @assert length(ynn)>0 "No Nearest Neighbors given"
-    dmax = maximum(dists)
-    y_pred = zeros(typeof(ynn[1]))
-    Ω = 0.
-    for (y,d) in zip(ynn,dists)
-        ω2 = (1-(d/dmax)^M.n)^2M.n
-        Ω += ω2
-        y_pred += ω2*y
+    if length(xnn) > 1
+        dmax = maximum(dists)
+        y_pred = zeros(typeof(ynn[1]))
+        Ω = 0.
+        for (y,d) in zip(ynn,dists)
+            ω2 = (1-(d/dmax)^M.n)^2M.n
+            Ω += ω2
+            y_pred += ω2*y
+        end
+        y_pred /= Ω
+        return y_pred
     end
-    y_pred /= Ω
-    return y_pred
+    return ynn[1]
 end
 
 
@@ -408,7 +411,7 @@ function MSEp(
     error = 0
     for t =1:Tref
         R_pred = localmodel_tsp(R,tree,R_test[t], p; kwargs...)
-        error += norm(R_test[t:t+p]-R_pred.data)^2 /Tref/p
+        error += norm( R_test[t:t+p]-R_pred.data)^2 /Tref/p
     end
     return error
 end
