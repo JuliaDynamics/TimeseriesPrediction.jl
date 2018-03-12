@@ -55,6 +55,9 @@ end
         @test size(pred) == (num_points+1, 2)
         @test norm(s_test[1:num_points+1] - pred[:, 1])/num_points < 5e-2
         @test norm(data[N_train:N_train+num_points, 2] - pred[:, 2])/num_points < 5e-2
+
+        pred2 = localmodel_tsp(sm_train, D,τ,num_points; method=method,ntype=ntype,stepsize=stepsize)
+        @test norm(pred.data-pred2.data) < 1e-10
     end
 end
 
