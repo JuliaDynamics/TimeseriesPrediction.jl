@@ -73,17 +73,19 @@ AverageLocalModel() = AverageLocalModel(2)
 
 
 function (M::AverageLocalModel)(q,xnn,ynn,dists)
-    @assert length(ynn)>0 "No Nearest Neighbors given"
-    dmax = maximum(dists)
-    y_pred = zeros(typeof(ynn[1]))
-    Ω = 0.
-    for (y,d) in zip(ynn,dists)
-        ω2 = (1-(d/dmax)^M.n)^2M.n
-        Ω += ω2
-        y_pred += ω2*y
-    end
-    y_pred /= Ω
-    return y_pred
+    if length(xnn) > 1
+        dmax = maximum(dists)
+        y_pred = zeros(typeof(ynn[1]))
+        Ω = 0.
+        for (y,d) in zip(ynn,dists)
+            ω2 = (1-(d/dmax)^M.n)^2M.n
+            Ω += ω2
+            y_pred += ω2*y
+        end
+        y_pred /= Ω
+        return y_pred
+    end    
+    return ynn[1]
 end
 
 
