@@ -60,10 +60,12 @@ end
         @test norm(pred.data-pred2.data) < 1e-10
     end
     @testset "D=3 and multi τ" begin
+    sm_train = data[1:N_train,SVector(1,2)]
+
         D = 3;
-        τ=[15 15; 30 29; 45 46]#[14 15; 29 30; 45 47]
+        τ=[15 15; 30 29; 45 45]#[14 15; 29 30; 45 47]
         R = Reconstruction(sm_train,D,τ)
-        num_points = 50
+        num_points = 25
         method = AverageLocalModel(2)
         ntype = FixedMassNeighborhood(2)
         stepsize = 1
