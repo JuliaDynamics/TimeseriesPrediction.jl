@@ -45,7 +45,7 @@ end
 
 @testset "Multivariate Input predict" begin
     sm_train = data[1:N_train,SVector(1,2)]
-    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
+    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ=15
         R = Reconstruction(sm_train,D,τ)
         num_points = 50
         method = AverageLocalModel(2)
@@ -55,6 +55,22 @@ end
         @test size(pred) == (num_points+1, 2)
         @test norm(s_test[1:num_points+1] - pred[:, 1])/num_points < 5e-2
         @test norm(data[N_train:N_train+num_points, 2] - pred[:, 2])/num_points < 5e-2
+
+        pred2 = localmodel_tsp(sm_train, D,τ,num_points; method=method,ntype=ntype,stepsize=stepsize)
+        @test norm(pred.data-pred2.data) < 1e-10
+    end
+    @testset "D=3 and multi τ" begin
+        D = 3;
+        τ=[15 15; 30 29; 45 46]#[14 15; 29 30; 45 47]
+        R = Reconstruction(sm_train,D,τ)
+        num_points = 50
+        method = AverageLocalModel(2)
+        ntype = FixedMassNeighborhood(2)
+        stepsize = 1
+        pred = localmodel_tsp(R,num_points; method=method,ntype=ntype,stepsize=stepsize)
+        @test size(pred) == (num_points+1, 2)
+        @test norm(s_test[1:num_points+1] - pred[:, 1])/num_points < 1e-1
+        @test norm(data[N_train:N_train+num_points, 2] - pred[:, 2])/num_points < 1e-1
 
         pred2 = localmodel_tsp(sm_train, D,τ,num_points; method=method,ntype=ntype,stepsize=stepsize)
         @test norm(pred.data-pred2.data) < 1e-10
