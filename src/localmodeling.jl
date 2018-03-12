@@ -433,7 +433,7 @@ function MSEp(
     error = 0
     for t =1:Tref
         R_pred = localmodel_tsp(R,tree,R_test[t], p; kwargs...)
-        error += norm( R_test[t:t+p]-R_pred.data)^2 /Tref/p
+        error += norm(R_test[t:t+p]-R_pred.data)^2 /Tref/p
     end
     return error
 end
