@@ -74,16 +74,19 @@ AverageLocalModel() = AverageLocalModel(2)
 
 function (M::AverageLocalModel)(q,xnn,ynn,dists)
     @assert length(ynn)>0 "No Nearest Neighbors given"
-    dmax = maximum(dists)
-    y_pred = zeros(typeof(ynn[1]))
-    Ω = 0.
-    for (y,d) in zip(ynn,dists)
-        ω2 = (1-(d/dmax)^M.n)^2M.n
-        Ω += ω2
-        y_pred += ω2*y
+    if length(xnn) > 1
+        dmax = maximum(dists)
+        y_pred = zeros(typeof(ynn[1]))
+        Ω = 0.
+        for (y,d) in zip(ynn,dists)
+            ω2 = (1-(d/dmax)^M.n)^2M.n
+            Ω += ω2
+            y_pred += ω2*y
+        end
+        y_pred /= Ω
+        return y_pred
     end
-    y_pred /= Ω
-    return y_pred
+    return ynn[1]
 end
 
 
@@ -245,6 +248,29 @@ function neighborhood_and_distances(point::AbstractVector,R::AbstractDataset,
     return idxs,dists
 end
 
+
+
+function _localmodel_tsp(R::AbstractDataset{D,T},
+                        tree::KDTree,
+                        q::SVector{D,T},
+                        p::Int;
+                        method::AbstractLocalModel = AverageLocalModel(2),
+                        ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
+                        stepsize::Int = 1) where {D,T}
+
+
+    s_pred = Vector{SVector{D, T}}(p+1)
+    s_pred[1] = q
+    for n=2:p+1   #Iteratively estimate timeseries
+        idxs,dists = neighborhood_and_distances(q,R, tree,ntype)
+        xnn = R[idxs]
+        ynn = R[idxs+stepsize]
+        q = method(q, xnn, ynn, dists)
+        s_pred[n] = q
+    end
+    return Dataset(s_pred)
+end
+
 """
     localmodel_tsp(s::AbstractVector, D, τ, p; method, ntype, stepsize)
     localmodel_tsp(R::AbstractDataset, p; method, ntype, stepsize)
@@ -257,6 +283,9 @@ is performed with dimension `D` and delay `τ`. The returned value is a `Vector`
 containing the predicted points.
 
 If instead an `AbstractDataset` is given, a new `Dataset` is returned.
+If a `Reconstruction` is given, the last component of the predicted states is returned
+ as a `Vector`. In case of a `MDReconstruction`,
+ the `B` last components are returned as a `Dataset`.
 
 ## Keyword Arguments
   * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
@@ -280,25 +309,21 @@ is always included.
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*,
 VCH-Wiley, pp 39-65 (2006)
 """
-function localmodel_tsp(R::AbstractDataset{D,T},
-                        tree::KDTree,
-                        q::SVector{D,T},
-                        p::Int;
-                        method::AbstractLocalModel = AverageLocalModel(2),
-                        ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
-                        stepsize::Int = 1) where {D,T}
+function localmodel_tsp(R::Reconstruction{D,T,τ}, p::Int;
+    method::AbstractLocalModel = AverageLocalModel(2),
+    ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
+    stepsize::Int = 1) where {D,T,τ}
+    _localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
+     method=method, ntype=ntype, stepsize=stepsize)[:,D]
+end
 
-
-    s_pred = Vector{SVector{D, T}}(p+1)
-    s_pred[1] = q
-    for n=2:p+1   #Iteratively estimate timeseries
-        idxs,dists = neighborhood_and_distances(q,R, tree,ntype)
-        xnn = R[idxs]
-        ynn = R[idxs+stepsize]
-        q = method(q, xnn, ynn, dists)
-        s_pred[n] = q
-    end
-    return Dataset(s_pred)
+function localmodel_tsp(R::MDReconstruction{DxB,D,B,T}, p::Int;
+    method::AbstractLocalModel = AverageLocalModel(2),
+    ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
+    stepsize::Int = 1) where {DxB,D,B,T}
+    sind = SVector{B, Int}((DxB - i for i in B-1:-1:0)...)
+    return _localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
+    method=method, ntype=ntype, stepsize=stepsize)[:,sind]
 end
 
 function localmodel_tsp(
@@ -311,14 +336,14 @@ function localmodel_tsp(
     tree = KDTree(R[1:end-stepsize])
     #Still take away stepsize elements so that y = R[i+stepsize] is always defined
 
-    return localmodel_tsp(R, tree, R[end], p;
+    return _localmodel_tsp(R, tree, R[end], p;
     method=method, ntype=ntype, stepsize=stepsize)[:, D]
 end
 localmodel_tsp(R::AbstractDataset, p::Int;
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
     stepsize::Int = 1) =
-localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
+_localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
  method=method, ntype=ntype, stepsize=stepsize)
 
 
