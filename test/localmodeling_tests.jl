@@ -24,7 +24,7 @@ s_test  = data[N_train:end,1]
 
         #Repeat with reconstruction given
         R = Reconstruction(s_train, D, τ)
-        s_pred = localmodel_tsp(R, p; method=method, ntype=ntype, stepsize=stepsize)[:, D]
+        s_pred = localmodel_tsp(R, p; method=method, ntype=ntype, stepsize=stepsize)
         @test length(s_pred) == p+1
         @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
     end
@@ -51,8 +51,7 @@ end
         method = AverageLocalModel(2)
         ntype = FixedMassNeighborhood(2)
         stepsize = 1
-        fullpred = localmodel_tsp(R,num_points; method=method,ntype=ntype,stepsize=stepsize)
-        pred = fullpred[:, SVector(2*D - 1, 2*D)]
+        pred = localmodel_tsp(R,num_points; method=method,ntype=ntype,stepsize=stepsize)
         @test size(pred) == (num_points+1, 2)
         @test norm(s_test[1:num_points+1] - pred[:, 1])/num_points < 5e-2
         @test norm(data[N_train:N_train+num_points, 2] - pred[:, 2])/num_points < 5e-2
