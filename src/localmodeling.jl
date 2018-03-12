@@ -304,18 +304,19 @@ function _localmodel_tsp(R::AbstractDataset{D,T},
     return Dataset(s_pred)
 end
 
-localmodel_tsp{D,T,τ}(R::Reconstruction{D,T,τ}, p::Int;
+function localmodel_tsp(R::Reconstruction{D,T,τ}, p::Int;
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-    stepsize::Int = 1) =
-_localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
-     method=method, ntype=ntype, stepsize=stepsize)[:,end]
+    stepsize::Int = 1) where {D,T,τ}
+    _localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
+     method=method, ntype=ntype, stepsize=stepsize)[:,D]
+end
 
 function localmodel_tsp(R::MDReconstruction{DxB,D,B,T}, p::Int;
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
     stepsize::Int = 1) where {DxB,D,B,T}
-    sind = SVector{B, Int}((DxB - i for i in B-1:-1:0)...)     
+    sind = SVector{B, Int}((DxB - i for i in B-1:-1:0)...)
     return _localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
     method=method, ntype=ntype, stepsize=stepsize)[:,sind]
 end
