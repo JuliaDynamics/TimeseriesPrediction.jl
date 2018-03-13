@@ -307,35 +307,23 @@ is always included.
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*,
 VCH-Wiley, pp 39-65 (2006)
 """
-localmodel_tsp{D,T,τ}(R::Reconstruction{D,T,τ}, p::Int;
+function localmodel_tsp(R::AbstractDataset{B}, p::Int;
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-    stepsize::Int = 1) =
-_localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
-     method=method, ntype=ntype, stepsize=stepsize)[:,D]
-
-function localmodel_tsp(R::MDReconstruction{DxB,D,B,T}, p::Int;
-    method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-    stepsize::Int = 1) where {DxB,D,B,T}
-    sind = SVector{B, Int}((DxB - i for i in B-1:-1:0)...)
+    stepsize::Int = 1) where B
+    @assert B > 1 "Dataset Dimension needs to be >1!\n Alternatively pass embedding parameters"
     return _localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
-    method=method, ntype=ntype, stepsize=stepsize)[:,sind]
+    method=method, ntype=ntype, stepsize=stepsize)
 end
 
 localmodel_tsp{T}(s::AbstractVector, D::Int, τ::T, p::Int; kwargs... ) =
-localmodel_tsp(Reconstruction(s, D, τ), p; kwargs...)
+localmodel_tsp(Reconstruction(s, D, τ), p; kwargs...)[:,D]
 
-localmodel_tsp{T}(ss::AbstractDataset, D::Int, τ::T, p::Int; kwargs...) =
-localmodel_tsp(Reconstruction(ss, D, τ), p; kwargs...)
+localmodel_tsp{B,T}(ss::AbstractDataset{B}, D::Int, τ::T, p::Int; kwargs...) = begin
+    sind = SVector{B, Int}((D*B - i for i in B-1:-1:0)...)
+    localmodel_tsp(Reconstruction(ss, D, τ), p; kwargs...)[:,sind]
+end
 
-
-localmodel_tsp(R::AbstractDataset, p::Int;
-    method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-    stepsize::Int = 1) =
-_localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
- method=method, ntype=ntype, stepsize=stepsize)
 
 
 #####################################################################################
