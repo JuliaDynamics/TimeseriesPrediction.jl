@@ -323,34 +323,11 @@ function localmodel_tsp(R::MDReconstruction{DxB,D,B,T}, p::Int;
     method=method, ntype=ntype, stepsize=stepsize)[:,sind]
 end
 
-function localmodel_tsp(
-    s::AbstractVector, D::Int, τ::T, p::Int;
-    method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-    stepsize::Int = 1) where {T}
+localmodel_tsp{T}(s::AbstractVector, D::Int, τ::T, p::Int; kwargs... ) =
+localmodel_tsp(Reconstruction(s, D, τ), p; kwargs...)
 
-    R = Reconstruction(s, D, τ)
-    tree = KDTree(R[1:end-stepsize])
-    #Still take away stepsize elements so that y = R[i+stepsize] is always defined
-
-    return _localmodel_tsp(R, tree, R[end], p;
-    method=method, ntype=ntype, stepsize=stepsize)[:, D]
-end
-
-function localmodel_tsp(
-    ss::AbstractDataset{B}, D::Int, τ::T, p::Int;
-    method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-    stepsize::Int = 1) where {B,T}
-
-    R = Reconstruction(ss, D, τ)
-    tree = KDTree(R[1:end-stepsize])
-    #Still take away stepsize elements so that y = R[i+stepsize] is always defined
-
-    sind = SVector{B, Int}((D*B - i for i in B-1:-1:0)...)
-    return _localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
-    method=method, ntype=ntype, stepsize=stepsize)[:,sind]
-end
+localmodel_tsp{T}(ss::AbstractDataset, D::Int, τ::T, p::Int; kwargs...) =
+localmodel_tsp(Reconstruction(ss, D, τ), p; kwargs...)
 
 
 localmodel_tsp(R::AbstractDataset, p::Int;
