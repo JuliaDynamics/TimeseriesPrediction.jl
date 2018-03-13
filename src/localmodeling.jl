@@ -90,8 +90,8 @@ end
 
 
 """
-    LinearLocalModel (n::Int, μ::Real)
-    LinearLocalModel (n::Int, s_min::Real, s_max::Real)
+    LinearLocalModel(n::Int, μ::Real)
+    LinearLocalModel(n::Int, s_min::Real, s_max::Real)
 See [`AbstractLocalModel`](@ref).
 """
 struct LinearLocalModel{F} <: AbstractLocalModel
