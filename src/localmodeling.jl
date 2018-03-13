@@ -316,10 +316,11 @@ function localmodel_tsp(R::AbstractDataset{B}, p::Int;
     method=method, ntype=ntype, stepsize=stepsize)
 end
 
-localmodel_tsp{T}(s::AbstractVector, D::Int, τ::T, p::Int; kwargs... ) =
-localmodel_tsp(Reconstruction(s, D, τ), p; kwargs...)[:,D]
+function localmodel_tsp(s::AbstractVector, D::Int, τ::T, p::Int; kwargs... ) where {T}
+    localmodel_tsp(Reconstruction(s, D, τ), p; kwargs...)[:,D]
+end
 
-localmodel_tsp{B,T}(ss::AbstractDataset{B}, D::Int, τ::T, p::Int; kwargs...) = begin
+function localmodel_tsp(ss::AbstractDataset{B}, D::Int, τ::T, p::Int; kwargs...) where {B,T}
     sind = SVector{B, Int}((D*B - i for i in B-1:-1:0)...)
     localmodel_tsp(Reconstruction(ss, D, τ), p; kwargs...)[:,sind]
 end
