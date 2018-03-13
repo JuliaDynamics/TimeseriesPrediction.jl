@@ -157,7 +157,7 @@ end
 
 
 #= # THE FOLLOWING IS THE POLYNOMIAL MODEL, WHICH WE DID NOT IMPLEMENT
-# BECAUSE IT WAS NOT WORKING VERY WELL.
+# BECAUSE IT WAS NOT NEARLY AS GOOD AS THE OTHER TWO.
 # SOMEONE MIGHT WANT TO TAKE A LOOK AT ANY POINT IN THE FUTURE
 struct LocalPolynomialModel <: AbstractLocalModel
     n::Int #n=0,1,2,3 Exponent in weighting function
@@ -270,20 +270,20 @@ function _localmodel_tsp(R::AbstractDataset{D,T},
 end
 
 """
-    localmodel_tsp(s::AbstractVector, D, τ, p; method, ntype, stepsize)
-    localmodel_tsp(R::AbstractDataset, p; method, ntype, stepsize)
+    localmodel_tsp(s, D::Int, τ, p::Int; method, ntype, stepsize)
+    localmodel_tsp(s, p::Int; method, ntype, stepsize)
 
 Perform a timeseries prediction for `p` points,
-using local weighted modeling [1].
+using local weighted modeling [1]. The function always returns an
+object of the same type as `s`, which can be either a timeseries (vector) or an
+`AbstractDataset` (trajectory), and the returned data
+always contains the final point of `s` as starting point. This means that the
+returned data has length of `p + 1`.
 
-If given a timeseries `s::AbstractVector` a [`Reconstruction`](@ref)
-is performed with dimension `D` and delay `τ`. The returned value is a `Vector`
-containing the predicted points.
-
-If instead an `AbstractDataset` is given, a new `Dataset` is returned.
-If a `Reconstruction` is given, the last component of the predicted states is returned
- as a `Vector`. In case of a `MDReconstruction`,
- the `B` last components are returned as a `Dataset`.
+If given `(s, D, τ)`, then a [`Reconstruction`](@ref) is performed on `s`
+with dimension `D` and delay `τ`. If given only `s` then no [`Reconstruction`](@ref)
+is done. Keep in mind that the intented behavior of the algorithm is to work with
+a reconstruction, and not "raw" data.
 
 ## Keyword Arguments
   * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
@@ -294,14 +294,10 @@ If a `Reconstruction` is given, the last component of the predicted states is re
 Given a query point, the function finds its neighbors using neighborhood `ntype`.
 Then, the neighbors `xnn` and their images `ynn` are used to make a prediction for
 the future of the query point, using the provided `method`.
-The images `ynn` are the futures of `xnn` shifted by `stepsize` into the future.
+The images `ynn` are the points `xnn` shifted by `stepsize` into the future.
 
 The algorithm is applied iteratively until a prediction of length `p` has
 been created, starting with the query point to be the last point of the timeseries.
-
-## Note
-The returned prediction has length `p+1` because the last point of the timeseries
-is always included.
 
 ## References
 [1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*,
@@ -311,7 +307,8 @@ function localmodel_tsp(R::AbstractDataset{B}, p::Int;
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
     stepsize::Int = 1) where B
-    @assert B > 1 "Dataset Dimension needs to be >1!\n Alternatively pass embedding parameters"
+    B > 1 || throw(ArgumentError("Dataset Dimension needs to be >1! ",
+    "Alternatively pass embedding parameters."))
     return _localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
     method=method, ntype=ntype, stepsize=stepsize)
 end

@@ -1,4 +1,3 @@
-using DynamicalSystemsBase
 using Base.Test
 using TimeseriesPrediction
 using StaticArrays
