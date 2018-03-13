@@ -73,23 +73,25 @@ AverageLocalModel() = AverageLocalModel(2)
 
 
 function (M::AverageLocalModel)(q,xnn,ynn,dists)
-    @assert length(ynn)>0 "No Nearest Neighbors given"
-    dmax = maximum(dists)
-    y_pred = zeros(typeof(ynn[1]))
-    Ω = 0.
-    for (y,d) in zip(ynn,dists)
-        ω2 = (1-(d/dmax)^M.n)^2M.n
-        Ω += ω2
-        y_pred += ω2*y
+    if length(xnn) > 1
+        dmax = maximum(dists)
+        y_pred = zeros(typeof(ynn[1]))
+        Ω = 0.
+        for (y,d) in zip(ynn,dists)
+            ω2 = (1-(d/dmax)^M.n)^2M.n
+            Ω += ω2
+            y_pred += ω2*y
+        end
+        y_pred /= Ω
+        return y_pred
     end
-    y_pred /= Ω
-    return y_pred
+    return ynn[1]
 end
 
 
 """
-    LinearLocalModel (n::Int, μ::Real)
-    LinearLocalModel (n::Int, s_min::Real, s_max::Real)
+    LinearLocalModel(n::Int, μ::Real)
+    LinearLocalModel(n::Int, s_min::Real, s_max::Real)
 See [`AbstractLocalModel`](@ref).
 """
 struct LinearLocalModel{F} <: AbstractLocalModel
@@ -155,7 +157,7 @@ end
 
 
 #= # THE FOLLOWING IS THE POLYNOMIAL MODEL, WHICH WE DID NOT IMPLEMENT
-# BECAUSE IT WAS NOT WORKING VERY WELL.
+# BECAUSE IT WAS NOT NEARLY AS GOOD AS THE OTHER TWO.
 # SOMEONE MIGHT WANT TO TAKE A LOOK AT ANY POINT IN THE FUTURE
 struct LocalPolynomialModel <: AbstractLocalModel
     n::Int #n=0,1,2,3 Exponent in weighting function
@@ -245,42 +247,8 @@ function neighborhood_and_distances(point::AbstractVector,R::AbstractDataset,
     return idxs,dists
 end
 
-"""
-    localmodel_tsp(s::AbstractVector, D, τ, p; method, ntype, stepsize)
-    localmodel_tsp(R::AbstractDataset, p; method, ntype, stepsize)
 
-Perform a timeseries prediction for `p` points,
-using local weighted modeling [1].
-
-If given a timeseries `s::AbstractVector` a [`Reconstruction`](@ref)
-is performed with dimension `D` and delay `τ`. The returned value is a `Vector`
-containing the predicted points.
-
-If instead an `AbstractDataset` is given, a new `Dataset` is returned.
-
-## Keyword Arguments
-  * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
-  * `ntype = FixedMassNeighborhood(2)` : Subtype of [`AbstractNeighborhood`](@ref).
-  * `stepsize = 1` : Prediction step size.
-
-## Description
-Given a query point, the function finds its neighbors using neighborhood `ntype`.
-Then, the neighbors `xnn` and their images `ynn` are used to make a prediction for
-the future of the query point, using the provided `method`.
-The images `ynn` are the futures of `xnn` shifted by `stepsize` into the future.
-
-The algorithm is applied iteratively until a prediction of length `p` has
-been created, starting with the query point to be the last point of the timeseries.
-
-## Note
-The returned prediction has length `p+1` because the last point of the timeseries
-is always included.
-
-## References
-[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*,
-VCH-Wiley, pp 39-65 (2006)
-"""
-function localmodel_tsp(R::AbstractDataset{D,T},
+function _localmodel_tsp(R::AbstractDataset{D,T},
                         tree::KDTree,
                         q::SVector{D,T},
                         p::Int;
@@ -301,25 +269,59 @@ function localmodel_tsp(R::AbstractDataset{D,T},
     return Dataset(s_pred)
 end
 
-function localmodel_tsp(
-    s::AbstractVector, D::Int, τ::T, p::Int;
+"""
+    localmodel_tsp(s, D::Int, τ, p::Int; method, ntype, stepsize)
+    localmodel_tsp(s, p::Int; method, ntype, stepsize)
+
+Perform a timeseries prediction for `p` points,
+using local weighted modeling [1]. The function always returns an
+object of the same type as `s`, which can be either a timeseries (vector) or an
+`AbstractDataset` (trajectory), and the returned data
+always contains the final point of `s` as starting point. This means that the
+returned data has length of `p + 1`.
+
+If given `(s, D, τ)`, then a [`Reconstruction`](@ref) is performed on `s`
+with dimension `D` and delay `τ`. If given only `s` then no [`Reconstruction`](@ref)
+is done. Keep in mind that the intented behavior of the algorithm is to work with
+a reconstruction, and not "raw" data.
+
+## Keyword Arguments
+  * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
+  * `ntype = FixedMassNeighborhood(2)` : Subtype of [`AbstractNeighborhood`](@ref).
+  * `stepsize = 1` : Prediction step size.
+
+## Description
+Given a query point, the function finds its neighbors using neighborhood `ntype`.
+Then, the neighbors `xnn` and their images `ynn` are used to make a prediction for
+the future of the query point, using the provided `method`.
+The images `ynn` are the points `xnn` shifted by `stepsize` into the future.
+
+The algorithm is applied iteratively until a prediction of length `p` has
+been created, starting with the query point to be the last point of the timeseries.
+
+## References
+[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*,
+VCH-Wiley, pp 39-65 (2006)
+"""
+function localmodel_tsp(R::AbstractDataset{B}, p::Int;
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-    stepsize::Int = 1) where {T}
-
-    R = Reconstruction(s, D, τ)
-    tree = KDTree(R[1:end-stepsize])
-    #Still take away stepsize elements so that y = R[i+stepsize] is always defined
-
-    return localmodel_tsp(R, tree, R[end], p;
-    method=method, ntype=ntype, stepsize=stepsize)[:, D]
+    stepsize::Int = 1) where B
+    B > 1 || throw(ArgumentError("Dataset Dimension needs to be >1! ",
+    "Alternatively pass embedding parameters."))
+    return _localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
+    method=method, ntype=ntype, stepsize=stepsize)
 end
-localmodel_tsp(R::AbstractDataset, p::Int;
-    method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-    stepsize::Int = 1) =
-localmodel_tsp(R, KDTree(R[1:end-stepsize]), R[end], p;
- method=method, ntype=ntype, stepsize=stepsize)
+
+function localmodel_tsp(s::AbstractVector, D::Int, τ::T, p::Int; kwargs... ) where {T}
+    localmodel_tsp(Reconstruction(s, D, τ), p; kwargs...)[:,D]
+end
+
+function localmodel_tsp(ss::AbstractDataset{B}, D::Int, τ::T, p::Int; kwargs...) where {B,T}
+    sind = SVector{B, Int}((D*B - i for i in B-1:-1:0)...)
+    localmodel_tsp(Reconstruction(ss, D, τ), p; kwargs...)[:,sind]
+end
+
 
 
 #####################################################################################
@@ -407,7 +409,7 @@ function MSEp(
     Tref = (length(R_test)-p-1)
     error = 0
     for t =1:Tref
-        R_pred = localmodel_tsp(R,tree,R_test[t], p; kwargs...)
+        R_pred = _localmodel_tsp(R,tree,R_test[t], p; kwargs...)
         error += norm(R_test[t:t+p]-R_pred.data)^2 /Tref/p
     end
     return error
