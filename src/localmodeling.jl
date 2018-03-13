@@ -334,7 +334,7 @@ end
 Compute mean squared error of single predictions using test set `R_test`.
 
 ## Description
-This error measure, as described in [1], takes in a prediction model consisting of
+This error measure takes in a prediction model consisting of
 `R`, `method`, `ntype` and `stepsize` and evaluates its performance.
 The test set `R_test` is a delay reconstruction with the same delay `τ` and
 dimension `D` as `R`.
@@ -348,8 +348,7 @@ MSE_1 = \\frac{1}{|T_{ref}|}\\sum_{t\\in T_{ref}} \\left(y_{t} - y_{pred,t} \\ri
 where ``|T_{ref}|`` is the total number of predictions made.
 
 ## References
-[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*,
-VCH-Wiley, pp 39-65 (2006)
+See [`localmodel_tsp`](@ref).
 """
 function MSE1(
     R::AbstractDataset{D,T},
@@ -384,7 +383,7 @@ MSE1(R, KDTree(R[1:end-stepsize]), R_test;  method=method, ntype=ntype, stepsize
 Compute mean squared error of iterated predictions of length `p` using test set `R_test`.
 
 ## Description
-This error measure, as described in [1], takes in a prediction model consisting of `R`,
+This error measure takes in a prediction model consisting of `R`,
  `method`, `ntype` and `stepsize` and evaluates its performance. The test set `R_test` is
 a delay reconstruction with the same delay `τ` and dimension `D` as `R`.
 For each subset of `R_test` with length `p` it calls `localmodel_tsp`.
@@ -396,8 +395,7 @@ MSE_p = \\frac{1}{p|T_{ref}|}\\sum_{t\\in T_{ref}}\\sum_{i=1}^{p} \\left(y_{t+i}
 ```
 where ``|T_{ref}|`` is the number of subsets of `R_test` used.
 ## References
-[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
-(2006)
+See [`localmodel_tsp`](@ref).
 """
 function MSEp(
     R::AbstractDataset{D,T},
