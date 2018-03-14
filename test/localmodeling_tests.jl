@@ -6,7 +6,7 @@ println("\nTesting local models...")
 
 ds = Systems.roessler()
 data = trajectory(ds, 5000; dt=0.1)
-N_train = 40000
+N_train = 45000
 s_train = data[1:N_train, 1]
 s_test  = data[N_train:end,1]
 
@@ -38,7 +38,7 @@ end
         s_pred = localmodel_tsp(s_train, D, τ, p;
         method=method, ntype=ntype, stepsize=stepsize)
         @test length(s_pred) == p+1
-        @test norm(s_test[1:p+1] - s_pred)/p < 10e-2
+        @test norm(s_test[1:p+1] - s_pred)/p < 0.15
     end
 end
 
@@ -92,4 +92,18 @@ end
         @test MSEp(R,R_test,p; method=method,ntype=ntype,stepsize=stepsize)/p < 5e-2
         @test MSE1(R,R_test; method=method,ntype=ntype,stepsize=stepsize) < 5e-2
     end
+end
+
+@testset "Maps" begin
+    ds = Systems.standardmap()
+    data = trajectory(ds,50000)
+    N_train = 49900
+    p = 25
+    stepsize = 1
+    s = data[1:N_train,1]
+    s_real = data[N_train:N_train+p*stepsize,1]
+    method = AverageLocalModel(1)
+    ntype = FixedMassNeighborhood(2)
+    s_pred = localmodel_tsp(s,2,1,p; method=method, ntype=ntype)
+    @test norm(s_pred -s_real)/var(s)/p < 0.15
 end
