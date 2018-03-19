@@ -90,7 +90,7 @@ end
         stepsize = 1
 
         @test MSEp(R,R_test,p; method=method,ntype=ntype,stepsize=stepsize)/p < 5e-2
-        @test MSE1(R,R_test; method=method,ntype=ntype,stepsize=stepsize) < 5e-2
+        @test MSEp(R,R_test,1; method=method,ntype=ntype,stepsize=stepsize) < 5e-2
     end
 end
 
