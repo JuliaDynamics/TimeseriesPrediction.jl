@@ -378,7 +378,7 @@ MSE1(R, KDTree(R[1:end-stepsize]), R_test;  method=method, ntype=ntype, stepsize
 
 
 """
-    MSEp(R::AbstractDataset{D,T}, R_test, p, method, ntype, stepsize) -> error
+    MSEp(R::AbstractDataset{D,T}, R_test, p; method, ntype, stepsize) -> error
 
 Compute mean squared error of iterated predictions of length `p` using test set `R_test`.
 
