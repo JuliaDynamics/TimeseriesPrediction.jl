@@ -4,7 +4,7 @@ using DynamicalSystemsBase
 export AbstractLocalModel
 export AverageLocalModel,LinearLocalModel
 export localmodel_tsp
-export MSE1,MSEp
+export MSEp
 
 """
     AbstractLocalModel
@@ -328,28 +328,7 @@ end
 #                                  Error Measures                                   #
 #####################################################################################
 
-"""
-    MSE1(R::AbstractDataset{D,T},R_test, method, ntype, stepsize) -> error
 
-Compute mean squared error of single predictions using test set `R_test`.
-
-## Description
-This error measure takes in a prediction model consisting of
-`R`, `method`, `ntype` and `stepsize` and evaluates its performance.
-The test set `R_test` is a delay reconstruction with the same delay `τ` and
-dimension `D` as `R`.
-For every point in `R_test` (except for the last) the image `y` is predicted.
-The model error is defined as
-```math
-\\begin{aligned}
-MSE_1 = \\frac{1}{|T_{ref}|}\\sum_{t\\in T_{ref}} \\left(y_{t} - y_{pred,t} \\right)^2
-\\end{aligned}
-```
-where ``|T_{ref}|`` is the total number of predictions made.
-
-## References
-See [`localmodel_tsp`](@ref).
-"""
 function MSE1(
     R::AbstractDataset{D,T},
     tree::KDTree,
@@ -370,12 +349,6 @@ function MSE1(
     return norm(y_test-y_pred)^2/length(y_test)
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
-
-MSE1(R, R_test; method::AbstractLocalModel = AverageLocalModel(2),
-ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
-stepsize::Int = 1) =
-MSE1(R, KDTree(R[1:end-stepsize]), R_test;  method=method, ntype=ntype, stepsize=stepsize)
-
 
 """
     MSEp(R::AbstractDataset{D,T}, R_test, p; method, ntype, stepsize) -> error
@@ -403,7 +376,9 @@ function MSEp(
     R_test::AbstractDataset{D,T},
     p::Int;
     kwargs...) where {D,T}
-
+    if p == 1
+        return MSE1(R,tree,R_test;kwargs...)
+    end
     Tref = (length(R_test)-p-1)
     error = 0
     for t =1:Tref
