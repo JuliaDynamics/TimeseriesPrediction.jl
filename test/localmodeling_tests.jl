@@ -96,7 +96,7 @@ end
 
 @testset "Maps" begin
     ds = Systems.standardmap()
-    data = trajectory(ds,50000)
+    data = trajectory(ds,50000; dt=1)
     N_train = 49900
     p = 25
     stepsize = 1
