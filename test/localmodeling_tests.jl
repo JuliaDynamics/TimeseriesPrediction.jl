@@ -30,7 +30,7 @@ s_test  = data[N_train:end,1]
 end
 
 @testset "FixedSizeNeighborhood" begin
-    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
+    @testset "D=$D and τ=$τ" for D ∈ [4], τ ∈ [14,15]
         p = 25
         method = AverageLocalModel(2)
         ntype = FixedSizeNeighborhood(0.5)
