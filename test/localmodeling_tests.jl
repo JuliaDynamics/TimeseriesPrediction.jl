@@ -38,7 +38,7 @@ end
         s_pred = localmodel_tsp(s_train, D, τ, p;
         method=method, ntype=ntype, stepsize=stepsize)
         @test length(s_pred) == p+1
-        @test norm(s_test[1:p+1] - s_pred)/p < 0.15
+        @test norm(s_test[1:p+1] - s_pred)/p < 0.2
     end
 end
 
