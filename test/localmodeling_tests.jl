@@ -30,7 +30,7 @@ s_test  = data[N_train:end,1]
 end
 
 @testset "FixedSizeNeighborhood" begin
-    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
+    @testset "D=$D and τ=$τ" for D ∈ [4], τ ∈ [14,15]
         p = 25
         method = AverageLocalModel(2)
         ntype = FixedSizeNeighborhood(0.5)
@@ -38,7 +38,7 @@ end
         s_pred = localmodel_tsp(s_train, D, τ, p;
         method=method, ntype=ntype, stepsize=stepsize)
         @test length(s_pred) == p+1
-        @test norm(s_test[1:p+1] - s_pred)/p < 0.15
+        @test norm(s_test[1:p+1] - s_pred)/p < 0.2
     end
 end
 
@@ -96,7 +96,7 @@ end
 
 @testset "Maps" begin
     ds = Systems.standardmap()
-    data = trajectory(ds,50000)
+    data = trajectory(ds,50000; dt=1)
     N_train = 49900
     p = 25
     stepsize = 1
