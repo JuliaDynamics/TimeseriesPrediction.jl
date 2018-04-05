@@ -28,7 +28,7 @@ The prediction is simply the weighted average of the images ``y_{nn, i}`` of
 the neighbors ``x_{nn, i}`` of the query point `q`:
 ```math
 \\begin{aligned}
-y\_{pred} = \\frac{\\sum{ω_i^2 y_{nn,i}}}{\\sum{ω_i^2}}
+y\_{pred} = \\frac{\\sum{\\omega_i^2 y_{nn,i}}}{\\sum{\\omega_i^2}}
 \\end{aligned}
 ```
 
@@ -39,26 +39,27 @@ y\_{pred} = \\frac{\\sum{ω_i^2 y_{nn,i}}}{\\sum{ω_i^2}}
 The prediction is a weighted linear regression over the neighbors ``x_{nn, i}`` of
 the query and their images ``y_{nn,i}`` as shown in [1].
 
-Giving either `μ` or `s_min` and `s_max` determines which type of regularization is applied.
+Giving either `μ` or `s_min` and `s_max` determines which type of regularization
+is applied.
   * `μ` : Ridge Regression
     ```math
     \\begin{aligned}
-    f(σ) = \\frac{σ^2}{μ^2 + σ^2}
+    f(\\sigma) = \\frac{\\sigma^2}{\\mu^2 + \\sigma^2}
     \\end{aligned}
     ```
   *  `s_min`, `s_max` : Soft Threshold
     ```math
     \\begin{aligned}
-    f(σ) = \\begin{cases} 0, &σ < s_{min}\\\\
-    \\left(1 - \\left( \\frac{s_{max}-σ}{s_{max}-s_{min}}\\right)^2 \\right)^2, &s_{min} \\leq
-    σ \\leq s_{max} \\\\
-    1, &σ > s_{max}\\end{cases}
+    f(\\sigma) = \\begin{cases} 0, & \\sigma < s_{min}\\\\
+    \\left(1 - \\left( \\frac{s_{max}-\\sigma}{s_{max}-s_{min}}\\right)^2 \\right)^2,
+    &s_{min} \\leq \\sigma \\leq s_{max} \\\\
+    1, & \\sigma > s_{max}\\end{cases}
     \\end{aligned}
     ```
 
 ## References
-[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*, VCH-Wiley, pp 39-65
-(2006)
+[1] : D. Engster & U. Parlitz, *Handbook of Time Series Analysis* Ch. 1,
+VCH-Wiley (2006)
 """
 abstract type AbstractLocalModel end
 
@@ -228,7 +229,8 @@ function neighborhood_and_distances(point::AbstractVector,R::AbstractDataset, tr
     idxs,dists = knn(tree, point, ntype.K, false, i -> abs(i-n) < w)
     return idxs,dists
 end
-function neighborhood_and_distances(point::AbstractVector,R, tree, ntype::FixedMassNeighborhood)
+function neighborhood_and_distances(point::AbstractVector,R, tree,
+    ntype::FixedMassNeighborhood)
     idxs,dists = knn(tree, point, ntype.K, false)
     return idxs,dists
 end
@@ -300,8 +302,8 @@ The algorithm is applied iteratively until a prediction of length `p` has
 been created, starting with the query point to be the last point of the timeseries.
 
 ## References
-[1] : Eds. B. Schelter *et al.*, *Handbook of Time Series Analysis*,
-VCH-Wiley, pp 39-65 (2006)
+[1] : D. Engster & U. Parlitz, *Handbook of Time Series Analysis* Ch. 1,
+VCH-Wiley (2006)
 """
 function localmodel_tsp(R::AbstractDataset{B}, p::Int;
     method::AbstractLocalModel = AverageLocalModel(2),
@@ -313,11 +315,13 @@ function localmodel_tsp(R::AbstractDataset{B}, p::Int;
     method=method, ntype=ntype, stepsize=stepsize)
 end
 
-function localmodel_tsp(s::AbstractVector, D::Int, τ::T, p::Int; kwargs... ) where {T}
+function localmodel_tsp(
+    s::AbstractVector, D::Int, τ::T, p::Int; kwargs... ) where {T}
     localmodel_tsp(Reconstruction(s, D, τ), p; kwargs...)[:,D]
 end
 
-function localmodel_tsp(ss::AbstractDataset{B}, D::Int, τ::T, p::Int; kwargs...) where {B,T}
+function localmodel_tsp(
+    ss::AbstractDataset{B}, D::Int, τ::T, p::Int; kwargs...) where {B,T}
     sind = SVector{B, Int}((D*B - i for i in B-1:-1:0)...)
     localmodel_tsp(Reconstruction(ss, D, τ), p; kwargs...)[:,sind]
 end
@@ -353,17 +357,20 @@ end
 """
     MSEp(R::AbstractDataset{D,T}, R_test, p; method, ntype, stepsize) -> error
 
-Compute mean squared error of iterated predictions of length `p` using test set `R_test`.
+Compute mean squared error of iterated predictions of length `p`
+using test set `R_test`.
 
 ## Description
 This error measure takes in a prediction model consisting of `R`,
- `method`, `ntype` and `stepsize` and evaluates its performance. The test set `R_test` is
+`method`, `ntype` and `stepsize` and evaluates its performance. The test set
+`R_test` is
 a delay reconstruction with the same delay `τ` and dimension `D` as `R`.
 For each subset of `R_test` with length `p` it calls `localmodel_tsp`.
 The model error is then defined as
 ```math
 \\begin{aligned}
-MSE_p = \\frac{1}{p|T_{ref}|}\\sum_{t\\in T_{ref}}\\sum_{i=1}^{p} \\left(y_{t+i} - y_{pred,t+i} \\right)^2
+MSE_p = \\frac{1}{p|T_{ref}|}\\sum_{t\\in T_{ref}}\\sum_{i=1}^{p} \\left(y_{t+i}
+- y_{pred,t+i} \\right)^2
 \\end{aligned}
 ```
 where ``|T_{ref}|`` is the number of subsets of `R_test` used.
@@ -391,4 +398,5 @@ end
 MSEp(R, R_test, p; method::AbstractLocalModel = AverageLocalModel(2),
 ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
 stepsize::Int = 1) =
-MSEp(R, KDTree(R[1:end-stepsize]), R_test, p; method=method, ntype=ntype, stepsize=stepsize)
+MSEp(R, KDTree(R[1:end-stepsize]), R_test, p; method=method,
+ntype=ntype, stepsize=stepsize)
