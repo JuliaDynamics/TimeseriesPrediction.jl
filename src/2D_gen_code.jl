@@ -50,9 +50,11 @@ function my_reconstruct_impl(::Val{D}, ::Val{B}) where {D, B}
         L -= $(D-1)*τ
         T = eltype(s)
         data = Vector{SVector{$D*(2*$B + 1)^2, T}}(L*X*Y)
-        for mx ∈ 1:X, my ∈ 1:Y
+        for my ∈ 1:Y, mx ∈ 1:X
             for t ∈ 1:L
-                n = mx + X*(my-1) + X*Y*(t-1)
+                #n = mx + X*(my-1) + X*Y*(t-1)
+                n = t + L*(mx-1) + L*X*(my-1)
+                #println("mx=$mx, my=$my, t=$t, n=$n")
                 data[n] = SVector{$D*(2*$B + 1)^2, T}($(gens...))
             end
         end
@@ -81,7 +83,8 @@ end
 function localmodel_stts(s,D,τ,p,B=1,k=1,boundary=20, a=1,b=1;
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3))
-    R = md_STReconstruction(s,D,τ,B,k,boundary)
+    R = myReconstruction(s,D,τ,B,k,boundary)
+    #R = md_STReconstruction(s,D,τ,B,k,boundary)
     #M = dimension(s)
     #L = length(s)
     X,Y,L = size(s)
@@ -113,12 +116,12 @@ function localmodel_stts(s,D,τ,p,B=1,k=1,boundary=20, a=1,b=1;
                     push!(q,s_pred[i,j,t])
                 end
             end
-            push!(q, a*(-1+2*mx/X)^b)
-            push!(q, a*(-1+2*my/Y)^b)
+            #push!(q, a*(-1+2*mx/X)^b)
+            #push!(q, a*(-1+2*my/Y)^b)
             #make prediction & put into state
             idxs,dists = TimeseriesPrediction.neighborhood_and_distances(q,R,tree,ntype)
             xnn = R[idxs]
-            ynn = map(y -> y[1+(2*B*k+1)*B*k+B*k+(D-1)*(2*B*k+1)^2],R[idxs+1])
+            ynn = map(y -> y[1+(2*B+1)*B+B+(D-1)*(2*B+1)^2],R[idxs+1])
 
             state[mx,my] = method(q,xnn,ynn,dists)[1]
         end
@@ -148,7 +151,7 @@ end
 X=10
 Y=10
 ds = coupled_henon(X,Y)
-N_train = 5000
+N_train = 100
 p = 30
 data = trajectory(ds,N_train+p)
 #Reconstruct this #

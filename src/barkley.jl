@@ -9,18 +9,20 @@ using Plots
 
 # Simulation is super fast but plotting/animating sucks....
 
-function barkley2(Nx=100, Ny=100)
+function barkley(Nx=100, Ny=100)
     a = 0.75
     b = 0.02
     ε = 0.02
     T = 500
     V = zeros(Nx, Ny, T)
     u = zeros(Nx, Ny)
+    v = zeros(Nx, Ny)
     u[50:end,49] = 0.1
     u[50:end,50] = 0.5
     u[50:end,51] = 5
-    v = zeros(Nx, Ny)
     v[50:end,48] = 1
+
+
     #u[50:52, 47:48] = 1
 
 
@@ -60,8 +62,8 @@ function barkley2(Nx=100, Ny=100)
         #plot(p)
     end
 
-    @gif for i=1:T
-        plot(@view(V[:,:,i]), st=[:contourf])
-    end every 10
-    #return V
+    #@gif for i=1:T
+    #    plot(@view(V[:,:,i]), st=[:contourf])
+    #end every 10
+    return V
 end
