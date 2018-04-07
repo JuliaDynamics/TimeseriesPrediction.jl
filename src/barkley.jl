@@ -1,6 +1,6 @@
 using OrdinaryDiffEq
-#using Plots
-using PyPlot
+using Plots
+#using PyPlot
 #pyplot()
 
 
@@ -13,6 +13,7 @@ function barkley2(Nx=100, Ny=100)
     a = 0.75
     b = 0.02
     ε = 0.02
+    T = 500
     V = zeros(Nx, Ny, T)
     u = zeros(Nx, Ny)
     u[50:end,49] = 0.1
@@ -26,7 +27,6 @@ function barkley2(Nx=100, Ny=100)
     h = 0.75
     Δt = 0.1
     δ = 0.01
-    T = 500
     Σ = zeros(Nx, Ny, 2)
     r = 1
     s = 2
@@ -60,9 +60,8 @@ function barkley2(Nx=100, Ny=100)
         #plot(p)
     end
 
-    #for i=1:T
-    #    imshow(@view V[:,:,i])
-    #    sleep(0.01)
-    return V
-    end
+    @gif for i=1:T
+        plot(@view(V[:,:,i]), st=[:contourf])
+    end every 10
+    #return V
 end
