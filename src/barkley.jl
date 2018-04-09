@@ -1,7 +1,7 @@
 using Plots
 #using PyPlot
-#pyplot()
-
+pyplot()
+gr()
 
 ##This Algorithm is taken from
 #  http://www.scholarpedia.org/article/Barkley_model
@@ -75,9 +75,9 @@ end
 
 Nx = 50
 Ny = 50
-Tskip = 20
-Ttrain = 50
-p = 100
+Tskip = 100
+Ttrain = 100
+p = 200
 T = Tskip + Ttrain + p
 
 V = barkley(T, Nx, Ny)#[:,:,Tskip+1:T]
@@ -149,15 +149,32 @@ function localmodel_stts(s,D,τ,p,B=1,k=1,boundary=20, a=1,b=1;
 end
 
 Vpred = localmodel_stts(Vtrain, D, τ, p, B, k, a, b)
-error = Vtest-Vpred
+error = abs.(Vtest-Vpred)
 ε = sum(error, (1,2))[:]
 #ε2 = sum(Vpred-Vpred2, (1,2))[:]
 
-@gif for i=1:size(Vtest)[3]
-    #l = @layout [a{0.5w} b]
-    p1 = plot(@view(Vtest[:,:,i]), st=[:contourf])
-    p2 = plot(@view(Vpred[:,:,i]), st=[:contourf])
-    #p3 = plot(@view(error[:,:,i]), st=[:contourf])
-    plot(p1,p2, layout=(1,2))#, size=(600,1000))
-    plot!(title = "barkley L=Orig, R=pred")
+@gif for i=2:Base.size(Vtest)[3]
+    l = @layout([a b c])
+    p1 = plot(@view(Vtest[:,:,i]), aspect_ratio=1,st=[:heatmap])
+    plot!(title = "Barkley Model")
+    p2 = plot(@view(Vpred[:,:,i]), aspect_ratio=1,st=[:contourf])
+    title!("Prediction")
+    p3 = plot(@view(error[:,:,i]), aspect_ratio=1,st=[:contourf])
+    title!("Error")
+
+    plot(p1,p2,p3, layout=l, size=(1200,380))
 end
+
+begin
+    l = @layout([a b c])
+    p1 = plot(@view(Vtest[:,:,2]), aspect_ratio=1,st=[:heatmap])
+    plot!(title = "Barkley Model")
+    p2 = plot(@view(Vpred[:,:,2]), aspect_ratio=1,st=[:heatmap])
+    title!("Prediction")
+    p3 = plot(@view(error[:,:,2]), clims=(0,0.1),aspect_ratio=1,st=[:heatmap])
+
+    plot(p1,p2,p3, layout=l)#, size=(600,1000))
+end
+
+plot(@view(error[:,:,2]),clims=(0,2), st=[:contourf])
+plot(@view(Vpred[:,:,1]), st=[:heatmap])
