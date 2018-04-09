@@ -10,7 +10,7 @@ pyplot()
 function my_reconstruct_impl(::Val{D}, ::Val{B}) where {D, B}
     gens = [:(0 < mx + $i<=X && 0 < my + $j <= Y ?
      s[mx + $i, my + $j, t + $d*τ] : boundary)
-      for i=-B:B, j=-B:B, d=0:D-1]
+      for i=-B*k:k:B*k, j=-B*k:k:B*k, d=0:D-1]
     quote
         X,Y,L = size(s)
         L -= $(D-1)*τ
@@ -28,12 +28,12 @@ function my_reconstruct_impl(::Val{D}, ::Val{B}) where {D, B}
     end
 end
 
-@generated function my_reconstruct(s, ::Val{D}, ::Val{B}, τ, boundary, a, b) where {D, B}
+@generated function my_reconstruct(s, ::Val{D}, ::Val{B}, τ,k, boundary, a, b) where {D, B}
     my_reconstruct_impl(Val{D}(), Val{B}())
 end
 
 function myReconstruction(s::AbstractArray{T,3}, D,τ::DT,B=1,k=1,boundary=10, a=1,b=1) where {T, DT}
-    Reconstruction{D*(2B+1)^2+2,T,DT}(my_reconstruct(s, Val{D}(), Val{B}(),τ,boundary,a,b), τ)
+    Reconstruction{D*(2B+1)^2+2,T,DT}(my_reconstruct(s, Val{D}(), Val{B}(),τ,k,boundary,a,b), τ)
 end
 
 
