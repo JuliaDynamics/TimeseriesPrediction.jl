@@ -128,10 +128,10 @@ function barkley(T, Nx=100, Ny=100)
                 v[i,j] = v[i,j] + Δt*(u[i,j] - v[i,j])
                 u[i,j] = F(u[i,j], uth) + Δt/h^2 *Σ[i,j,r]
                 Σ[i,j,s] -= 4u[i,j]
-                i > 1 &&  (Σ[i-1,j,s] += u[i,j])
-                i < Nx ? Σ[i+1,j,s] += u[i,j] : nothing
-                j > 1  ? Σ[i,j-1,s] += u[i,j] : nothing
-                j < Ny ? Σ[i,j+1,s] += u[i,j] : nothing
+                i > 1  && (Σ[i-1,j,s] += u[i,j])
+                i < Nx && (Σ[i+1,j,s] += u[i,j])
+                j > 1  && (Σ[i,j-1,s] += u[i,j])
+                j < Ny && (Σ[i,j+1,s] += u[i,j])
             end
             Σ[i,j,r] = 0
         end
@@ -152,7 +152,7 @@ Nx = 50
 Ny = 50
 Tskip = 100
 Ttrain = 100
-p = 200
+p = 5
 T = Tskip + Ttrain + p
 
 V = barkley(T, Nx, Ny)
@@ -187,5 +187,5 @@ error = abs.(Vtest-Vpred)
     p3 = plot(@view(error[:,:,i]), clims=(0,0.1),aspect_ratio=1,st=[:heatmap])
     title!("Error")
 
-    plot(p1,p2,p3, layout=l, size=(1200,380))
+    plot(p1,p2,p3, layout=l, size=(600,170))
 end
