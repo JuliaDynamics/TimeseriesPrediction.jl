@@ -1,4 +1,8 @@
 using Plots
+using StaticArrays
+using NearestNeighbors
+using TimeseriesPrediction
+
 #using PyPlot
 pyplot()
 
@@ -88,6 +92,7 @@ function barkley(T, Nx=100, Ny=100)
     a = 0.75
     b = 0.02
     ε = 0.02
+    U = zeros(Nx, Ny, T)
     V = zeros(Nx, Ny, T)
     u = zeros(Nx, Ny)
     v = zeros(Nx, Ny)
@@ -104,8 +109,8 @@ function barkley(T, Nx=100, Ny=100)
     v[1:15,17] = 1
 
 
-    h = 0.75
-    Δt = 0.1
+    h = 0.75 #/ sqrt(2)
+    Δt = 0.1 #/ 2
     δ = 0.01
     Σ = zeros(Nx, Ny, 2)
     r = 1
@@ -137,8 +142,9 @@ function barkley(T, Nx=100, Ny=100)
         end
         r,s = s,r
         V[:,:,m] .= v
+        U[:,:,m] .= u
     end
-    return V
+    return U,V
 end
 
 
@@ -155,7 +161,7 @@ Ttrain = 100
 p = 5
 T = Tskip + Ttrain + p
 
-V = barkley(T, Nx, Ny)
+U,V = barkley(T, Nx, Ny)
 Vtrain = V[:,:,Tskip + 1:Tskip + Ttrain]
 Vtest  = V[:,:,Tskip + Ttrain :  T]
 
