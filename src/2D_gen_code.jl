@@ -132,7 +132,7 @@ function localmodel_stts(s,D,τ,p,B=1,k=1,boundary=20, a=1,b=1;
                 end
             end
             push!(q,a*(-1+2*(mx-1)/(X-1))^b)
-            push!(q,a*(-1+2*(mY-1)/(Y-1))^b)
+            push!(q,a*(-1+2*(my-1)/(Y-1))^b)
             #make prediction & put into state
             idxs,dists = TimeseriesPrediction.neighborhood_and_distances(q,R,tree,ntype)
             xnn = R[idxs]
@@ -175,23 +175,33 @@ mat = convert(Matrix,s)'
 mat = reshape(mat, (X,Y,N_train))
 
 begin
-    subplot(311)
+    ax1 = subplot(311)
     #Original
     img = Matrix(data[N_train:N_train+p,SVector(1:X*Y...)])
     pcolormesh(img)
-    xticks([])
     colorbar()
-    subplot(312)
+    # Make x-tick labels invisible
+    setp(ax1[:get_xticklabels](), visible=false)
+    title("original")
+
+
     #Prediction
+    ax2 = subplot(312, sharex = ax1)
     s_pred = localmodel_stts(mat,2,1,p,1,1,10, 1,1)
     pred_mat = reshape(s_pred, (X*Y,p+1))'
     pcolormesh(pred_mat)
     colorbar()
-    xticks([])
+    setp(ax1[:get_xticklabels](), visible=false)
+    title("prediction")
+    ylabel("t")
 
-    subplot(313)
     #Error
+    ax3 = subplot(313, sharex = ax1)
     ε = abs.(img-pred_mat)
     pcolormesh(ε)
     colorbar()
+    title("error")
+    xlabel("i = (x, y)")
+
+
 end
