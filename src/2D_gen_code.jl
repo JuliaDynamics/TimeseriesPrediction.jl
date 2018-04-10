@@ -191,7 +191,7 @@ begin
     pred_mat = reshape(s_pred, (X*Y,p+1))'
     pcolormesh(pred_mat)
     colorbar()
-    setp(ax1[:get_xticklabels](), visible=false)
+    setp(ax2[:get_xticklabels](), visible=false)
     title("prediction")
     ylabel("t")
 
@@ -202,6 +202,7 @@ begin
     colorbar()
     title("error")
     xlabel("i = (x, y)")
+    tight_layout()
 
 
 end
