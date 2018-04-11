@@ -11,6 +11,11 @@ function localmodel_stts(s,D,τ,p,B=1,k=1,boundary=20, a=1,b=1;
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3))
 
     R = myReconstruction(s,D,τ,B,k,boundary, a, b)
+
+    #TODO: Add function barrier
+    _localmodel_sttts()
+end
+function _localmodel_stts(R::Reconstruction, D, B, τ, k) # FIX ME
     X,Y,L = size(s)
 
     #Prepare tree but remove the last reconstructed states first
