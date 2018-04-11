@@ -2,7 +2,7 @@ using Plots
 
 
 #using PyPlot
-pyplot()
+#pyplot()
 
 ##This Algorithm is taken from
 #  http://www.scholarpedia.org/article/Barkley_model
@@ -111,12 +111,31 @@ err = abs.(Vtest-Vpred)
 # Animation (takes forever)
 @gif for i=2:Base.size(Vtest)[3]
     l = @layout([a b c])
-    p1 = plot(@view(Vtest[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
-    plot!(title = "Barkley Model")
-    p2 = plot(@view(Vpred[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
-    title!("Prediction")
-    p3 = plot(@view(err[:,:,i]), clims=(0,0.1),aspect_ratio=1,st=[:heatmap])
-    title!("Error")
+    p1 = plot(@view(Vtest[:,:,i]),
+                title = "Barkley Model",
+                xlabel = "X",
+                ylabel = "Y",
+                clims=(0,0.75),
+                cbar = false,
+                aspect_ratio=1,
+                st=:heatmap)
+
+    p2 = plot(@view(Vpred[:,:,i]),
+                title = "Prediction",
+                xlabel = "X",
+                #ylabel = "Y",
+                clims=(0,0.75),
+                aspect_ratio=1,
+                st=:heatmap)
+
+    p3 = plot(@view(err[:,:,i]),
+                title = "Error",
+                xlabel = "X",
+                #ylabel = "Y",
+                clims=(0,0.1),
+                aspect_ratio=1,
+                st=:heatmap)
+
 
     plot(p1,p2,p3, layout=l, size=(600,170))
 end
