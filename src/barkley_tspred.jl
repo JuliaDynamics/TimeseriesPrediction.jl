@@ -83,7 +83,7 @@ Nx = 50
 Ny = 50
 Tskip = 100
 Ttrain = 100
-p = 5
+p = 100
 T = Tskip + Ttrain + p
 
 U,V = barkley(T, Nx, Ny)
@@ -129,12 +129,13 @@ err = abs.(Vtest-Vpred)
                 st=:heatmap)
 
     p3 = plot(@view(err[:,:,i]),
-                title = "Error",
+                title = "Absolute Error",
                 xlabel = "X",
                 #ylabel = "Y",
                 clims=(0,0.1),
                 aspect_ratio=1,
-                st=:heatmap)
+                st=:heatmap,
+                seriescolor=:viridis)
 
 
     plot(p1,p2,p3, layout=l, size=(600,170))

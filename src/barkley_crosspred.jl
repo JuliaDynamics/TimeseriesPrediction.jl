@@ -67,7 +67,7 @@ Nx = 50
 Ny = 50
 Tskip = 100
 Ttrain = 100
-Ttest = 5
+Ttest = 100
 T = Tskip + Ttrain + Ttest
 D = 2
 τ = 1
@@ -97,14 +97,15 @@ error = abs.(Utest-Upred)
 # Animation (takes forever)
 @time @gif for i=2:Base.size(Utest)[3]
     l = @layout([a b; c d])
-    p1 = plot(@view(Vtest[:,:,i+(D-1)τ]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
+    p1 = plot(@view(Vtest[:,:,i+(D-1)τ]), clims=(0,0.75),aspect_ratio=1,st=:heatmap)
     plot!(title = "Barkley Model")
-    p2 = plot(@view(Utest[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
-    title!("U component")
-    p3 = plot(@view(Upred[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
-    title!("U Prediction")
-    p4 = plot(@view(error[:,:,i]),clims=(0,0.1),aspect_ratio=1,st=[:heatmap])
-    title!("Model Error")
+    p2 = plot(@view(Utest[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+    title!("original U")
+    p3 = plot(@view(Upred[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+    title!("Cross-Pred U")
+    p4 = plot(@view(error[:,:,i]),clims=(0,0.1),aspect_ratio=1,
+    st=:heatmap,seriescolor=:viridis)
+    title!("Absolute Error")
 
     plot(p1,p2,p3,p4, layout=l, size=(600,600))
 end
