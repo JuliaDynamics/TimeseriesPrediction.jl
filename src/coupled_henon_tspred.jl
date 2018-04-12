@@ -50,7 +50,7 @@ begin
 
 
     #Prediction
-    ax2 = subplot(312, sharex = ax1)
+    ax2 = subplot(312, sharex = ax1, sharey = ax1)
     s_pred = localmodel_stts(mat,2,1,p,1,1,10, 1,1)
     pred_mat = reshape(s_pred, (X*Y,p+1))'
     pcolormesh(pred_mat)
@@ -60,11 +60,11 @@ begin
     ylabel("t")
 
     #Error
-    ax3 = subplot(313, sharex = ax1)
+    ax3 = subplot(313, sharex = ax1, sharey = ax1)
     ε = abs.(img-pred_mat)
-    pcolormesh(ε)
+    pcolormesh(ε, cmap="inferno")
     colorbar()
-    title("error")
+    title("absolute error")
     xlabel("i = (x, y)")
     tight_layout()
 

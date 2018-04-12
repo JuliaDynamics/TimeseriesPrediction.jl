@@ -90,8 +90,8 @@ Vtest  = V[:,:,Tskip + Ttrain :  T]
 
 
 Upred = crosspred_stts(Vtrain,Utrain,Vtest, D, τ, B, k, a, b)
-error = abs.(Utest-Upred)
-ε = sum(error, (1,2))[:]
+err = abs.(Utest-Upred)
+ε = sum(err, (1,2))[:]
 
 
 # Animation (takes forever)
@@ -103,7 +103,7 @@ error = abs.(Utest-Upred)
     title!("original U")
     p3 = plot(@view(Upred[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=:heatmap)
     title!("Cross-Pred U")
-    p4 = plot(@view(error[:,:,i]),clims=(0,0.1),aspect_ratio=1,
+    p4 = plot(@view(err[:,:,i]),clims=(0,0.1),aspect_ratio=1,
     st=:heatmap,seriescolor=:viridis)
     title!("Absolute Error")
 
