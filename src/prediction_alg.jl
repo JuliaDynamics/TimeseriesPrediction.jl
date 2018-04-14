@@ -6,49 +6,37 @@ using TimeseriesPrediction
 #                                     Prediction                                          #
 ###########################################################################################
 
-function localmodel_stts(s::AbstractArray{T,Ψ},D,τ,p,B=1,k=1,boundary=20, a=1,b=1;
+function localmodel_stts(s::AbstractVector{SArray{S,T, Φ, M}},
+    D,τ,p,B=1,k=1,boundary=20, a=1,b=1;
     method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Ψ}
-    Φ = Ψ-1  #Number of spatial Dimension
-    M = prod(size(s)[1:Φ])  #Total Number of spatial points
-    L = size(s)[Φ+1] #Number of temporal points
-    R = myReconstruction(s,D,τ,B,k,boundary, a, b)
+    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {S, T, Φ, M}
 
+    L = length(s) #Number of temporal points
+    R = myReconstruction(s,D,τ,B,k,boundary, a, b)
     #Prepare tree but remove the last reconstructed states first
     tree = KDTree(R[1:end-M])
 
-    if Φ == 2
-        #Prepare s_pred with end of STTS so all initial queries can be created
-        s_pred = s[:,:,L-D*τ:L]
-        return _localmodel_stts(s_pred, R, tree, D, τ, p, B, k,
-         boundary, a, b)[:,:,D*τ+1:end]
-    elseif Φ == 1
-        s_pred = s[:,L-D*τ:L]
-        return _localmodel_stts(s_pred, R, tree, D, τ, p, B, k,
-         boundary, a, b)[:,D*τ+1:end]
-    end
+    s_pred = s[L-D*τ:L]
+    return _localmodel_stts(s_pred, R, tree, D, τ, p, B, k, boundary, a, b)[D*τ+1:end]
 end
 
-function gen_qs(s_pred::AbstractArray{T, 3}, D, τ, B, k, boundary, a, b) where {T}
-    N = size(s_pred)[3]
-    s_slice = @view(s_pred[:,:,N-D*τ+1:τ:N])
+
+
+function gen_qs(s_pred, D, τ, B, k, boundary, a, b)
+    N = length(s_pred)
+    s_slice = @view(s_pred[N-D*τ+1:τ:N])
     return myReconstruction(s_slice, D, τ, B, k, boundary, a, b)
 end
 
-function gen_qs(s_pred::AbstractArray{T, 2}, D, τ, B, k, boundary, a, b) where {T}
-    N = size(s_pred)[2]
-    s_slice = @view(s_pred[:,N-D*τ+1:τ:N])
-    return myReconstruction(s_slice, D, τ, B, k, boundary, a, b)
-end
 
-function _localmodel_stts(s::AbstractArray{T,Ψ}, R, tree ,D, τ, p, B, k, boundary, a, b;
+function _localmodel_stts(s::AbstractVector{SArray{S,T, Φ, M}},
+    R, tree ,D, τ, p, B, k, boundary, a, b;
     method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Ψ}
-    Φ = Ψ - 1
-    M = prod(size(s)[1:Φ])  #Total Number of spatial points
+    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {S, T, Φ, M}
+
     #New state that will be predicted, allocate once and reuse
-    state = similar(Array{T}, indices(s)[1:Φ])
-    #Index of relevant element in ynn
+    state = similar(s[1])
+    #Index of relevant element in ynn (not proven but seemingly correct)
     im = 1 + (D-1)*(2B+1)^Φ + B*sum(i -> (2B+1)^(Φ-i), 1:Φ)
     for n=1:p
         qs = gen_qs(s, D, τ, B, k, boundary, a, b)
@@ -60,10 +48,13 @@ function _localmodel_stts(s::AbstractArray{T,Ψ}, R, tree ,D, τ, p, B, k, bound
 
             state[m] = method(q,xnn,ynn,dists)[1]
         end
-        s = cat(Φ+1,s,state)
+        s = push!(s,state)
     end
     return s
 end
+
+
+
 
 
 

@@ -23,20 +23,20 @@ end
 
 M=100
 ds = coupled_henon(M)
-N_train = 5000
+N_train = 500
 p = 20
 data = trajectory(ds,N_train+p)
 #Reconstruct this #
-utrain = Matrix(data[1:N_train,SVector(1:M...)])'
-vtrain = Matrix(data[1:N_train,SVector(M+1:2M...)])'
-utest = Matrix(data[N_train:N_train+p,SVector(1:M...)])'
-vtest = Matrix(data[N_train:N_train+p,SVector(M+1:2M...)])'
+utrain = data[1:N_train,SVector(1:M...)]
+vtrain = data[1:N_train,SVector(M+1:2M...)]
+utest = data[N_train:N_train+p,SVector(1:M...)]
+vtest = data[N_train:N_train+p,SVector(M+1:2M...)]
 
 
 begin
     ax1 = subplot(311)
     #Original
-    pcolormesh(utest')
+    pcolormesh(Matrix(utest))
     colorbar()
     # Make x-tick labels invisible
     setp(ax1[:get_xticklabels](), visible=false)
@@ -45,8 +45,8 @@ begin
 
     #Prediction
     ax2 = subplot(312, sharex = ax1, sharey = ax1)
-    s_pred = localmodel_stts(utrain,2,1,p,1,1,20, 0,0)
-    pcolormesh(s_pred')
+    s_pred = localmodel_stts(utrain.data,2,1,p,1,1,20, 0,0)
+    pcolormesh(s_pred)
     colorbar()
     setp(ax2[:get_xticklabels](), visible=false)
     title("prediction ( N_train=$N_train)")
@@ -54,8 +54,8 @@ begin
 
     #Error
     ax3 = subplot(313, sharex = ax1, sharey = ax1)
-    ε = abs.(utest-s_pred)
-    pcolormesh(ε', cmap="inferno")
+    ε = abs.(utest.data-s_pred)
+    pcolormesh(ε, cmap="inferno")
     colorbar()
     title("absolute error")
     xlabel("i = (x, y)")
@@ -99,7 +99,7 @@ end
 #     title("absolute error")
 #     xlabel("x")
 #     tight_layout()
-end
+#end
 
 # Cross-Prediction
 # begin
@@ -138,4 +138,4 @@ end
 #     title("absolute error")
 #     xlabel("x")
 #     tight_layout()
-end
+#end
