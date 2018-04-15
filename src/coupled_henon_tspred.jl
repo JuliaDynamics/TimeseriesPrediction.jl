@@ -30,12 +30,12 @@ end
 X=10
 Y=10
 ds = coupled_henon(X,Y)
-N_train = 100
-p = 30
+N_train = 1000
+p = 20
 data = trajectory(ds,N_train+p)
 #Reconstruct this
 s = data[1:N_train,SVector(1:X*Y...)]
-s = map(state -> SArray{Tuple{X,Y},Float64}(state...), s)
+s = map(state -> reshape([state...], X,Y), s)
 
 begin
     ax1 = subplot(311)

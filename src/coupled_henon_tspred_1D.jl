@@ -28,6 +28,8 @@ p = 20
 data = trajectory(ds,N_train+p)
 #Reconstruct this #
 utrain = data[1:N_train,SVector(1:M...)]
+utrain = map(state -> [state...], utrain)
+
 vtrain = data[1:N_train,SVector(M+1:2M...)]
 utest = data[N_train:N_train+p,SVector(1:M...)]
 vtest = data[N_train:N_train+p,SVector(M+1:2M...)]
@@ -45,7 +47,7 @@ begin
 
     #Prediction
     ax2 = subplot(312, sharex = ax1, sharey = ax1)
-    s_pred = localmodel_stts(utrain.data,2,1,p,1,1,20, 0,0)
+    s_pred = localmodel_stts(utrain,2,1,p,1,1,20, 0,0)
     pcolormesh(s_pred)
     colorbar()
     setp(ax2[:get_xticklabels](), visible=false)

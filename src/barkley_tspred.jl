@@ -21,8 +21,8 @@ function barkley(T, Nx=100, Ny=100)
     Φ = 2
     u = zeros(Nx, Ny)
     v = zeros(Nx, Ny)
-    U = Vector{SArray{Tuple{Nx, Ny}, Float64, Φ, Nx*Ny}}()
-    V = Vector{SArray{Tuple{Nx, Ny}, Float64, Φ, Nx*Ny}}()
+    U = Vector{Array{Float64,2}}()
+    V =Vector{Array{Float64,2}}()
 
     #Initial state that creates spirals
     u[35:end,34] = 0.1
@@ -70,8 +70,8 @@ function barkley(T, Nx=100, Ny=100)
         r,s = s,r
         #V[:,:,m] .= v
         #U[:,:,m] .= u
-        push!(U,SArray{Tuple{Nx, Ny}}(u))
-        push!(V,SArray{Tuple{Nx, Ny}}(v))
+        push!(U,copy(u))
+        push!(V,copy(v))
     end
     return U,V
 end
@@ -83,8 +83,8 @@ end
 
 
 
-Nx = 50
-Ny = 50
+Nx = 36
+Ny = 36
 Tskip = 100
 Ttrain = 100
 p = 10
@@ -102,18 +102,19 @@ B = 1
 k = 1
 a = 0
 b = 0
+
 boundary = 20
 
 
 
 
 Vpred = localmodel_stts(Vtrain, D, τ, p, B, k, a, b)
-err = abs.(Vtest.-Vpred)
-ε = sum(err, (1,2,3))[:]
+err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
+ε = map(s -> sum(s), err)
 
 
 # Animation (takes forever)
-@gif for i=2:2#Base.size(Vtest)[3]
+@gif for i=2:Base.size(Vtest)[1]
     l = @layout([a b c])
     p1 = plot(Vtest[i],
     title = "Barkley Model",

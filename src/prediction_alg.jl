@@ -6,11 +6,11 @@ using TimeseriesPrediction
 #                                     Prediction                                          #
 ###########################################################################################
 
-function localmodel_stts(s::AbstractVector{SArray{S,T, Φ, M}},
+function localmodel_stts(s::AbstractVector{Array{T, Φ}},
     D,τ,p,B=1,k=1,boundary=20, a=1,b=1;
     method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {S, T, Φ, M}
-
+    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Φ}
+    M = prod(size(s[1]))
     L = length(s) #Number of temporal points
     R = myReconstruction(s,D,τ,B,k,boundary, a, b)
     #Prepare tree but remove the last reconstructed states first
@@ -29,11 +29,11 @@ function gen_qs(s_pred, D, τ, B, k, boundary, a, b)
 end
 
 
-function _localmodel_stts(s::AbstractVector{SArray{S,T, Φ, M}},
+function _localmodel_stts(s::AbstractVector{Array{T, Φ}},
     R, tree ,D, τ, p, B, k, boundary, a, b;
     method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {S, T, Φ, M}
-
+    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Φ}
+    M = prod(size(s[1]))
     #New state that will be predicted, allocate once and reuse
     state = similar(s[1])
     #Index of relevant element in ynn (not proven but seemingly correct)
@@ -48,7 +48,7 @@ function _localmodel_stts(s::AbstractVector{SArray{S,T, Φ, M}},
 
             state[m] = method(q,xnn,ynn,dists)[1]
         end
-        s = push!(s,state)
+        s = push!(s,copy(state))
     end
     return s
 end

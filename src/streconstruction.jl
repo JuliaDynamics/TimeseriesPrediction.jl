@@ -82,8 +82,8 @@ end
 end
 
 function myReconstruction(
-    s::AbstractVector{SArray{S,T, Φ, M}}, D, τ::DT, B=1, k=1, boundary=10, a=1, b=1
-    ) where {S, T, Φ, M, DT}
+    s::AbstractVector{Array{T, Φ}}, D, τ::DT, B=1, k=1, boundary=10, a=1, b=1
+    ) where {T, Φ, DT}
     lims = size(s[1])
     Reconstruction{D*(2B+1)^Φ+Φ,T,DT}(
     my_reconstruct(Val{Φ},Val{lims}, s, Val{D}, Val{B},τ,Val{k},boundary,a,b), τ)
