@@ -3,50 +3,10 @@ using IterTools
 ###########################################################################################
 #                       Better generated Reconstruction                                   #
 ###########################################################################################
-# function my_reconstruct_impl(::Type{Val{2}}, ::Type{Val{D}},
-#     ::Type{Val{B}}, ::Type{Val{k}}) where {D, B, k}
-#     gens = [:(0 < mx + $i<=X && 0 < my + $j <= Y ?
-#      s[t + $d*τ][mx + $i, my + $j] : boundary)
-#       for i=-B*k:k:B*k, j=-B*k:k:B*k, d=0:D-1]
-#     quote
-#         X,Y = size(s[1])
-#         L = length(s) - $(D-1)*τ
-#         T = eltype(s[1][1])
-#         data = Vector{SVector{$D*(2*$B + 1)^2+2, T}}(L*X*Y)
-#         for t ∈ 1:L
-#             for my ∈ 1:Y, mx ∈ 1:X
-#                 wx = a*(-1+2*(mx-1)/(X-1))^b
-#                 wy = a*(-1+2*(my-1)/(Y-1))^b
-#                 n = mx + X*(my-1) + Y*X*(t-1)
-#                 data[n] = SVector{$D*(2*$B + 1)^2+2, T}($(gens...),wx, wy)
-#             end
-#         end
-#         data
-#     end
-# end
-#
-# function my_reconstruct_impl(::Type{Val{1}}, ::Type{Val{D}},
-#     ::Type{Val{B}}, ::Type{Val{k}}) where {D, B, k}
-#     gens = [:(0 < mx + $i<=X  ? s[t + $d*τ][mx + $i]
-#         : boundary) for i=-B*k:k:B*k, d=0:D-1]
-#     quote
-#         X = size(s[1])
-#         L = length(s) - $(D-1)*τ
-#         T = eltype(s[1][1])
-#         data = Vector{SVector{$D*(2*$B + 1)+1, T}}(L*X)
-#         for t ∈ 1:L
-#             for mx ∈ 1:X
-#                 wx = a*(-1+2*(mx-1)/(X-1))^b
-#                 n = mx + X*(t-1)
-#                 data[n] = SVector{$D*(2*$B + 1)+1, T}($(gens...),wx)
-#             end
-#         end
-#         data
-#     end
-# end
+
 
 function my_reconstruct_impl(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
-    ::Type{Val{B}}, ::Type{Val{k}}) where {Φ, lims,D, B, k}
+    ::Type{Val{B}}, ::Type{Val{k}}) where {Φ, lims, D, B, k}
 
     gens = Expr[]
     for d=0:D-1, lidx ∈ product([-B*k:k:B*k for i=1:Φ]...)
