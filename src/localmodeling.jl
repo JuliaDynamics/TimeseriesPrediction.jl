@@ -74,12 +74,11 @@ AverageLocalModel() = AverageLocalModel(2)
 
 
 function (M::AverageLocalModel)(q,xnn,ynn,dists)
-    if length(xnn) > 1
-        dmax = maximum(dists)
+    if length(xnn) > 1 && (dmax = maximum(dists)) > 0
         y_pred = zeros(typeof(ynn[1]))
         Ω = 0.
         for (y,d) in zip(ynn,dists)
-            ω2 = (1-(d/dmax)^M.n)^2M.n
+            ω2 = (1.01-(d/dmax)^M.n)^2M.n
             Ω += ω2
             y_pred += ω2*y
         end
