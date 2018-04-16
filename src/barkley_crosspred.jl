@@ -7,10 +7,12 @@ function barkley(T, Nx=100, Ny=100)
     a = 0.75
     b = 0.02
     ε = 0.02
-    U = zeros(Nx, Ny, T)
-    V = zeros(Nx, Ny, T)
+
+    Φ = 2
     u = zeros(Nx, Ny)
     v = zeros(Nx, Ny)
+    U = Vector{Array{Float64,2}}()
+    V =Vector{Array{Float64,2}}()
 
     #Initial state that creates spirals
     u[35:end,34] = 0.1
@@ -56,8 +58,10 @@ function barkley(T, Nx=100, Ny=100)
             Σ[i,j,r] = 0
         end
         r,s = s,r
-        V[:,:,m] .= v
-        U[:,:,m] .= u
+        #V[:,:,m] .= v
+        #U[:,:,m] .= u
+        push!(U,copy(u))
+        push!(V,copy(v))
     end
     return U,V
 end
@@ -67,9 +71,9 @@ Nx = 50
 Ny = 50
 Tskip = 100
 Ttrain = 100
-Ttest = 100
-T = Tskip + Ttrain + Ttest
-D = 2
+Ttest = 10
+T = Tskip +Ttrain + Ttest
+D = 3
 τ = 1
 B = 1
 k = 1
@@ -78,10 +82,10 @@ b = 1
 boundary = 20
 
 U,V = barkley(T, Nx, Ny)
-Utrain = U[:,:,Tskip + 1:Tskip + Ttrain]
-Vtrain = V[:,:,Tskip + 1:Tskip + Ttrain]
-Utest  = U[:,:,Tskip + Ttrain + (D-1)τ:  T]
-Vtest  = V[:,:,Tskip + Ttrain :  T]
+Utrain = U[Tskip + 1:Tskip + Ttrain]
+Vtrain = V[Tskip + 1:Tskip + Ttrain]
+Utest  = U[Tskip + Ttrain - (D-1)τ + 1:  T]
+Vtest  = V[Tskip + Ttrain  - (D-1)τ + 1:  T]
 
 
 
@@ -90,20 +94,18 @@ Vtest  = V[:,:,Tskip + Ttrain :  T]
 
 
 Upred = crosspred_stts(Vtrain,Utrain,Vtest, D, τ, B, k, a, b)
-err = abs.(Utest-Upred)
-ε = sum(err, (1,2))[:]
-
+err = [abs.(Utest[1+(D-1)τ:end][i]-Upred[i]) for i=1:Ttest]
 
 # Animation (takes forever)
-@time @gif for i=2:Base.size(Utest)[3]
+@time @gif for i=2:length(Upred)
     l = @layout([a b; c d])
-    p1 = plot(@view(Vtest[:,:,i+(D-1)τ]), clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+    p1 = plot(Vtest[i+(D-1)τ], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
     plot!(title = "Barkley Model")
-    p2 = plot(@view(Utest[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+    p2 = plot(Utest[i+(D-1)τ], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
     title!("original U")
-    p3 = plot(@view(Upred[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+    p3 = plot(Upred[i], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
     title!("Cross-Pred U")
-    p4 = plot(@view(err[:,:,i]),clims=(0,0.1),aspect_ratio=1,
+    p4 = plot(err[i],clims=(0,0.1),aspect_ratio=1,
     st=:heatmap,seriescolor=:viridis)
     title!("Absolute Error")
 
@@ -113,69 +115,21 @@ end
 
 
 
+Vpred = crosspred_stts(Utrain,Vtrain,Utest, D, τ, B, k, a, b)
+err = [abs.(Vtest[1+(D-1)τ:end][i]-Vpred[i]) for i=1:Ttest]
 
-# Utest  = U[:,:,Tskip + Ttrain :  T]
-# Vtest  = V[:,:,Tskip + Ttrain + (D-1)τ:  T]
-#
-#
-#
-#
-#
-#
-#
-# Vpred = crosspred_stts(Utrain,Vtrain,Utest, D, τ, B, k, a, b)
-# error = abs.(Vtest-Vpred)
-# ε = sum(error, (1,2))[:]
-#
-#
-# # Animation (takes forever)
-# @time @gif for i=2:Base.size(Utest)[3]
-#     l = @layout([a b; c d])
-#     p1 = plot(@view(Vtest[:,:,i+(D-1)τ]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
-#     plot!(title = "Barkley Model")
-#     p2 = plot(@view(Utest[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
-#     title!("U component")
-#     p3 = plot(@view(Vpred[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
-#     title!("V Prediction")
-#     p4 = plot(@view(error[:,:,i]),clims=(0,0.1),aspect_ratio=1,st=[:heatmap])
-#     title!("Model Error")
-#
-#     plot(p1,p2,p3,p4, layout=l, size=(600,600))
-# end
+# Animation (takes forever)
+@time @gif for i=2:length(Vpred)
+    l = @layout([a b; c d])
+    p1 = plot(Utest[i+(D-1)τ], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+    plot!(title = "Barkley Model")
+    p2 = plot(Vtest[i+(D-1)τ], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+    title!("original V")
+    p3 = plot(Vpred[i], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+    title!("Cross-Pred V")
+    p4 = plot(err[i],clims=(0,0.1),aspect_ratio=1,
+    st=:heatmap,seriescolor=:viridis)
+    title!("Absolute Error")
 
-
-
-
-#experiment: separate training and test
-#
-# U,V = barkley(T, Nx, Ny)
-# Utrain = U[:,:,Tskip + 1:Tskip + Ttrain]
-# Vtrain = V[:,:,Tskip + 1:Tskip + Ttrain]
-# Utest  = U[:,:,Tskip + Ttrain + (D-1)τ:  T]
-# Vtest  = V[:,:,Tskip + Ttrain :  T]
-#
-#
-#
-#
-#
-#
-#
-# Upred = crosspred_stts(Vtrain,Utrain,Vtest, D, τ, B, k, a, b)
-# error = abs.(Utest-Upred)
-# ε = sum(error, (1,2))[:]
-#
-#
-# # Animation (takes forever)
-# @time @gif for i=2:Base.size(Utest)[3]
-#     l = @layout([a b; c d])
-#     p1 = plot(@view(Vtest[:,:,i+(D-1)τ]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
-#     plot!(title = "Barkley Model")
-#     p2 = plot(@view(Utest[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
-#     title!("U component")
-#     p3 = plot(@view(Upred[:,:,i]), clims=(0,0.75),aspect_ratio=1,st=[:heatmap])
-#     title!("U Prediction")
-#     p4 = plot(@view(error[:,:,i]),clims=(0,0.1),aspect_ratio=1,st=[:heatmap])
-#     title!("Model Error")
-#
-#     plot(p1,p2,p3,p4, layout=l, size=(600,600))
-# end
+    plot(p1,p2,p3,p4, layout=l, size=(600,600))
+end

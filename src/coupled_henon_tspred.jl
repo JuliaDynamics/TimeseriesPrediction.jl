@@ -31,12 +31,11 @@ X=10
 Y=10
 ds = coupled_henon(X,Y)
 N_train = 1000
-p = 30
+p = 20
 data = trajectory(ds,N_train+p)
-#Reconstruct this #
+#Reconstruct this
 s = data[1:N_train,SVector(1:X*Y...)]
-mat = convert(Matrix,s)'
-mat = reshape(mat, (X,Y,N_train))
+s = map(state -> reshape([state...], X,Y), s)
 
 begin
     ax1 = subplot(311)
@@ -51,9 +50,9 @@ begin
 
     #Prediction
     ax2 = subplot(312, sharex = ax1, sharey = ax1)
-    s_pred = localmodel_stts(mat,2,1,p,1,1,10, 1,1)
-    pred_mat = reshape(s_pred, (X*Y,p+1))'
-    pcolormesh(pred_mat)
+    s_pred = localmodel_stts(s,2,1,p,1,1,10, 1,1)
+    pred =  [s_pred[t][i] for t=1:p+1,i=1:X*Y]
+    pcolormesh(pred)
     colorbar()
     setp(ax2[:get_xticklabels](), visible=false)
     title("prediction")
@@ -61,7 +60,7 @@ begin
 
     #Error
     ax3 = subplot(313, sharex = ax1, sharey = ax1)
-    ε = abs.(img-pred_mat)
+    ε = abs.(img-pred)
     pcolormesh(ε, cmap="inferno")
     colorbar()
     title("absolute error")

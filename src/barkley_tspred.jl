@@ -17,10 +17,12 @@ function barkley(T, Nx=100, Ny=100)
     a = 0.75
     b = 0.02
     ε = 0.02
-    U = zeros(Nx, Ny, T)
-    V = zeros(Nx, Ny, T)
+
+    Φ = 2
     u = zeros(Nx, Ny)
     v = zeros(Nx, Ny)
+    U = Vector{Array{Float64,2}}()
+    V =Vector{Array{Float64,2}}()
 
     #Initial state that creates spirals
     u[35:end,34] = 0.1
@@ -66,8 +68,10 @@ function barkley(T, Nx=100, Ny=100)
             Σ[i,j,r] = 0
         end
         r,s = s,r
-        V[:,:,m] .= v
-        U[:,:,m] .= u
+        #V[:,:,m] .= v
+        #U[:,:,m] .= u
+        push!(U,copy(u))
+        push!(V,copy(v))
     end
     return U,V
 end
@@ -79,16 +83,16 @@ end
 
 
 
-Nx = 50
-Ny = 50
+Nx = 36
+Ny = 36
 Tskip = 100
 Ttrain = 100
-p = 100
+p = 10
 T = Tskip + Ttrain + p
 
 U,V = barkley(T, Nx, Ny)
-Vtrain = V[:,:,Tskip + 1:Tskip + Ttrain]
-Vtest  = V[:,:,Tskip + Ttrain :  T]
+Vtrain = V[Tskip + 1:Tskip + Ttrain]
+Vtest  = V[Tskip + Ttrain :  T]
 
 
 
@@ -98,45 +102,57 @@ B = 1
 k = 1
 a = 0
 b = 0
+
 boundary = 20
 
 
 
 
 Vpred = localmodel_stts(Vtrain, D, τ, p, B, k, a, b)
-err = abs.(Vtest-Vpred)
-ε = sum(err, (1,2))[:]
+err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
+ε = map(s -> sum(s), err)
 
 
 # Animation (takes forever)
-@gif for i=2:Base.size(Vtest)[3]
+@gif for i=2:Base.size(Vtest)[1]
     l = @layout([a b c])
-    p1 = plot(@view(Vtest[:,:,i]),
-                title = "Barkley Model",
-                xlabel = "X",
-                ylabel = "Y",
-                clims=(0,0.75),
-                cbar = false,
-                aspect_ratio=1,
-                st=:heatmap)
+    p1 = plot(Vtest[i],
+    title = "Barkley Model",
+    xlabel = "X",
+    ylabel = "Y",
+    clims=(0,0.75),
+    cbar = false,
+    aspect_ratio=1,
+    st=:heatmap)
 
-    p2 = plot(@view(Vpred[:,:,i]),
-                title = "Prediction",
-                xlabel = "X",
-                #ylabel = "Y",
-                clims=(0,0.75),
-                aspect_ratio=1,
-                st=:heatmap)
+    p2 = plot(Vpred[i],
+    title = "Prediction",
+    xlabel = "X",
+    #ylabel = "Y",
+    clims=(0,0.75),
+    aspect_ratio=1,
+    st=:heatmap)
 
-    p3 = plot(@view(err[:,:,i]),
-                title = "Absolute Error",
-                xlabel = "X",
-                #ylabel = "Y",
-                clims=(0,0.1),
-                aspect_ratio=1,
-                st=:heatmap,
-                seriescolor=:viridis)
+    p3 = plot(err[i],
+    title = "Absolute Error",
+    xlabel = "X",
+    #ylabel = "Y",
+    clims=(0,0.1),
+    aspect_ratio=1,
+    st=:heatmap,
+    seriescolor=:viridis)
 
 
     plot(p1,p2,p3, layout=l, size=(600,170))
 end
+
+#
+# p = plot(@view(Vtest[:,:,1]), st=:heatmap,seriescolor=:viridis, cb=false, xticks=false,
+# yticks=false, size=(200,200))
+# savefig(p, "/home/jonas/Documents/Bachelorarbeit/Presentation/frame1.png")
+# p = plot(@view(Vtest[:,:,21]), st=:heatmap, seriescolor=:viridis,cb=false, xticks=false,
+# yticks=false, size=(200,200))
+# savefig(p, "/home/jonas/Documents/Bachelorarbeit/Presentation/frame2.png")
+# p = plot(@view(Vtest[:,:,41]), st=:heatmap,seriescolor=:viridis, cb=false, xticks=false,
+# yticks=false, size=(200,200))
+# savefig(p, "/home/jonas/Documents/Bachelorarbeit/Presentation/frame3.png")
