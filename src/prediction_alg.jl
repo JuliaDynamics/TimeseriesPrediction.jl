@@ -57,24 +57,23 @@ function crosspred_stts(
     train_in::AbstractVector{Array{T, Φ}},
     train_out::AbstractVector{Array{T, Φ}},
     pred_in ::AbstractVector{Array{T, Φ}},
-    D,τ,p,B=1,k=1,boundary=20;
+    D,τ,p,B=1,k=1;
+    boundary=20,
     weighting::Tuple{Real, Real} = (0,0),
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Φ}
     R = myReconstruction(train_in,D,τ,B,k,boundary, weighting)
     tree = KDTree(R)
     return _crosspred_stts(train_out,pred_in, R, tree, D, τ, B, k, boundary,
-     weighting)
+     weighting, method, ntype)
 end
 
 
 function _crosspred_stts(
     train_out::AbstractVector{Array{T, Φ}},
     pred_in ::AbstractVector{Array{T, Φ}},
-    R, tree, D, τ,B=1, k=1,boundary=20;
-    weighting::Tuple{Real, Real} = (0,0),
-    method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T,Φ}
+    R, tree, D, τ, B, k,
+    boundary,weighting,method,ntype) where {T,Φ}
 
     M = prod(size(pred_in[1]))
     L = length(pred_in)

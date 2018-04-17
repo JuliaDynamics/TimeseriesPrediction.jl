@@ -67,8 +67,8 @@ function barkley(T, Nx=100, Ny=100)
 end
 
 
-Nx = 50
-Ny = 50
+Nx = 36
+Ny = 36
 Tskip = 100
 Ttrain = 100
 Ttest = 10
@@ -77,8 +77,6 @@ D = 3
 τ = 1
 B = 1
 k = 1
-a = 1
-b = 1
 boundary = 20
 
 U,V = barkley(T, Nx, Ny)
@@ -93,7 +91,7 @@ Vtest  = V[Tskip + Ttrain  - (D-1)τ + 1:  T]
 
 
 
-Upred = crosspred_stts(Vtrain,Utrain,Vtest, D, τ, B, k, a, b)
+Upred = crosspred_stts(Vtrain,Utrain,Vtest, D, τ, B, k)
 err = [abs.(Utest[1+(D-1)τ:end][i]-Upred[i]) for i=1:Ttest]
 
 # Animation (takes forever)

@@ -131,7 +131,7 @@ begin
 
     #Prediction
     ax3 = subplot(223, sharex = ax1, sharey = ax1)
-    s_pred = crosspred_stts(vtrain,utrain, vtest,D,τ,1,1,20, 0,0)
+    s_pred = crosspred_stts(vtrain,utrain, vtest,D,τ,1,1)
     pcolormesh(s_pred)
     colorbar()
     setp(ax2[:get_xticklabels](), visible=false)
