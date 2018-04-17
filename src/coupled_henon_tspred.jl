@@ -11,7 +11,7 @@ include("prediction_alg.jl")
 
 
 
-function coupled_henon(X=10,Y=10)
+function coupled_henon2D(X=10,Y=10)
     function henon(du, u, p, t)
         du[1,:,1] = du[:,1,1] = du[X, :, 1] = du[:, Y, 1] = 0.5
         du[1,:,2] = du[:,1,2] = du[X, :, 2] = du[:, Y ,2] = 0
@@ -29,7 +29,7 @@ end
 #Size
 X=10
 Y=10
-ds = coupled_henon(X,Y)
+ds = coupled_henon2D(X,Y)
 N_train = 1000
 p = 20
 data = trajectory(ds,N_train+p)
@@ -50,7 +50,7 @@ begin
 
     #Prediction
     ax2 = subplot(312, sharex = ax1, sharey = ax1)
-    s_pred = localmodel_stts(s,2,1,p,1,1,10, 1,1)
+    s_pred = localmodel_stts(s,2,1,p,1,1) # ;weighting=(1,1)
     pred =  [s_pred[t][i] for t=1:p+1,i=1:X*Y]
     pcolormesh(pred)
     colorbar()

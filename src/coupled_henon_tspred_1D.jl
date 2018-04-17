@@ -42,7 +42,7 @@ begin
     figure()
     ax1 = subplot(311)
     #Original
-    pcolormesh(Matrix(utest))
+    pcolormesh(utest)
     colorbar()
     # Make x-tick labels invisible
     setp(ax1[:get_xticklabels](), visible=false)
@@ -51,7 +51,7 @@ begin
 
     #Prediction
     ax2 = subplot(312, sharex = ax1, sharey = ax1)
-    s_pred = localmodel_stts(utrain,2,1,p,1,1,20, 0,0)
+    s_pred = localmodel_stts(utrain,2,1,p,1,1)#; boundary=false)
     pcolormesh(s_pred)
     colorbar()
     setp(ax2[:get_xticklabels](), visible=false)
@@ -60,7 +60,7 @@ begin
 
     #Error
     ax3 = subplot(313, sharex = ax1, sharey = ax1)
-    ε = abs.(utest.data-s_pred)
+    ε = [abs.(utest[i]-s_pred[i]) for i=1:p+1]
     pcolormesh(ε, cmap="inferno")
     colorbar()
     title("absolute error")

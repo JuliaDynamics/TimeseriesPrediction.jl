@@ -87,7 +87,7 @@ Nx = 36
 Ny = 36
 Tskip = 100
 Ttrain = 100
-p = 10
+p = 100
 T = Tskip + Ttrain + p
 
 U,V = barkley(T, Nx, Ny)
@@ -108,7 +108,7 @@ boundary = 20
 
 
 
-Vpred = localmodel_stts(Vtrain, D, τ, p, B, k, a, b)
+Vpred = localmodel_stts(Vtrain, D, τ, p, B, k; boundary=false) #; weighting=(1,1)
 err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
 ε = map(s -> sum(s), err)
 
