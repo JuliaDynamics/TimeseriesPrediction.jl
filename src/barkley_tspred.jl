@@ -1,5 +1,5 @@
 using Plots
-
+using TimeseriesPrediction
 
 #using PyPlot
 #pyplot()
@@ -9,9 +9,6 @@ using Plots
 
 # Simulation is super fast but plotting/animating sucks....
 
-
-include("streconstruction.jl")
-include("prediction_alg.jl")
 
 function barkley(T, Nx=100, Ny=100)
     a = 0.75
@@ -86,8 +83,8 @@ end
 Nx = 36
 Ny = 36
 Tskip = 100
-Ttrain = 100
-p = 100
+Ttrain = 50
+p = 30
 T = Tskip + Ttrain + p
 
 U,V = barkley(T, Nx, Ny)
@@ -100,15 +97,13 @@ D = 2
 τ = 1
 B = 1
 k = 1
-a = 0
-b = 0
 
-boundary = 20
-
+c = 20
+w = (0,0)
 
 
 
-Vpred = localmodel_stts(Vtrain, D, τ, p, B, k; boundary=false) #; weighting=(1,1)
+@profiler Vpred = localmodel_stts(Vtrain, D, τ, p, B, k; boundary=c, weighting=w)
 err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
 ε = map(s -> sum(s), err)
 

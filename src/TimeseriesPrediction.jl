@@ -9,5 +9,8 @@ using Reexport
 @reexport using DynamicalSystemsBase
 
 include("localmodeling.jl")
+include("streconstruction.jl")
+include("prediction_alg.jl")
+
 
 end

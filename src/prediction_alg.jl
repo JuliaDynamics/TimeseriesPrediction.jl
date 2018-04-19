@@ -1,6 +1,9 @@
 using NearestNeighbors
 using TimeseriesPrediction
+using Juno
 
+export localmodel_stts
+export crosspred_stts
 
 ###########################################################################################
 #                                     Prediction                                          #
@@ -14,8 +17,10 @@ function localmodel_stts(s::AbstractVector{Array{T, Φ}},
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Φ}
     M = prod(size(s[1]))
     L = length(s) #Number of temporal points
+    println("Reconstructing")
     R = myReconstruction(s,D,τ,B,k,boundary, weighting)
     #Prepare tree but remove the last reconstructed states first
+    println("Creating Tree")
     tree = KDTree(R[1:end-M])
 
     s_pred = s[L-D*τ:L]
@@ -36,7 +41,8 @@ function _localmodel_stts(s::AbstractVector{Array{T, Φ}},
     state = similar(s[1])
     #Index of relevant element in ynn (not proven but seemingly correct)
     im = 1 + (D-1)*(2B+1)^Φ + B*sum(i -> (2B+1)^(Φ-i), 1:Φ)
-    for n=1:p
+    @progress "Frame" for n=1:p
+        println("Working on Frame $(n)/$p")
         qs = gen_qs(s, D, τ, B, k, boundary, weighting)
         for (m,q) ∈ enumerate(qs)
             #make prediction & put into state
@@ -71,8 +77,7 @@ end
 
 function _crosspred_stts(
     train_out::AbstractVector{Array{T, Φ}},
-    pred_in ::AbstractVector{Array{T, Φ}},
-    R, tree, D, τ, B, k,
+    pred_in, R, tree, D, τ, B, k,
     boundary,weighting,method,ntype) where {T,Φ}
 
     M = prod(size(pred_in[1]))
