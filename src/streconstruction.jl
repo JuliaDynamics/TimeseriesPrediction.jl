@@ -45,7 +45,7 @@ function my_reconstruct_impl(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
     midxs = product([1:lims[i] for i=1:Φ]...)
     quote
         M = prod(size(s[1]))
-        L = length(s) - $(D-1)*τ
+        L = length(s) - $(D-1)*τ +1
         T = eltype(s[1][1])
         data = Vector{SVector{$D*(2*$B + 1)^$Φ+$w, T}}(L*M)
 

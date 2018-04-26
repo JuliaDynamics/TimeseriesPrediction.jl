@@ -10,7 +10,7 @@ export crosspred_stts
 ###########################################################################################
 
 function localmodel_stts(s::AbstractVector{Array{T, Φ}},
-    D,τ,p,B=1,k=1;
+    D, τ, p, B, k;
     boundary=20,
     weighting::Tuple{Real, Real} = (0,0),
     method::AbstractLocalModel = AverageLocalModel(2),
@@ -30,7 +30,7 @@ end
 
 function gen_qs(s_pred, D, τ, B, k, boundary, weighting)
     N = length(s_pred)
-    s_slice = @view(s_pred[N-D*τ+1:τ:N])
+    s_slice = @view(s_pred[N-(D-1)*τ:N])
     return myReconstruction(s_slice, D, τ, B, k, boundary, weighting)
 end
 
