@@ -8,7 +8,55 @@ export crosspred_stts
 ###########################################################################################
 #                                     Prediction                                          #
 ###########################################################################################
+"""
+    localmodel_stts(s::AbstractVector{Array{T, Φ}}, D, τ, p, B, k; kwargs...)
 
+Perform a spatio-temporal timeseries prediction for `p` iterations,
+using local weighted modeling [1]. The function always returns an
+object of the same type as `s`, which is a vector of states. Each state is represented by
+an array of the same dimension as the spatial dim. of the system.
+The returned data always contains the final state of `s` as starting point.
+This means that the returned data has length of `p + 1`.
+
+Given `(s, D, τ, B, k)` a [`myReconstruction`](@ref) is performed on `s`
+with `D-1` temporal neighbors, delay `τ` and `B` spatial neighbors along each direction.
+`k` is analogous to `τ` but with respect to space. The total embedding dimension is then
+`D * (2B + 1)^Φ` where `Φ` is the dimension of space.
+
+## Keyword Arguments
+  * `boundary = 20` : Constant boundary value used for reconstruction of states close to
+    the border. Pass `false` for periodic boundary conditions.
+  * `weighting = (0,0)` : Add `Φ` additional entries to rec. vectors. These are a spatial
+     weighting that may be useful for considering spatially inhomogenous dynamics.
+     Each entry is calculated with the given parameters `(a,b)` and
+     a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
+```math
+\\begin{aligned}
+\\omega(\\tilde{x}) = a \\tilde{x} ^ b.
+\\end{aligned}
+```
+  * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
+  * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
+
+
+## Description
+Given a rec. vector as query point, the function finds its neighbors using neighborhood
+`ntype`. Then, the neighbors `xnn` and their images `ynn` are used to make
+a prediction for the future of the query point, using the provided `method`.
+The images `ynn` are points in the original data shifted by one state into the future.
+
+The algorithm is applied for all points in space and iteratively repeated until a
+prediction of length `p+1` has
+been created, starting with the query state (last point of the original timeseries).
+
+## Note
+In many cases `k=1` and `τ=1,2,3` give best results.
+Be careful when choosing `B` as memory usage and computation time depend strongly on it.
+
+## References
+[1] : U. Parlitz & C. Merkwirth, *Prediction of Spatiotemporal Time Series Based on
+Reconstructed Local States*, Phys. Rev. Lett. (2000)
+"""
 function localmodel_stts(s::AbstractVector{Array{T, Φ}},
     D, τ, p, B, k;
     boundary=20,
