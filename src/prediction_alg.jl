@@ -18,7 +18,7 @@ an array of the same dimension as the spatial dim. of the system.
 The returned data always contains the final state of `s` as starting point.
 This means that the returned data has length of `p + 1`.
 
-Given `(s, D, τ, B, k)` a [`myReconstruction`](@ref) is performed on `s`
+Given `(s, D, τ, B, k)` a [`STReconstruction`](@ref) is performed on `s`
 with `D-1` temporal neighbors, delay `τ` and `B` spatial neighbors along each direction.
 `k` is analogous to `τ` but with respect to space. The total embedding dimension is then
 `D * (2B + 1)^Φ` where `Φ` is the dimension of space.
@@ -66,7 +66,7 @@ function localmodel_stts(s::AbstractVector{Array{T, Φ}},
     M = prod(size(s[1]))
     L = length(s) #Number of temporal points
     println("Reconstructing")
-    R = myReconstruction(s,D,τ,B,k,boundary, weighting)
+    R = STReconstruction(s,D,τ,B,k,boundary, weighting)
     #Prepare tree but remove the last reconstructed states first
     println("Creating Tree")
     tree = KDTree(R[1:end-M])
@@ -79,7 +79,7 @@ end
 function gen_qs(s_pred, D, τ, B, k, boundary, weighting)
     N = length(s_pred)
     s_slice = @view(s_pred[N-(D-1)*τ:N])
-    return myReconstruction(s_slice, D, τ, B, k, boundary, weighting)
+    return STReconstruction(s_slice, D, τ, B, k, boundary, weighting)
 end
 
 function _localmodel_stts(s::AbstractVector{Array{T, Φ}},
@@ -123,7 +123,7 @@ Each state is represented by an array of the same dimension as
 the spatial dim. of the system.
 
 Given as training set `train_in`, `train_out` and `(D, τ, B, k)` a
-[`myReconstruction`](@ref) is performed on `train_in`
+[`STReconstruction`](@ref) is performed on `train_in`
 with `D-1` temporal neighbors, delay `τ` and `B` spatial neighbors along each direction.
 `k` is analogous to `τ` but with respect to space. The total embedding dimension is then
 `D * (2B + 1)^Φ` where `Φ` is the dimension of space. In the following the rec. state
@@ -172,7 +172,7 @@ function crosspred_stts(
     weighting::Tuple{Real, Real} = (0,0),
     method::AbstractLocalModel = AverageLocalModel(2),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Φ}
-    R = myReconstruction(train_in,D,τ,B,k,boundary, weighting)
+    R = STReconstruction(train_in,D,τ,B,k,boundary, weighting)
     tree = KDTree(R)
     return _crosspred_stts(train_out,pred_in, R, tree, D, τ, B, k, boundary,
      weighting, method, ntype)
@@ -191,7 +191,7 @@ function _crosspred_stts(
     state = similar(pred_in[1])
 
     #create all qs
-    qs = myReconstruction(pred_in, D, τ, B, k, boundary, weighting)
+    qs = STReconstruction(pred_in, D, τ, B, k, boundary, weighting)
     for n=1:L-(D-1)τ
         for m=1:M
             q = qs[m + M*(n-1)]

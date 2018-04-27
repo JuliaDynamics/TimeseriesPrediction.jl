@@ -1,7 +1,7 @@
 using StaticArrays
 using IterTools
 
-export myReconstruction
+export STReconstruction
 ###########################################################################################
 #                       Better generated Reconstruction                                   #
 ###########################################################################################
@@ -67,7 +67,7 @@ end
      Val{boundary})
 end
 
-function myReconstruction(
+function STReconstruction(
     s::AbstractVector{Array{T, Φ}}, D, τ::DT, B, k, boundary, weighting
     ) where {T, Φ, DT}
     lims = size(s[1])
