@@ -1,10 +1,8 @@
 using PyPlot
 using DynamicalSystemsBase
+using TimeseriesPrediction
+using StaticArrays
 
-
-
-include("streconstruction.jl")
-include("prediction_alg.jl")
 
 
 

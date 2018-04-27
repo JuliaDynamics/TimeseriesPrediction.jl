@@ -9,7 +9,7 @@ export crosspred_stts
 #                                     Prediction                                          #
 ###########################################################################################
 """
-    localmodel_stts(s::AbstractVector{Array{T, Φ}}, D, τ, p, B, k; kwargs...)
+    localmodel_stts(s::AbstractVector{<:AbstractArray{T, Φ}}, D, τ, p, B, k; kwargs...)
 
 Perform a spatio-temporal timeseries prediction for `p` iterations,
 using local weighted modeling [1]. The function always returns an
@@ -57,7 +57,7 @@ Be careful when choosing `B` as memory usage and computation time depend strongl
 [1] : U. Parlitz & C. Merkwirth, *Prediction of Spatiotemporal Time Series Based on
 Reconstructed Local States*, Phys. Rev. Lett. (2000)
 """
-function localmodel_stts(s::AbstractVector{Array{T, Φ}},
+function localmodel_stts(s::AbstractVector{<:AbstractArray{T, Φ}},
     D, τ, p, B, k;
     boundary=20,
     weighting::Tuple{Real, Real} = (0,0),
@@ -111,9 +111,9 @@ end
 
 
 """
-    crosspred_stts(train_in::AbstractVector{Array{T, Φ}},
-                   train_out::AbstractVector{Array{T, Φ}},
-                   pred_in::AbstractVector{Array{T, Φ}},
+    crosspred_stts(train_in::AbstractVector{<:AbstractArray{T, Φ}},
+                   train_out::AbstractVector{<:AbstractArray{T, Φ}},
+                   pred_in::AbstractVector{<:AbstractArray{T, Φ}},
                    D, τ, B, k; kwargs...)
 
 Perform a spatio-temporal timeseries cross-prediction for `pred_in`,
@@ -164,9 +164,9 @@ Be careful when choosing `B` as memory usage and computation time depend strongl
 Reconstructed Local States*, Phys. Rev. Lett. (2000)
 """
 function crosspred_stts(
-    train_in::AbstractVector{Array{T, Φ}},
-    train_out::AbstractVector{Array{T, Φ}},
-    pred_in ::AbstractVector{Array{T, Φ}},
+    train_in::AbstractVector{<:AbstractArray{T, Φ}},
+    train_out::AbstractVector{<:AbstractArray{T, Φ}},
+    pred_in ::AbstractVector{<:AbstractArray{T, Φ}},
     D,τ,B=1,k=1;
     boundary=20,
     weighting::Tuple{Real, Real} = (0,0),
@@ -180,7 +180,7 @@ end
 
 
 function _crosspred_stts(
-    train_out::AbstractVector{Array{T, Φ}},
+    train_out::AbstractVector{<:AbstractArray{T, Φ}},
     pred_in, R, tree, D, τ, B, k,
     boundary,weighting,method,ntype) where {T,Φ}
 
