@@ -68,10 +68,47 @@ end
 end
 
 
+"""
+    STReconstruction(s::AbstractVector{<:AbstractArray}, D, τ, B, k, boundary, weighting)
+     <: AbstractDataset
+Perform spatio-temporal(ST) delay-coordinates reconstruction from a ST-timeseries `s`.
 
+## Description
+
+An extension of [`Reconstruction`](@ref) to support inclusion of spatial neighbors into
+reconstructed vectors.
+`B` is the number of spatial neighbors along each direction to be included.
+The parameter `k` indicates the spatial sampling density as
+described in [1].
+
+For spatial dimension `Φ` ≥ 2 the neighbors are collected along all
+dimension as well. The number of spatial points is then given by `(2B + 1)^Φ`.
+Temporal embedding via `D` and `τ` is treated analogous to [`Reconstruction`](@ref).
+Therefore the total embedding dimension is `D*(2B + 1)^Φ`.
+
+## Further Parameters
+   * `boundary` : Pass a number for constant boundary condition used for reconstruction of
+      border states. Pass `false` for periodic boundaries.
+
+
+   * `weighting` : Add `Φ` additional entries to rec. vectors. These are a spatial
+      weighting that may be useful for considering spatially inhomogenous dynamics.
+      For `(0,0)` they are left off. Each entry is calculated with the given
+      parameters `(a,b)` and a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
+```math
+ \\begin{aligned}
+ \\omega(\\tilde{x}) = a \\tilde{x} ^ b.
+ \\end{aligned}
+```
+
+## References
+
+[1] : U. Parlitz & C. Merkwirth, *Prediction of Spatiotemporal Time Series Based on
+Reconstructed Local States*, Phys. Rev. Lett. (2000)
+"""
 function STReconstruction(
-    s::AbstractVector{<:AbstractArray{T, Φ}}, D, τ::DT, B, k, boundary, weighting
-    ) where {T, Φ, DT}
+    s::AbstractVector{<:AbstractArray{T, Φ}}, D, τ, B, k, boundary, weighting
+    ) where {T, Φ}
     lims = size(s[1])
     w = Φ*(weighting != (0,0))
     Reconstruction{D*(2B+1)^Φ+w,T,DT}(
