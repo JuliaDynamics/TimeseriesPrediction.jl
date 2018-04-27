@@ -107,11 +107,67 @@ end
 
 
 
+
+
+
+"""
+    crosspred_stts(train_in::AbstractVector{Array{T, Φ}},
+                   train_out::AbstractVector{Array{T, Φ}},
+                   pred_in::AbstractVector{Array{T, Φ}},
+                   D, τ, B, k; kwargs...)
+
+Perform a spatio-temporal timeseries cross-prediction for `pred_in`,
+using local weighted modeling [1]. The function always returns an
+object of the same type as `train_out`, which is a vector of states.
+Each state is represented by an array of the same dimension as
+the spatial dim. of the system.
+
+Given as training set `train_in`, `train_out` and `(D, τ, B, k)` a
+[`myReconstruction`](@ref) is performed on `train_in`
+with `D-1` temporal neighbors, delay `τ` and `B` spatial neighbors along each direction.
+`k` is analogous to `τ` but with respect to space. The total embedding dimension is then
+`D * (2B + 1)^Φ` where `Φ` is the dimension of space. In the following the rec. state
+of `train_in[t][i,j,...]` is associated with the output value `train_out[t][i,j,...]`.
+
+## Keyword Arguments
+  * `boundary = 20` : Constant boundary value used for reconstruction of states close to
+    the border. Pass `false` for periodic boundary conditions.
+  * `weighting = (0,0)` : Add `Φ` additional entries to rec. vectors. These are a spatial
+     weighting that may be useful for considering spatially inhomogenous dynamics.
+     Each entry is calculated with the given parameters `(a,b)` and
+     a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
+```math
+\\begin{aligned}
+\\omega(\\tilde{x}) = a \\tilde{x} ^ b.
+\\end{aligned}
+```
+  * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
+  * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
+
+
+## Description
+Taking a rec. vector of `pred_in` as query point, the function finds its neighbors in
+the rec. of `train_in` using neighborhood `ntype`.
+Then, the neighbors `xnn` and their images `ynn` are used to make
+a prediction for the corresponding value in `pred_out` of the query point,
+using the provided `method`.
+
+The algorithm is applied for all points in space and time of `pred_in` minus the first
+`(D-1)τ` states that are needed for reconstruction.
+
+## Note
+In many cases `k=1` and `τ=1,2,3` give best results.
+Be careful when choosing `B` as memory usage and computation time depend strongly on it.
+
+## References
+[1] : U. Parlitz & C. Merkwirth, *Prediction of Spatiotemporal Time Series Based on
+Reconstructed Local States*, Phys. Rev. Lett. (2000)
+"""
 function crosspred_stts(
     train_in::AbstractVector{Array{T, Φ}},
     train_out::AbstractVector{Array{T, Φ}},
     pred_in ::AbstractVector{Array{T, Φ}},
-    D,τ,p,B=1,k=1;
+    D,τ,B=1,k=1;
     boundary=20,
     weighting::Tuple{Real, Real} = (0,0),
     method::AbstractLocalModel = AverageLocalModel(2),
