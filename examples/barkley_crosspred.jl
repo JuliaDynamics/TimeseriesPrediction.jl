@@ -1,7 +1,5 @@
 using Plots
-
-include("streconstruction.jl")
-include("prediction_alg.jl")
+using TimeseriesPrediction
 
 function barkley(T, Nx=100, Ny=100)
     a = 0.75
@@ -70,12 +68,12 @@ end
 Nx = 36
 Ny = 36
 Tskip = 100
-Ttrain = 100
-Ttest = 10
+Ttrain = 500
+Ttest = 50
 T = Tskip +Ttrain + Ttest
-D = 3
+D = 2
 τ = 1
-B = 1
+B = 4
 k = 1
 boundary = 20
 

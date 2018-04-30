@@ -22,8 +22,8 @@ U = load("bocf_u1_5k-10k.jld", "U")
 
 
 Tskip = 500
-Ttrain = 300
-p = 100
+Ttrain = 50
+p = 10
 T = Tskip + Ttrain + p
 
 Utrain = [U[t, :, :] for t ∈ Tskip + 1:Tskip + Ttrain]

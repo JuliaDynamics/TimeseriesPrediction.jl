@@ -10,7 +10,7 @@ using TimeseriesPrediction
 # Simulation is super fast but plotting/animating sucks....
 
 
-function barkley(T, Nx=100, Ny=100)
+function barkley(T, Nx, Ny)
     a = 0.75
     b = 0.02
     ε = 0.02
@@ -22,15 +22,21 @@ function barkley(T, Nx=100, Ny=100)
     V =Vector{Array{Float64,2}}()
 
     #Initial state that creates spirals
-    u[35:end,34] = 0.1
-    u[35:end,35] = 0.5
-    u[35:end,36] = 5
-    v[35:end,34] = 1
+    u[40:end,34] = 0.1
+    u[40:end,35] = 0.5
+    u[40:end,36] = 5
+    v[40:end,34] = 1
 
-    u[1:15,14] = 5
-    u[1:15,15] = 0.5
-    u[1:15,16] = 0.1
-    v[1:15,17] = 1
+    u[1:10,14] = 5
+    u[1:10,15] = 0.5
+    u[1:10,16] = 0.1
+    v[1:10,17] = 1
+
+    u[27:36,20] = 5
+    u[27:36,19] = 0.5
+    u[27:36,18] = 0.1
+    v[27:36,17] = 1
+
 
 
     h = 0.75 #/ sqrt(2)
@@ -75,16 +81,16 @@ end
 
 
 ###########################################################################################
-#               Example starting from here                                                #
+#                      Example starting from here                                         #
 ###########################################################################################
 
 
 
-Nx = 36
-Ny = 36
-Tskip = 100
-Ttrain = 50
-p = 30
+Nx = 50
+Ny = 50
+Tskip = 200
+Ttrain = 500
+p = 50
 T = Tskip + Ttrain + p
 
 U,V = barkley(T, Nx, Ny)
@@ -95,21 +101,23 @@ Vtest  = V[Tskip + Ttrain :  T]
 
 D = 2
 τ = 1
-B = 1
+B = 3
 k = 1
 
-c = 20
+
+c = 200
 w = (0,0)
 
 
 
-@profiler Vpred = localmodel_stts(Vtrain, D, τ, p, B, k; boundary=c, weighting=w)
+@time Vpred = localmodel_stts(Vtrain, D, τ, p, B, k; boundary=c, weighting=w, drtype=PCA)
 err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
-ε = map(s -> sum(s), err)
 
+fname = "pca_const_bark_ts_Ttrain$(Ttrain)_D$(D)_τ$(τ)_B$(B)_k$(k)_c$(c)_w$(w)" * randstring()
 
 # Animation (takes forever)
-@gif for i=2:Base.size(Vtest)[1]
+cd();cd("Documents/Bachelorarbeit/STTS/PeriodicSystems")
+@time anim = @animate for i=3:length(Vtest)
     l = @layout([a b c])
     p1 = plot(Vtest[i],
     title = "Barkley Model",
@@ -132,14 +140,14 @@ err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
     title = "Absolute Error",
     xlabel = "X",
     #ylabel = "Y",
-    clims=(0,0.1),
+    clims=(0,0.03),
     aspect_ratio=1,
     st=:heatmap,
     seriescolor=:viridis)
 
 
     plot(p1,p2,p3, layout=l, size=(600,170))
-end
+end; gif(anim, fname * ".gif")
 
 #
 # p = plot(@view(Vtest[:,:,1]), st=:heatmap,seriescolor=:viridis, cb=false, xticks=false,

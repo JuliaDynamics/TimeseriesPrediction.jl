@@ -4,11 +4,6 @@ using TimeseriesPrediction
 using StaticArrays
 
 
-
-
-
-
-
 function coupled_henon2D(X=10,Y=10)
     function henon(du, u, p, t)
         du[1,:,1] = du[:,1,1] = du[X, :, 1] = du[:, Y, 1] = 0.5
@@ -25,11 +20,11 @@ end
 
 
 #Size
-X=10
-Y=10
+X=5
+Y=5
 ds = coupled_henon2D(X,Y)
 N_train = 1000
-p = 20
+p = 25
 data = trajectory(ds,N_train+p)
 #Reconstruct this
 s = data[1:N_train,SVector(1:X*Y...)]
@@ -43,17 +38,17 @@ begin
     colorbar()
     # Make x-tick labels invisible
     setp(ax1[:get_xticklabels](), visible=false)
-    title("original")
+    title("2D Coupled Henon Map")
 
 
     #Prediction
     ax2 = subplot(312, sharex = ax1, sharey = ax1)
-    s_pred = localmodel_stts(s,2,1,p,1,1) # ;weighting=(1,1)
+    s_pred = localmodel_stts(s,3,1,p,1,1) # ;weighting=(1,1)
     pred =  [s_pred[t][i] for t=1:p+1,i=1:X*Y]
     pcolormesh(pred)
     colorbar()
     setp(ax2[:get_xticklabels](), visible=false)
-    title("prediction")
+    title("Prediction ( Training States $N_train)")
     ylabel("t")
 
     #Error
@@ -61,7 +56,7 @@ begin
     ε = abs.(img-pred)
     pcolormesh(ε, cmap="inferno")
     colorbar()
-    title("absolute error")
+    title("Absolute Error")
     xlabel("i = (x, y)")
     tight_layout()
 
