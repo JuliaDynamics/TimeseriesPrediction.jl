@@ -1,6 +1,4 @@
 using NearestNeighbors
-using TimeseriesPrediction
-using Juno
 
 export localmodel_stts
 export crosspred_stts
@@ -89,7 +87,7 @@ function _localmodel_stts(s::AbstractVector{Array{T, Φ}},
     state = similar(s[1])
     #Index of relevant element in ynn (not proven but seemingly correct)
     im = 1 + (D-1)*(2B+1)^Φ + B*sum(i -> (2B+1)^(Φ-i), 1:Φ)
-    @progress "Frame" for n=1:p
+    for n=1:p
         println("Working on Frame $(n)/$p")
         qs = gen_qs(s, D, τ, B, k, boundary, weighting)
         for (m,q) ∈ enumerate(qs)

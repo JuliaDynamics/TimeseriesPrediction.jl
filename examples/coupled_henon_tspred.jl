@@ -1,5 +1,4 @@
 using PyPlot
-using DynamicalSystemsBase
 using TimeseriesPrediction
 using StaticArrays
 
@@ -15,7 +14,7 @@ function coupled_henon2D(X=10,Y=10)
         end
         return nothing
     end
-    return DiscreteDynamicalSystem(henon,rand(X,Y,2), nothing; t0=0)
+    return SpatioTemporalSystem(henon,rand(X,Y,2), nothing; t0=0)
 end
 
 

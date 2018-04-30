@@ -1,25 +1,18 @@
 using Plots
 using TimeseriesPrediction
 
-#using PyPlot
-#pyplot()
-
-##This Algorithm is taken from
+# This Algorithm is taken from
 #  http://www.scholarpedia.org/article/Barkley_model
-
-# Simulation is super fast but plotting/animating sucks....
-
 
 function barkley(T, Nx, Ny)
     a = 0.75
     b = 0.02
     ε = 0.02
 
-    Φ = 2
     u = zeros(Nx, Ny)
     v = zeros(Nx, Ny)
     U = Vector{Array{Float64,2}}()
-    V =Vector{Array{Float64,2}}()
+    V = Vector{Array{Float64,2}}()
 
     #Initial state that creates spirals
     u[40:end,34] = 0.1
@@ -83,9 +76,6 @@ end
 ###########################################################################################
 #                      Example starting from here                                         #
 ###########################################################################################
-
-
-
 Nx = 50
 Ny = 50
 Tskip = 200
@@ -97,26 +87,20 @@ U,V = barkley(T, Nx, Ny)
 Vtrain = V[Tskip + 1:Tskip + Ttrain]
 Vtest  = V[Tskip + Ttrain :  T]
 
-
-
 D = 2
 τ = 1
 B = 3
 k = 1
-
-
 c = 200
 w = (0,0)
 
-
-
-@time Vpred = localmodel_stts(Vtrain, D, τ, p, B, k; boundary=c, weighting=w, drtype=PCA)
+@time Vpred = localmodel_stts(Vtrain, D, τ, p, B, k; boundary=c, weighting=w)
 err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
 
-fname = "pca_const_bark_ts_Ttrain$(Ttrain)_D$(D)_τ$(τ)_B$(B)_k$(k)_c$(c)_w$(w)" * randstring()
+fname = "barkley_ts_Train=$(Ttrain)_D=$(D)_τ=$(τ)_B=$(B)_k=$(k)"
 
-# Animation (takes forever)
-cd();cd("Documents/Bachelorarbeit/STTS/PeriodicSystems")
+cd(); mkpath("tspred_examples"); cd("tspred_examples")
+
 @time anim = @animate for i=3:length(Vtest)
     l = @layout([a b c])
     p1 = plot(Vtest[i],
@@ -145,9 +129,10 @@ cd();cd("Documents/Bachelorarbeit/STTS/PeriodicSystems")
     st=:heatmap,
     seriescolor=:viridis)
 
-
     plot(p1,p2,p3, layout=l, size=(600,170))
-end; gif(anim, fname * ".gif")
+end
+
+gif(anim, fname * ".gif")
 
 #
 # p = plot(@view(Vtest[:,:,1]), st=:heatmap,seriescolor=:viridis, cb=false, xticks=false,

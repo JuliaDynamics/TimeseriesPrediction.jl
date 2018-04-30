@@ -11,6 +11,6 @@ using Reexport
 include("localmodeling.jl")
 include("streconstruction.jl")
 include("prediction_alg.jl")
-
+include("spatiotemporalsystem.jl")
 
 end
