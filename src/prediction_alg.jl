@@ -25,14 +25,14 @@ with `D-1` temporal neighbors, delay `τ` and `B` spatial neighbors along each d
   * `boundary = 20` : Constant boundary value used for reconstruction of states close to
     the border. Pass `false` for periodic boundary conditions.
   * `weighting = (0,0)` : Add `Φ` additional entries to rec. vectors. These are a spatial
-     weighting that may be useful for considering spatially inhomogenous dynamics.
-     Each entry is calculated with the given parameters `(a,b)` and
-     a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
-```math
-\\begin{aligned}
-\\omega(\\tilde{x}) = a \\tilde{x} ^ b.
-\\end{aligned}
-```
+    weighting that may be useful for considering spatially inhomogenous dynamics.
+    Each entry is calculated with the given parameters `(a,b)` and
+    a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
+    ```math
+    \\begin{aligned}
+    \\omega(\\tilde{x}) = a \\tilde{x} ^ b.
+    \\end{aligned}
+    ```
   * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
 
@@ -131,14 +131,14 @@ of `train_in[t][i,j,...]` is associated with the output value `train_out[t][i,j,
   * `boundary = 20` : Constant boundary value used for reconstruction of states close to
     the border. Pass `false` for periodic boundary conditions.
   * `weighting = (0,0)` : Add `Φ` additional entries to rec. vectors. These are a spatial
-     weighting that may be useful for considering spatially inhomogenous dynamics.
-     Each entry is calculated with the given parameters `(a,b)` and
-     a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
-```math
-\\begin{aligned}
-\\omega(\\tilde{x}) = a \\tilde{x} ^ b.
-\\end{aligned}
-```
+    weighting that may be useful for considering spatially inhomogenous dynamics.
+    Each entry is calculated with the given parameters `(a,b)` and
+    a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
+    ```math
+    \\begin{aligned}
+    \\omega(\\tilde{x}) = a \\tilde{x} ^ b.
+    \\end{aligned}
+    ```
   * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
 

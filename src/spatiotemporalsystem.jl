@@ -13,8 +13,7 @@ const STP = SpatioTemporalProblem
 
 """
     SpatioTemporalSystem(eom, state::Array, p; t0::Int = 0)
-A (discrete) `DynamicalSystem` that accomodates general `Array` as state, to
-support spatio-temporal systems.
+A spatio-temporal system that accomodates general `Array` as state.
 """
 struct SpatioTemporalSystem{Φ, T, F, P} <: DynamicalSystem{true, Array{T, Φ}, Φ, F, P, Void, Void, Void}
     prob::STP{Φ, T, F, P}
