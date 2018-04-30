@@ -15,7 +15,7 @@ const STP = SpatioTemporalProblem
     SpatioTemporalSystem(eom, state::Array, p; t0::Int = 0)
 A spatio-temporal system that accomodates general `Array` as state.
 """
-struct SpatioTemporalSystem{Φ, T, F, P} <: DynamicalSystem{true, Array{T, Φ}, Φ, F, P, Void, Void, Void}
+struct SpatioTemporalSystem{Φ, T, F, P} #<: DynamicalSystem{true, Array{T, Φ}, Φ, F, P, Void, Void, Void}
     prob::STP{Φ, T, F, P}
 end
 
@@ -49,24 +49,19 @@ end
 #####################################################################################
 #                                  Trajectory                                       #
 #####################################################################################
-function DynamicalSystemsBase.integrator(
-    ds::STS{Φ, T, F, P}, u0 = ds.prob.u0) where {Φ, T, F, P}
-    S = Array{T, Φ}
-    return MinimalDiscreteIntegrator{true, S, Φ, F, P}(
-    ds.prob.f, S(u0), ds.prob.t0, S(deepcopy(u0)), ds.prob.p, ds.prob.t0)
-end
-
 function DynamicalSystemsBase.trajectory(ds::STS{Φ, T, F, P}, t, u = ds.prob.u0;
     dt::Int = 1) where {Φ, T, F, P}
-    integ = integrator(ds, u)
     ti = ds.prob.t0
     tvec = ti:dt:t
     L = length(tvec)
     data = Vector{Array{T, Φ}}(L)
-    data[1] = u
+    uprev = copy(ds.prob.u0)
+    unext = copy(uprev)
+    data[1] = copy(uprev)
     for i in 2:L
-        step!(integ, dt)
-        data[i] = integ.u
+        uprev, unext = unext, uprev
+        ds.prob.f(unext, uprev, ds.prob.p, tvec[i])
+        data[i] = copy(unext)
     end
     return data
 end

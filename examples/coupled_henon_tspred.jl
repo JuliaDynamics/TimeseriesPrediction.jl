@@ -18,11 +18,11 @@ function coupled_henon2D(X=10,Y=10)
 end
 
 #Size
-X=7
-Y=7
+X=5
+Y=5
 ds = coupled_henon2D(X,Y)
 N_train = 1000
-p = 50
+p = 25
 data = trajectory(ds,N_train+p)
 
 xdata = [d[:,:,1] for d in data]
@@ -38,18 +38,19 @@ function makeinto1D(data)
     return img
 end
 
+# Plot system
+figure()
 ax1 = subplot(311)
 img = makeinto1D(xdata[N_train+1:end])
 pcolormesh(img)
 colorbar()
 # Make x-tick labels invisible
 setp(ax1[:get_xticklabels](), visible=false)
-title("2D Coupled Henon Map")
+title("2D Coupled Henon, field X")
 
-
-#Prediction
+# Prediction
 ax2 = subplot(312, sharex = ax1, sharey = ax1)
-s_pred = localmodel_stts(xdata[1:N_train],3,1,p,1,1) # ;weighting=(1,1)
+s_pred = localmodel_stts(xdata[1:N_train+1],3,1,p,1,1) # ;weighting=(1,1)
 pred = makeinto1D(s_pred)
 pcolormesh(pred)
 colorbar()
@@ -57,7 +58,7 @@ setp(ax2[:get_xticklabels](), visible=false)
 title("Prediction (Training $N_train)")
 ylabel("t")
 
-#Error
+# Error
 ax3 = subplot(313, sharex = ax1, sharey = ax1)
 ε = abs.(img-pred)
 pcolormesh(ε, cmap="inferno")
