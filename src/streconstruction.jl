@@ -107,8 +107,8 @@ Therefore the total embedding dimension is `D*(2B + 1)^Φ`.
 Reconstructed Local States*, Phys. Rev. Lett. (2000)
 """
 function STReconstruction(
-    s::AbstractVector{<:AbstractArray{T, Φ}}, D, τ, B, k, boundary, weighting
-    ) where {T, Φ}
+    s::AbstractVector{<:AbstractArray{T, Φ}}, D, τ::DT, B, k, boundary, weighting
+    ) where {T, Φ, DT}
     lims = size(s[1])
     w = Φ*(weighting != (0,0))
     Reconstruction{D*(2B+1)^Φ+w,T,DT}(
