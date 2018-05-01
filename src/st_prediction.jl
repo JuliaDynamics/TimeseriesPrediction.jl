@@ -112,11 +112,11 @@ The reconstructed state of `source_train[t][i,j,...]` is associated with the out
 value `target_train[t][i,j,...]`. This establishes a "connection"
 between `target` and `source`.
 
-Taking a reconstructed state of vector of `source_pred` as query point,
-the function finds its neighbors in the reconstructed state of `source_train` using
-neighborhood `ntype`. Then, the neighbors `xnn` and their images `ynn` are used to make
-a prediction for the corresponding value in `source_pred` of the query point,
-using the provided `method`.
+Taking a reconstructed state of `source_pred` as query point,
+the function finds its neighbors in the reconstructed space of `source_train` using
+neighborhood `ntype`. Then, the neighbor *indices* are used
+to make a prediction for the corresponding value of the `target`, using the
+established "connection" between fields (from the training data).
 
 The algorithm is applied for all points in space and time of `pred_in` minus the first
 `(D-1)τ` states that are needed for reconstruction.
