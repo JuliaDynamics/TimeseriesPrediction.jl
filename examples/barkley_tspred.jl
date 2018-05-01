@@ -34,7 +34,7 @@ function barkley(T, Nx, Ny)
 
     h = 0.75 #/ sqrt(2)
     Δt = 0.1 #/ 2
-    δ = 0.01
+    δ = 0.001
     Σ = zeros(Nx, Ny, 2)
     r = 1
     s = 2
@@ -132,7 +132,7 @@ cd(); mkpath("tspred_examples"); cd("tspred_examples")
     plot(p1,p2,p3, layout=l, size=(600,170))
 end
 
-gif(anim, fname * ".gif")
+mp4(anim, fname * ".mp4")
 
 #
 # p = plot(@view(Vtest[:,:,1]), st=:heatmap,seriescolor=:viridis, cb=false, xticks=false,
