@@ -138,9 +138,7 @@ Therefore the total embedding dimension is `D*(2B + 1)^Φ`.
   ```
 
 ## References
-
-[1] : U. Parlitz & C. Merkwirth, *Prediction of Spatiotemporal Time Series Based on
-Reconstructed Local States*, Phys. Rev. Lett. (2000)
+[1] : U. Parlitz & C. Merkwirth, [Phys. Rev. Lett. **84**, pp 1890 (2000)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890)
 """
 function STReconstruction(
     s::AbstractVector{<:AbstractArray{T, Φ}}, D, τ::DT, B, k, boundary, weighting,
