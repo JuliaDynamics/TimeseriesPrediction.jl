@@ -34,8 +34,6 @@ end
 Base.summary(ds::STS{Φ, T, F, P}) where {Φ, T, F, P} =
 "spatio-temporal dynamical system with $Φ spatial dimensions"
 
-get_state(ds::STS) = ds.prob.u0
-
 function Base.show(io::IO, ds::STS)
     ps = 14
     text = summary(ds)
