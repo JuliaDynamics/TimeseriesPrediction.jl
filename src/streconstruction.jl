@@ -129,8 +129,7 @@ Therefore the total embedding dimension is `D*(2B + 1)^Φ`.
   adds `Φ` additional entries to reconstructed states.
   These are a spatial weighting that may be useful for considering spatially
   inhomogenous dynamics.
-  Each entry is calculated with the given parameters `(a,b)` and
-  a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
+  Each entry is a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
   ```math
   \\begin{aligned}
   \\omega(\\tilde{x}) = a \\tilde{x} ^ b.

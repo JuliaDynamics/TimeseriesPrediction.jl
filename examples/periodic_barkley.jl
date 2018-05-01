@@ -96,29 +96,29 @@ Utrain = U[Tskip + 1:Tskip + Ttrain]
 Vtrain = V[Tskip + 1:Tskip + Ttrain]
 Utest  = U[Tskip + Ttrain - (D-1)τ + 1:  T]
 Vtest  = V[Tskip + Ttrain  - (D-1)τ + 1:  T]
-Upred = crosspred_stts(Vtrain,Utrain,Vtest, D, τ, B, k; boundary=c)
-err = [abs.(Utest[1+(D-1)τ:end][i]-Upred[i]) for i=1:Ttest]
-
-fname = "periodic_barkley_cross_Train=$(Ttrain)_D=$(D)_τ=$(τ)_B=$(B)_k=$(k)_c=$(c)"
-
-cd(); mkpath("tspred_examples"); cd("tspred_examples")
-
-@time anim = @animate for i=2:length(Upred)
-    l = @layout([a b; c d])
-    p1 = plot(Vtest[i+(D-1)τ], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
-    plot!(title = "Periodic Barkley")
-    p2 = plot(Utest[i+(D-1)τ], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
-    title!("original U")
-    p3 = plot(Upred[i], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
-    title!("Cross-Pred U")
-    p4 = plot(err[i],clims=(0,0.1),aspect_ratio=1,
-    st= :heatmap,seriescolor=:viridis)
-    title!("Absolute Error")
-
-    plot(p1,p2,p3,p4, layout=l, size=(600,600))
-end
-
-gif(anim, fname * ".gif")
+# Upred = crosspred_stts(Vtrain,Utrain,Vtest, D, τ, B, k; boundary=c)
+# err = [abs.(Utest[1+(D-1)τ:end][i]-Upred[i]) for i=1:Ttest]
+#
+# fname = "periodic_barkley_cross_Train=$(Ttrain)_D=$(D)_τ=$(τ)_B=$(B)_k=$(k)_c=$(c)"
+#
+# cd(); mkpath("tspred_examples"); cd("tspred_examples")
+#
+# @time anim = @animate for i=2:length(Upred)
+#     l = @layout([a b; c d])
+#     p1 = plot(Vtest[i+(D-1)τ], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+#     plot!(title = "Periodic Barkley")
+#     p2 = plot(Utest[i+(D-1)τ], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+#     title!("original U")
+#     p3 = plot(Upred[i], clims=(0,0.75),aspect_ratio=1,st=:heatmap)
+#     title!("Cross-Pred U")
+#     p4 = plot(err[i],clims=(0,0.1),aspect_ratio=1,
+#     st= :heatmap,seriescolor=:viridis)
+#     title!("Absolute Error")
+#
+#     plot(p1,p2,p3,p4, layout=l, size=(600,600))
+# end
+#
+# gif(anim, fname * ".gif")
 
 Vtrain = V[Tskip + 1:Tskip + Ttrain]
 Vtest  = V[Tskip + Ttrain :  T]

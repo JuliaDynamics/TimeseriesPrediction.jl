@@ -134,13 +134,4 @@ end
 
 mp4(anim, fname * ".mp4")
 
-#
-# p = plot(@view(Vtest[:,:,1]), st=:heatmap,seriescolor=:viridis, cb=false, xticks=false,
-# yticks=false, size=(200,200))
-# savefig(p, "/home/jonas/Documents/Bachelorarbeit/Presentation/frame1.png")
-# p = plot(@view(Vtest[:,:,21]), st=:heatmap, seriescolor=:viridis,cb=false, xticks=false,
-# yticks=false, size=(200,200))
-# savefig(p, "/home/jonas/Documents/Bachelorarbeit/Presentation/frame2.png")
-# p = plot(@view(Vtest[:,:,41]), st=:heatmap,seriescolor=:viridis, cb=false, xticks=false,
-# yticks=false, size=(200,200))
-# savefig(p, "/home/jonas/Documents/Bachelorarbeit/Presentation/frame3.png")
+println("DONE")

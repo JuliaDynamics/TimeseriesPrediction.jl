@@ -1,4 +1,3 @@
-
 function coupled_henon1D(M)
     function henon(du, u, p, t)
         du[1,1] = du[M,1] = 0.5

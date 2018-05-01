@@ -39,13 +39,14 @@ function localmodel_stts(s::AbstractVector{<:AbstractArray{T, Φ}},
     boundary=20,
     weighting::Tuple{Real, Real} = (0,0),
     method::AbstractLocalModel = AverageLocalModel(2),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Φ}
+    ntype::AbstractNeighborhood = FixedMassNeighborhood(3),
+    printprogress = true) where {T, Φ}
     M = prod(size(s[1]))
     L = length(s) #Number of temporal points
-    println("Reconstructing")
+    printprogress && println("Reconstructing")
     R = STReconstruction(s,D,τ,B,k,boundary, weighting)
     #Prepare tree but remove the last reconstructed states first
-    println("Creating Tree")
+    printprogress && println("Creating Tree")
     tree = KDTree(R[1:end-M])
 
     s_pred = s[L-D*τ:L]
@@ -56,18 +57,19 @@ end
 function gen_qs(s_pred, D, τ, B, k, boundary, weighting)
     N = length(s_pred)
     s_slice = @view(s_pred[N-(D-1)*τ:N])
-    return STReconstruction(s_slice, D, τ, B, k, boundary, weighting)
+    return STReconstruction(s_slice, D, τ, B, k, boundary, weighting, printprogress)
 end
 
 function _localmodel_stts(s::AbstractVector{Array{T, Φ}},
-    R, tree ,D, τ, p, B, k, boundary, weighting, method, ntype) where {T, Φ}
+    R, tree ,D, τ, p, B, k, boundary, weighting, method, ntype,
+    printprogress) where {T, Φ}
     M = prod(size(s[1]))
     #New state that will be predicted, allocate once and reuse
     state = similar(s[1])
     #Index of relevant element in ynn (not proven but seemingly correct)
     im = 1 + (D-1)*(2B+1)^Φ + B*sum(i -> (2B+1)^(Φ-i), 1:Φ)
     for n=1:p
-        println("Working on Frame $(n)/$p")
+        printprogress && println("Working on Frame $(n)/$p")
         qs = gen_qs(s, D, τ, B, k, boundary, weighting)
         for (m,q) ∈ enumerate(qs)
             #make prediction & put into state
