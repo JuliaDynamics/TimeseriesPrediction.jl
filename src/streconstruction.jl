@@ -115,7 +115,7 @@ The parameter `k` indicates the spatial sampling density as
 described in [1].
 
 To better understand `B`, consider a system of 2 spatial dimensions, where the
-state is a `Matrix`, and chooce a point of the matrix to reconstruct.
+state is a `Matrix`, and choose a point of the matrix to reconstruct.
 Giving `B = 1` will choose the current point and 8 points around it,
 *not* 4! For `Φ` dimensions,
 the number of spatial points is then given by `(2B + 1)^Φ`.
