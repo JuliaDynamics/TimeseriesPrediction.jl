@@ -79,10 +79,10 @@ function my_reconstruct_impl(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
         for t ∈ 1:L
             for (n,midx) ∈ enumerate($(midxs))
                 if $is_middle
-                    data[:,n+(t-1)*M] .= [$(middle_gens...)]
+                    data[:,n+(t-1)*M] .= SVector($(middle_gens...))
                     #this should be alloc free
                 else
-                    data[:,n+(t-1)*M] .= [$(gens...)]
+                    data[:,n+(t-1)*M] .= SVector($(gens...))
                 end
             end
         end
