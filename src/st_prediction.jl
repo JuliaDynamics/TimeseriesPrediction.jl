@@ -51,18 +51,18 @@ function localmodel_stts(s::AbstractVector{<:AbstractArray{T, Φ}},
 
     s_pred = s[L-D*τ:L]
     return _localmodel_stts(s_pred, R, tree, D, τ, p, B, k, boundary,
-    weighting, method, ntype)[D*τ+1:end]
+    weighting, method, ntype, printprogress)[D*τ+1:end]
 end
 
 function gen_qs(s_pred, D, τ, B, k, boundary, weighting)
     N = length(s_pred)
     s_slice = @view(s_pred[N-(D-1)*τ:N])
-    return STReconstruction(s_slice, D, τ, B, k, boundary, weighting, printprogress)
+    return STReconstruction(s_slice, D, τ, B, k, boundary, weighting)
 end
 
 function _localmodel_stts(s::AbstractVector{Array{T, Φ}},
     R, tree ,D, τ, p, B, k, boundary, weighting, method, ntype,
-    printprogress) where {T, Φ}
+    printprogress = true) where {T, Φ}
     M = prod(size(s[1]))
     #New state that will be predicted, allocate once and reuse
     state = similar(s[1])
@@ -159,6 +159,7 @@ function _crosspred_stts(
     #create all qs
     qs = STReconstruction(pred_in, D, τ, B, k, boundary, weighting)
     for n=1:L-(D-1)τ
+        println("Cross-prediction frame $(n)/$(L-(D-1)τ)")
         for m=1:M
             q = qs[m + M*(n-1)]
             #make prediction & put into state

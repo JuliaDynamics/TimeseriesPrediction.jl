@@ -15,7 +15,7 @@ include("system_defs.jl")
 
     τ = 1
     k = 1
-    c = 200
+    c = 20
     w = (0,0)
 
     @testset "V, D=$D, B=$B" for D=2:3, B=1:2
@@ -39,6 +39,19 @@ include("system_defs.jl")
             @test maximum(err[i]) < 0.2
         end
     end
+    @testset "crosspred" begin
+        D = 2; B = 3
+        Utrain = U[Tskip + 1:Tskip + Ttrain]
+        Vtrain = V[Tskip + 1:Tskip + Ttrain]
+        Utest  = U[Tskip + Ttrain - (D-1)τ + 1:  T]
+        Vtest  = V[Tskip + Ttrain  - (D-1)τ + 1:  T]
+        Upred = crosspred_stts(Vtrain,Utrain,Vtest, D, τ, B, k)
+        err = [abs.(Utest[1+(D-1)τ:end][i]-Upred[i]) for i=1:p]
+        for i in 1:length(err)
+            @test maximum(err[i]) < 0.2
+        end
+    end
+
     # @testset "weighting" begin
     #     D=2; B=1
     #     w = (0.5, 4)
