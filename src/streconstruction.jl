@@ -69,37 +69,39 @@ end
 
 
 """
-    STReconstruction(s::AbstractVector{<:AbstractArray}, D, τ, B, k, boundary, weighting)
+    STReconstruction(U::AbstractVector{<:AbstractArray}, D, τ, B, k, boundary, weighting)
      <: AbstractDataset
 Perform spatio-temporal(ST) delay-coordinates reconstruction from a ST-timeseries `s`.
 
 ## Description
-
 An extension of [`Reconstruction`](@ref) to support inclusion of spatial neighbors into
 reconstructed vectors.
 `B` is the number of spatial neighbors along each direction to be included.
 The parameter `k` indicates the spatial sampling density as
 described in [1].
 
-For spatial dimension `Φ` ≥ 2 the neighbors are collected along all
-dimension as well. The number of spatial points is then given by `(2B + 1)^Φ`.
+To better understand `B`, consider a system of 2 spatial dimensions, where the
+state is a `Matrix`, and chooce a point of the matrix to reconstruct.
+Giving `B = 1` will choose the current point and 8 points around it,
+*not* 4! For `Φ` dimensions,
+the number of spatial points is then given by `(2B + 1)^Φ`.
 Temporal embedding via `D` and `τ` is treated analogous to [`Reconstruction`](@ref).
 Therefore the total embedding dimension is `D*(2B + 1)^Φ`.
 
-## Further Parameters
-   * `boundary` : Pass a number for constant boundary condition used for reconstruction of
-      border states. Pass `false` for periodic boundaries.
-
-
-   * `weighting` : Add `Φ` additional entries to rec. vectors. These are a spatial
-      weighting that may be useful for considering spatially inhomogenous dynamics.
-      For `(0,0)` they are left off. Each entry is calculated with the given
-      parameters `(a,b)` and a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
-```math
- \\begin{aligned}
- \\omega(\\tilde{x}) = a \\tilde{x} ^ b.
- \\end{aligned}
-```
+## Other Parameters
+* `boundary = 20` : Constant boundary value used for reconstruction of states close to
+  the border. Pass `false` for periodic boundary conditions.
+* `weighting = (a,b)` or `nothing` : If given numbers `(a, b)`,
+  adds `Φ` additional entries to reconstructed states.
+  These are a spatial weighting that may be useful for considering spatially
+  inhomogenous dynamics.
+  Each entry is calculated with the given parameters `(a,b)` and
+  a normalized spatial coordinate ``-1\\leq\\tilde{x}\\leq 1``:
+  ```math
+  \\begin{aligned}
+  \\omega(\\tilde{x}) = a \\tilde{x} ^ b.
+  \\end{aligned}
+  ```
 
 ## References
 
