@@ -21,16 +21,13 @@ ds = coupled_henon(M)
 N_train = 1000
 p = 20
 data = trajectory(ds,N_train+p)
+U = [d[:,1] for d in data]
+V = [d[:,2] for d in data]
 #Reconstruct this #
-utrain = data[1:N_train,SVector(1:M...)]
-utrain = map(state -> [state...], utrain)
-
-vtrain = data[1:N_train,SVector(M+1:2M...)]
-vtrain = map(state -> [state...], vtrain)
-utest = data[N_train:N_train+p,SVector(1:M...)]
-utest = map(state -> [state...], utest)
-vtest = data[N_train:N_train+p,SVector(M+1:2M...)]
-vtest = map(state -> [state...], vtest)
+utrain = U[1:N_train]
+vtrain = V[1:N_train]
+utest  = U[N_train:N_train+p]
+vtest  = V[N_train:N_train+p]
 
 
 begin
