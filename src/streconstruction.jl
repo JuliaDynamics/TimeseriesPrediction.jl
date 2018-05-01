@@ -2,9 +2,33 @@ using StaticArrays
 using IterTools
 
 export STReconstruction
-###########################################################################################
-#                       Better generated Reconstruction                                   #
-###########################################################################################
+
+#in v0.7 there is Base.IteratorsMD.LinearIndices until then
+function to_linear(lims, idx)
+    n = 1
+    for i=1:length(idx)
+        n += (idx[i]-1)*prod(lims[1:i-1])
+    end
+    n
+end
+
+
+function unroll(lidx)
+    [:(midx[$i] + $(lidx[i]) ) for i=1:length(lidx) ]
+end
+
+function make_gens(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
+    ::Type{Val{B}}, ::Type{Val{k}}, ::Type{Val{boundary}}
+    ) where {Φ, lims, D, B, k, boundary}
+    gens = Expr[]
+    for d=0:D-1, lidx ∈ product([-B*k:k:B*k for i=1:Φ]...)
+        cond = :(0 < midx[1] + $(lidx[1]) <= $(lims[1]))
+        for i=2:Φ cond = :($cond && 0 < midx[$i] + $(lidx[i]) <= $(lims[i])) end
+
+        push!(gens, :( $cond ?  s[t + $d*τ][$(unroll(lidx)...)] : $boundary))
+    end
+    return gens
+end
 
 function make_gens(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
     ::Type{Val{B}}, ::Type{Val{k}}, ::Type{Val{false}}
@@ -17,16 +41,12 @@ function make_gens(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
     return gens
 end
 
-function make_gens(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
-    ::Type{Val{B}}, ::Type{Val{k}}, ::Type{Val{boundary}}
-    ) where {Φ, lims, D, B, k, boundary}
-    gens = Expr[]
-    for d=0:D-1, lidx ∈ product([-B*k:k:B*k for i=1:Φ]...)
-        cond = :(0 < midx[1] + $(lidx[1]) <= $(lims[1]))
-        for i=2:Φ cond = :($cond && 0 < midx[$i] + $(lidx[i]) <= $(lims[i])) end
+function make_middle_gens(::Type{Val{Φ}}, ::Type{Val{D}},
+    ::Type{Val{B}}, ::Type{Val{k}}
+    ) where {Φ, D, B, k}
+    gens = [:(s[t + $d*τ][$(unroll(lidx)...)]) for
+    lidx ∈ product([-B*k:k:B*k for i=1:Φ]...), d=0:D-1]
 
-        push!(gens, :( $cond ?  s[t + $d*τ][(midx .+ $lidx)...] : $boundary))
-    end
     return gens
 end
 
@@ -35,6 +55,7 @@ function my_reconstruct_impl(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
     ) where {Φ, lims, D, B, k, weighting, boundary}
 
     gens = make_gens(Val{Φ}, Val{lims}, Val{D}, Val{B},Val{k}, Val{boundary})
+    middle_gens = make_middle_gens(Val{Φ}, Val{D}, Val{B},Val{k})
     if ((a,b) = weighting) != (0,0)
         w = Φ
         append!(gens, [:($a*(-1+2*(midx[$i]-1)/($(lims[i]-1)))^$b)  for i=1:Φ])
@@ -43,15 +64,26 @@ function my_reconstruct_impl(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
     end
 
     midxs = product([1:lims[i] for i=1:Φ]...)
+
+    #is boundary
+    is_middle = :($B*$k < midx[1] <= $(lims[1]) - $B*$k )
+    for i=2:Φ is_middle = :($is_middle && $B*$k < midx[$i] <= $(lims[i]) - $B*$k)
+    end
+
     quote
         M = prod(size(s[1]))
         L = length(s) - $(D-1)*τ
         T = eltype(s[1][1])
-        data = Vector{SVector{$D*(2*$B + 1)^$Φ+$w, T}}(L*M)
+        data = Array{T}($D*(2*$B + 1)^$Φ+$w,L*M)
 
         for t ∈ 1:L
             for (n,midx) ∈ enumerate($(midxs))
-                data[n+(t-1)*M] = SVector{$D*(2*$B + 1)^Φ+$w, T}($(gens...))
+                if $is_middle
+                    data[:,n+(t-1)*M] .= [$(middle_gens...)]
+                    #this should be alloc free
+                else
+                    data[:,n+(t-1)*M] .= [$(gens...)]
+                end
             end
         end
         data
@@ -66,6 +98,8 @@ end
      my_reconstruct_impl(Val{Φ}, Val{lims}, Val{D}, Val{B}, Val{k}, Val{weighting},
      Val{boundary})
 end
+
+
 
 
 """
@@ -109,11 +143,11 @@ Therefore the total embedding dimension is `D*(2B + 1)^Φ`.
 Reconstructed Local States*, Phys. Rev. Lett. (2000)
 """
 function STReconstruction(
-    s::AbstractVector{<:AbstractArray{T, Φ}}, D, τ::DT, B, k, boundary, weighting
+    s::AbstractVector{<:AbstractArray{T, Φ}}, D, τ::DT, B, k, boundary, weighting,
     ) where {T, Φ, DT}
     lims = size(s[1])
     w = Φ*(weighting != (0,0))
-    Reconstruction{D*(2B+1)^Φ+w,T,DT}(
-    my_reconstruct(Val{Φ},Val{lims}, s, Val{D},
-     Val{B},τ,Val{k},Val{weighting}, Val{boundary}), τ)
+    data = my_reconstruct(Val{Φ},Val{lims}, s, Val{D},
+            Val{B},τ,Val{k},Val{weighting}, Val{boundary})
+    return Reconstruction{D*(2B+1)^Φ+w,T,DT}(reinterpret(Dataset,data).data, τ)
 end

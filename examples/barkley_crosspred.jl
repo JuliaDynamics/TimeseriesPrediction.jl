@@ -111,7 +111,7 @@ end
 
 
 
-Vpred = crosspred_stts(Utrain,Vtrain,Utest, D, τ, B, k, a, b)
+Vpred = crosspred_stts(Utrain,Vtrain,Utest, D, τ, B, k)
 err = [abs.(Vtest[1+(D-1)τ:end][i]-Vpred[i]) for i=1:Ttest]
 
 # Animation (takes forever)
