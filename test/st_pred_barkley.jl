@@ -64,9 +64,25 @@ include("system_defs.jl")
             @test maximum(err[i]) < 0.1
         end
     end
-    
+
     @testset "Periodic, D=$D, B=$B" for D=2:3, B=1:2
         U,V = barkley_periodic_boundary(T, Nx, Ny)
+        c = false
+        w = (0, 0)
+        Vtrain = V[Tskip + 1:Tskip + Ttrain]
+        Vtest  = V[Tskip + Ttrain :  T]
+        Vpred = localmodel_stts(Vtrain, D, τ, p, B, k; boundary=c, weighting=w)
+        @test Vpred[1] == Vtrain[end]
+        err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
+        for i in 1:p
+            @test maximum(err[i]) < 0.1
+        end
+    end
+
+    @testset "Periodic diff. inital, D=$D, B=$B" for D=2:3, B=2
+        Ttrain = 500
+        T = Tskip + Ttrain + p
+        U,V = barkley_periodic_boundary_nonlin(T, Nx, Ny)
         c = false
         w = (0, 0)
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
