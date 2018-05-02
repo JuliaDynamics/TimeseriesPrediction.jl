@@ -101,7 +101,7 @@ fname = "barkley_ts_Train=$(Ttrain)_p=$(p)_D=$(D)_τ=$(τ)_B=$(B)_k=$(k)"
 
 cd(); mkpath("tspred_examples"); cd("tspred_examples")
 
-@time anim = @animate for i=3:length(Vtest)
+@time anim = @animate for i=5:2:length(Vtest)
     l = @layout([a b c])
     p1 = Plots.plot(Vtest[i],
     title = "Barkley, t=$(i)",
@@ -131,6 +131,6 @@ cd(); mkpath("tspred_examples"); cd("tspred_examples")
     Plots.plot(p1,p2,p3, layout=l, size=(600,170))
 end
 
-gif(anim, fname * ".gif")
+gif(anim, fname * ".gif", fps = 5)
 
 println("DONE")

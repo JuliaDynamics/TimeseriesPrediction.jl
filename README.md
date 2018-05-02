@@ -58,7 +58,7 @@ Here $u, v$ are *fields* of two spatial dimensions.
 Running the file `examples/barkley_tspred.jl` takes a couple of minutes, but
 produces:
 
-![Barkley prediction](https://i.imgur.com/vAUhSTS.gif)
+![Barkley prediction](https://i.imgur.com/vQ2FbRH.gifv)
 
 The example first simulates the Barkley model.
 Then, after a simulation of `1000` time steps,
