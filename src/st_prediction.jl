@@ -22,6 +22,7 @@ In most cases `k=1` and `τ=1,2,3` give best results.
   * `boundary, weighting` : Passed directly to [`STReconstruction`](@ref).
   * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
+  * `printprogress = true` : To print progress done.
 
 
 ## Description
@@ -108,6 +109,7 @@ In most cases `k=1` and `τ=1,2,3` give best results.
   * `boundary, weighting` : Passed directly to [`STReconstruction`](@ref).
   * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
+  * `printprogress = true` : To print progress done.
 
 ## Description
 The reconstructed state of `source_train[t][i,j,...]` is associated with the output

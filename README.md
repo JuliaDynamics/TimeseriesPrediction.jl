@@ -10,7 +10,7 @@ is part of the library [DynamicalSystems.jl](https://juliadynamics.github.io/Dyn
 
 All exported names have detailed documentation strings!
 
-## Example
+## Timeseries Example
 ```julia
 using TimeseriesPrediction
 
@@ -44,3 +44,24 @@ legend(loc="upper left")
 tight_layout()
 ```
 ![Average local model prediction](https://i.imgur.com/VJSjHMI.png)
+
+## Spatio-Temporal Timeseries Example
+We will predict the future of the Barkley model:
+$$
+\begin{align}
+\frac{\partial u }{\partial t} =& \frac{1}{\epsilon} u (1-u)\left(u-\frac{v+b}{a}\right) + \nabla^2 u\nonumber \\
+\frac{\partial v }{\partial t} =& u - v
+\end{align}
+$$
+Here $u, v$ are *fields* of two spatial dimensions.
+
+Running the file `examples/barkley_tspred.jl` takes a couple of minutes, but
+produces:
+
+![Barkley prediction](https://i.imgur.com/vAUhSTS.gif)
+
+The example first simulates the Barkley model.
+Then, after a simulation of `1000` time steps,
+it makes a temporal prediction of one of the two fields ($v$) for `200` time steps.
+The animated figure shows the true evolution of the model, the prediction
+and the error of the prediction.

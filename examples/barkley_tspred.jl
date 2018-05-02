@@ -2,7 +2,7 @@ using Plots
 using TimeseriesPrediction
 
 # This Algorithm is taken from
-#  http://www.scholarpedia.org/article/Barkley_model
+# http://www.scholarpedia.org/article/Barkley_model
 
 function barkley(T, Nx, Ny)
     a = 0.75
@@ -79,8 +79,8 @@ end
 Nx = 50
 Ny = 50
 Tskip = 200
-Ttrain = 500
-p = 50
+Ttrain = 1000
+p = 200
 T = Tskip + Ttrain + p
 
 U,V = barkley(T, Nx, Ny)
@@ -89,7 +89,7 @@ Vtest  = V[Tskip + Ttrain :  T]
 
 D = 2
 τ = 1
-B = 3
+B = 2
 k = 1
 c = 200
 w = (0,0)
@@ -97,22 +97,21 @@ w = (0,0)
 @time Vpred = localmodel_stts(Vtrain, D, τ, p, B, k; boundary=c, weighting=w)
 err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
 
-fname = "barkley_ts_Train=$(Ttrain)_D=$(D)_τ=$(τ)_B=$(B)_k=$(k)"
+fname = "barkley_ts_Train=$(Ttrain)_p=$(p)_D=$(D)_τ=$(τ)_B=$(B)_k=$(k)"
 
 cd(); mkpath("tspred_examples"); cd("tspred_examples")
 
 @time anim = @animate for i=3:length(Vtest)
     l = @layout([a b c])
-    p1 = plot(Vtest[i],
-    title = "Barkley Model",
+    p1 = Plots.plot(Vtest[i],
+    title = "Barkley, t=$(i)",
     xlabel = "X",
     ylabel = "Y",
     clims=(0,0.75),
-    cbar = false,
     aspect_ratio=1,
     st=:heatmap)
 
-    p2 = plot(Vpred[i],
+    p2 = Plots.plot(Vpred[i],
     title = "Prediction",
     xlabel = "X",
     #ylabel = "Y",
@@ -120,18 +119,18 @@ cd(); mkpath("tspred_examples"); cd("tspred_examples")
     aspect_ratio=1,
     st=:heatmap)
 
-    p3 = plot(err[i],
+    p3 = Plots.plot(err[i],
     title = "Absolute Error",
     xlabel = "X",
     #ylabel = "Y",
-    clims=(0,0.03),
+    clims=(0,0.1),
     aspect_ratio=1,
     st=:heatmap,
     seriescolor=:viridis)
 
-    plot(p1,p2,p3, layout=l, size=(600,170))
+    Plots.plot(p1,p2,p3, layout=l, size=(600,170))
 end
 
-mp4(anim, fname * ".mp4")
+gif(anim, fname * ".gif")
 
 println("DONE")
