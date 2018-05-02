@@ -47,7 +47,7 @@ function make_middle_gens(::Type{Val{Φ}}, ::Type{Val{D}},
     gens = [:(s[t + $d*τ][$(unroll(lidx)...)]) for
     lidx ∈ product([-B*k:k:B*k for i=1:Φ]...), d=0:D-1]
 
-    return gens
+    return reshape(gens,:)
 end
 
 function my_reconstruct_impl(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
@@ -59,6 +59,7 @@ function my_reconstruct_impl(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
     if ((a,b) = weighting) != (0,0)
         w = Φ
         append!(gens, [:($a*(-1+2*(midx[$i]-1)/($(lims[i]-1)))^$b)  for i=1:Φ])
+        append!(middle_gens, [:($a*(-1+2*(midx[$i]-1)/($(lims[i]-1)))^$b)  for i=1:Φ])
     else
         w = 0
     end
