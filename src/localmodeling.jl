@@ -63,14 +63,21 @@ VCH-Wiley (2006)
 """
 abstract type AbstractLocalModel end
 
+ω_safe(d,dmax,n) = dmax > 0 ? (1.1-(di/dmax)^n)^2n : 1.
+ω_unsafe(d,dmax,n) = (1-(di/dmax)^n)^2n
+
 """
     AverageLocalModel(n::Int = 2)
 See [`AbstractLocalModel`](@ref).
 """
 struct AverageLocalModel <: AbstractLocalModel
     n::Int #n=0,1,2,3
+    ω::F
 end
 AverageLocalModel() = AverageLocalModel(2)
+AverageLocalModel(n) = AverageLocalModel(n, ω_safe)
+
+
 
 
 function (M::AverageLocalModel)(q,xnn,ynn,dists)
@@ -78,7 +85,7 @@ function (M::AverageLocalModel)(q,xnn,ynn,dists)
         y_pred = zeros(typeof(ynn[1]))
         Ω = 0.
         for (y,d) in zip(ynn,dists)
-            ω2 = (1.01-(d/dmax)^M.n)^2M.n
+            ω2 = M.ω(d, dmax, M.n)
             Ω += ω2
             y_pred += ω2*y
         end
@@ -96,10 +103,11 @@ See [`AbstractLocalModel`](@ref).
 """
 struct LinearLocalModel{F} <: AbstractLocalModel
     n::Int #n=0,1,2,3
+    ω::F
     f::F
 end
 
-LinearLocalModel() = LinearLocalModel(2, 2.0)
+LinearLocalModel() = LinearLocalModel(2, ω_safe, 2.0)
 #Regularization functions
 ridge_reg(σ, μ) = σ^2/(μ^2 + σ^2)
 function mcnames_reg(σ,smin,smax)
@@ -110,10 +118,10 @@ function mcnames_reg(σ,smin,smax)
 end
 
 LinearLocalModel(n::Int, μ::Real) =
-LinearLocalModel(n, (σ) -> ridge_reg(σ, μ))
+LinearLocalModel(n, ω_safe,(σ) -> ridge_reg(σ, μ))
 
 LinearLocalModel(n::Int, s_min::Real, s_max::Real) =
-LinearLocalModel(n, (σ) -> mcnames_reg(σ, s_min, s_max))
+LinearLocalModel(n, ω_safe,(σ) -> mcnames_reg(σ, s_min, s_max))
 
 function (M::LinearLocalModel)(
     q,
@@ -125,10 +133,9 @@ function (M::LinearLocalModel)(
     y_pred = zeros(size(ynn[1]))
     k= length(xnn)
     #Weight Function
-    ω(r) = (1-r^M.n)^M.n
     dmax = maximum(dists)
     #Create Weight Matrix
-    W = diagm([ω(di/dmax) for di in dists])
+    W = Diagonal([M.ω(di,dmax,M.n) for di in dists])
     x_mean = mean(xnn)
     y_mean = mean(ynn)
     #Create X
@@ -141,7 +148,7 @@ function (M::LinearLocalModel)(
 
     #Regularization
     #D+1 Singular Values
-    Sp = diagm([σ>0 ? M.f(σ)/σ : 0 for σ in S])
+    Sp = Diagonal([σ>0 ? M.f(σ)/σ : 0 for σ in S])
     Xw_inv = V*Sp*U'
     #The following code is meant for 1D ynn values
     #Repeat for all components
