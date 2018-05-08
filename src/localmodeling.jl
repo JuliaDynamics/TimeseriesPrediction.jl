@@ -5,6 +5,7 @@ export AbstractLocalModel
 export AverageLocalModel,LinearLocalModel
 export localmodel_tsp
 export MSEp
+export ω_safe, ω_unsafe
 
 """
     AbstractLocalModel
@@ -15,11 +16,10 @@ following the methods of [1]. Concrete subtypes are `AverageLocalModel` and
 All models weight neighbors with the following weight function
 ```math
 \\begin{aligned}
-ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^n\\right]^n
+ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^2\\right]^4
 \\end{aligned}
 ```
-with ``d_i = ||x_{nn,i} -q||_2`` and degree `n`,
-to ensure smoothness of interpolation.
+with ``d_i = ||x_{nn,i} -q||_2`` ensuring smoothness of interpolation.
 
 ### Average Local Model
     AverageLocalModel(n::Int)
@@ -28,7 +28,7 @@ The prediction is simply the weighted average of the images ``y_{nn, i}`` of
 the neighbors ``x_{nn, i}`` of the query point `q`:
 ```math
 \\begin{aligned}
-y\_{pred} = \\frac{\\sum{\\omega_i^2 y_{nn,i}}}{\\sum{\\omega_i^2}}
+y\_{pred} = \\frac{\\sum{\\omega_i y_{nn,i}}}{\\sum{\\omega_i}}
 \\end{aligned}
 ```
 
@@ -63,19 +63,17 @@ VCH-Wiley (2006)
 """
 abstract type AbstractLocalModel end
 
-ω_safe(d,dmax,n) = dmax > 0 ? (1.1-(d/dmax)^n)^2n : 1.
-ω_unsafe(d,dmax,n) = (1-(d/dmax)^n)^2n
+ω_safe(d,dmax) = dmax > 0 ? (1.1-(d/dmax)^2)^4 : 1.
+ω_unsafe(d,dmax) = (1-(d/dmax)^2)^4
 
 """
-    AverageLocalModel(n::Int = 2)
+    AverageLocalModel(ω::Function = ω_unsafe)
 See [`AbstractLocalModel`](@ref).
 """
 struct AverageLocalModel{F} <: AbstractLocalModel
-    n::Int #n=0,1,2,3
     ω::F
 end
-AverageLocalModel() = AverageLocalModel(2)
-AverageLocalModel(n) = AverageLocalModel(n, ω_safe)
+AverageLocalModel() = AverageLocalModel(ω_unsafe)
 
 
 
@@ -97,17 +95,17 @@ end
 
 
 """
-    LinearLocalModel(n::Int, μ::Real)
-    LinearLocalModel(n::Int, s_min::Real, s_max::Real)
+    LinearLocalModel([ω::Function=ω_unsafe, μ::Real=2.])
+    LinearLocalModel(ω::Function, s_min::Real, s_max::Real)
 See [`AbstractLocalModel`](@ref).
 """
 struct LinearLocalModel{F} <: AbstractLocalModel
-    n::Int #n=0,1,2,3
-    ω::F
-    f::F
+    ω::F # weighting
+    f::F # regularization
 end
 
-LinearLocalModel() = LinearLocalModel(2, ω_safe, 2.0)
+LinearLocalModel(μ::Real=2.) = LinearLocalModel(ω_unsafe, μ)
+
 #Regularization functions
 ridge_reg(σ, μ) = σ^2/(μ^2 + σ^2)
 function mcnames_reg(σ,smin,smax)
@@ -117,11 +115,11 @@ function mcnames_reg(σ,smin,smax)
     end
 end
 
-LinearLocalModel(n::Int, μ::Real) =
-LinearLocalModel(n, ω_safe,(σ) -> ridge_reg(σ, μ))
+LinearLocalModel(ω,μ::Real=2.) =
+LinearLocalModel(ω,(σ) -> ridge_reg(σ, μ))
 
-LinearLocalModel(n::Int, s_min::Real, s_max::Real) =
-LinearLocalModel(n, ω_safe,(σ) -> mcnames_reg(σ, s_min, s_max))
+LinearLocalModel(ω, s_min::Real, s_max::Real) =
+LinearLocalModel(ω, (σ) -> mcnames_reg(σ, s_min, s_max))
 
 function (M::LinearLocalModel)(
     q,
