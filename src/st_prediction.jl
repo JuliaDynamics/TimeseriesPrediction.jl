@@ -39,7 +39,7 @@ function localmodel_stts(s::AbstractVector{<:AbstractArray{T, Φ}},
     D, τ, p, B, k;
     boundary=20,
     weighting::Tuple{Real, Real} = (0,0),
-    method::AbstractLocalModel = AverageLocalModel(2),
+    method::AbstractLocalModel = AverageLocalModel(),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3),
     printprogress = true) where {T, Φ}
     M = prod(size(s[1]))
@@ -138,7 +138,7 @@ function crosspred_stts(
     D,τ,B=1,k=1;
     boundary=20,
     weighting::Tuple{Real, Real} = (0,0),
-    method::AbstractLocalModel = AverageLocalModel(2),
+    method::AbstractLocalModel = AverageLocalModel(),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Φ}
     R = STReconstruction(train_in,D,τ,B,k,boundary, weighting)
     tree = KDTree(R)
