@@ -13,7 +13,7 @@ s_test  = data[N_train:end,1]
 @testset "localmodel_tsp" begin
     @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
         p = 50
-        method = AverageLocalModel(2)
+        method = AverageLocalModel()
         ntype = FixedMassNeighborhood(2)
         stepsize = 1
         s_pred = localmodel_tsp(s_train, D, τ, p;
@@ -32,7 +32,7 @@ end
 @testset "FixedSizeNeighborhood" begin
     @testset "D=$D and τ=$τ" for D ∈ [4], τ ∈ [14,15]
         p = 25
-        method = AverageLocalModel(2)
+        method = AverageLocalModel()
         ntype = FixedSizeNeighborhood(0.5)
         stepsize = 1
         s_pred = localmodel_tsp(s_train, D, τ, p;
@@ -47,7 +47,7 @@ end
     @testset "D=$D and τ=$τ" for D ∈ [3,4], τ=15
         R = Reconstruction(sm_train,D,τ)
         num_points = 50
-        method = AverageLocalModel(2)
+        method = AverageLocalModel()
         ntype = FixedMassNeighborhood(2)
         stepsize = 1
         sind = SVector{2, Int}((D*2 - i for i in 2-1:-1:0)...)
@@ -66,7 +66,7 @@ end
         τ=[15 15; 30 29; 45 45]#[14 15; 29 30; 45 47]
         R = Reconstruction(sm_train,D,τ)
         num_points = 25
-        method = AverageLocalModel(2)
+        method = AverageLocalModel()
         ntype = FixedMassNeighborhood(2)
         stepsize = 1
         sind = SVector{2, Int}(5,6)
@@ -85,7 +85,7 @@ end
         D = 3; τ = 15;
         R = Reconstruction(s_train,D,τ)
         R_test = Reconstruction(s_test[end-D*τ-p-50:end],D,τ)
-        method = AverageLocalModel(2)
+        method = AverageLocalModel()
         ntype = FixedMassNeighborhood(2)
         stepsize = 1
 
@@ -102,7 +102,7 @@ end
     stepsize = 1
     s = data[1:N_train,1]
     s_real = data[N_train:N_train+p*stepsize,1]
-    method = AverageLocalModel(1)
+    method = AverageLocalModel()
     ntype = FixedMassNeighborhood(2)
     s_pred = localmodel_tsp(s,2,1,p; method=method, ntype=ntype)
     @test norm(s_pred -s_real)/var(s)/p < 0.15

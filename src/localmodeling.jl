@@ -258,7 +258,7 @@ function _localmodel_tsp(R::AbstractDataset{D,T},
                         tree::KDTree,
                         q::SVector{D,T},
                         p::Int;
-                        method::AbstractLocalModel = AverageLocalModel(2),
+                        method::AbstractLocalModel = AverageLocalModel(),
                         ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
                         stepsize::Int = 1) where {D,T}
 
@@ -310,7 +310,7 @@ been created, starting with the query point to be the last point of the timeseri
 VCH-Wiley (2006)
 """
 function localmodel_tsp(R::AbstractDataset{B}, p::Int;
-    method::AbstractLocalModel = AverageLocalModel(2),
+    method::AbstractLocalModel = AverageLocalModel(),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
     stepsize::Int = 1) where B
     B > 1 || throw(ArgumentError("Dataset Dimension needs to be >1! ",
@@ -341,7 +341,7 @@ function MSE1(
     R::AbstractDataset{D,T},
     tree::KDTree,
     R_test::AbstractDataset{D,T};
-    method::AbstractLocalModel = AverageLocalModel(2),
+    method::AbstractLocalModel = AverageLocalModel(),
     ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
     stepsize::Int = 1) where {D,T}
 
@@ -399,7 +399,7 @@ function MSEp(
     return error
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
-MSEp(R, R_test, p; method::AbstractLocalModel = AverageLocalModel(2),
+MSEp(R, R_test, p; method::AbstractLocalModel = AverageLocalModel(),
 ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
 stepsize::Int = 1) =
 MSEp(R, KDTree(R[1:end-stepsize]), R_test, p; method=method,
