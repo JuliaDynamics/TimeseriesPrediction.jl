@@ -83,7 +83,7 @@ function (M::AverageLocalModel)(q,xnn,ynn,dists)
         y_pred = zeros(typeof(ynn[1]))
         Ω = 0.
         for (y,d) in zip(ynn,dists)
-            ω2 = M.ω.(d, dmax, M.n)
+            ω2 = M.ω.(d, dmax)
             Ω += ω2
             y_pred += ω2*y
         end
@@ -133,7 +133,7 @@ function (M::LinearLocalModel)(
     #Weight Function
     dmax = maximum(dists)
     #Create Weight Matrix
-    W = Diagonal([M.ω.(di,dmax,M.n) for di in dists])
+    W = Diagonal([M.ω.(di,dmax) for di in dists])
     x_mean = mean(xnn)
     y_mean = mean(ynn)
     #Create X
