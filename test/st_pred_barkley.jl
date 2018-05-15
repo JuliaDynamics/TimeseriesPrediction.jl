@@ -28,7 +28,7 @@ include("system_defs.jl")
             @test maximum(err[i]) < 0.1
         end
     end
-    @testset "U" begin
+    @testset "U, D=2, B=1" begin
         D=2; B=1
         Utrain = U[Tskip + 1:Tskip + Ttrain]
         Utest  = U[Tskip + Ttrain :  T]
@@ -39,12 +39,12 @@ include("system_defs.jl")
             @test maximum(err[i]) < 0.2
         end
     end
-    @testset "crosspred" begin
+    @testset "crosspred V → U" begin
         D = 2; B = 3
         Utrain = U[Tskip + 1:Tskip + Ttrain]
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Utest  = U[Tskip + Ttrain - (D-1)τ + 1:  T]
-        Vtest  = V[Tskip + Ttrain  - (D-1)τ + 1:  T]
+        Vtest  = V[Tskip + Ttrain - (D-1)τ + 1:  T]
         Upred = crosspred_stts(Vtrain,Utrain,Vtest, D, τ, B, k)
         err = [abs.(Utest[1+(D-1)τ:end][i]-Upred[i]) for i=1:p]
         for i in 1:length(err)
