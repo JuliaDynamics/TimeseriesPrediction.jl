@@ -292,7 +292,7 @@ is done. Keep in mind that the intented behavior of the algorithm is to work wit
 a reconstruction, and not "raw" data.
 
 ## Keyword Arguments
-  * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
+  * `method = AverageLocalModel(ω_unsafe)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(2)` : Subtype of [`AbstractNeighborhood`](@ref).
   * `stepsize = 1` : Prediction step size.
 
