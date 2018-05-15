@@ -5,6 +5,7 @@ export AbstractLocalModel
 export AverageLocalModel,LinearLocalModel
 export localmodel_tsp
 export MSEp
+export ω_safe, ω_unsafe
 
 """
     AbstractLocalModel
@@ -15,11 +16,10 @@ following the methods of [1]. Concrete subtypes are `AverageLocalModel` and
 All models weight neighbors with the following weight function
 ```math
 \\begin{aligned}
-ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^n\\right]^n
+ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^2\\right]^4
 \\end{aligned}
 ```
-with ``d_i = ||x_{nn,i} -q||_2`` and degree `n`,
-to ensure smoothness of interpolation.
+with ``d_i = ||x_{nn,i} -q||_2`` ensuring smoothness of interpolation.
 
 ### Average Local Model
     AverageLocalModel(n::Int)
@@ -28,7 +28,7 @@ The prediction is simply the weighted average of the images ``y_{nn, i}`` of
 the neighbors ``x_{nn, i}`` of the query point `q`:
 ```math
 \\begin{aligned}
-y\_{pred} = \\frac{\\sum{\\omega_i^2 y_{nn,i}}}{\\sum{\\omega_i^2}}
+y\_{pred} = \\frac{\\sum{\\omega_i y_{nn,i}}}{\\sum{\\omega_i}}
 \\end{aligned}
 ```
 
@@ -63,14 +63,19 @@ VCH-Wiley (2006)
 """
 abstract type AbstractLocalModel end
 
+ω_safe(d,dmax) = dmax > 0 ? (1.1-(d/dmax)^2)^4 : 1.
+ω_unsafe(d,dmax) = (1-(d/dmax)^2)^4
+
 """
-    AverageLocalModel(n::Int = 2)
+    AverageLocalModel(ω::Function = ω_unsafe)
 See [`AbstractLocalModel`](@ref).
 """
-struct AverageLocalModel <: AbstractLocalModel
-    n::Int #n=0,1,2,3
+struct AverageLocalModel{F} <: AbstractLocalModel
+    ω::F
 end
-AverageLocalModel() = AverageLocalModel(2)
+AverageLocalModel() = AverageLocalModel(ω_unsafe)
+
+
 
 
 function (M::AverageLocalModel)(q,xnn,ynn,dists)
@@ -78,7 +83,7 @@ function (M::AverageLocalModel)(q,xnn,ynn,dists)
         y_pred = zeros(typeof(ynn[1]))
         Ω = 0.
         for (y,d) in zip(ynn,dists)
-            ω2 = (1.01-(d/dmax)^M.n)^2M.n
+            ω2 = M.ω.(d, dmax)
             Ω += ω2
             y_pred += ω2*y
         end
@@ -90,16 +95,17 @@ end
 
 
 """
-    LinearLocalModel(n::Int, μ::Real)
-    LinearLocalModel(n::Int, s_min::Real, s_max::Real)
+    LinearLocalModel([ω::Function=ω_unsafe, μ::Real=2.])
+    LinearLocalModel(ω::Function, s_min::Real, s_max::Real)
 See [`AbstractLocalModel`](@ref).
 """
 struct LinearLocalModel{F} <: AbstractLocalModel
-    n::Int #n=0,1,2,3
-    f::F
+    ω::F # weighting
+    f::F # regularization
 end
 
-LinearLocalModel() = LinearLocalModel(2, 2.0)
+LinearLocalModel(μ::Real=2.) = LinearLocalModel(ω_unsafe, μ)
+
 #Regularization functions
 ridge_reg(σ, μ) = σ^2/(μ^2 + σ^2)
 function mcnames_reg(σ,smin,smax)
@@ -109,11 +115,11 @@ function mcnames_reg(σ,smin,smax)
     end
 end
 
-LinearLocalModel(n::Int, μ::Real) =
-LinearLocalModel(n, (σ) -> ridge_reg(σ, μ))
+LinearLocalModel(ω,μ::Real=2.) =
+LinearLocalModel(ω,(σ) -> ridge_reg(σ, μ))
 
-LinearLocalModel(n::Int, s_min::Real, s_max::Real) =
-LinearLocalModel(n, (σ) -> mcnames_reg(σ, s_min, s_max))
+LinearLocalModel(ω, s_min::Real, s_max::Real) =
+LinearLocalModel(ω, (σ) -> mcnames_reg(σ, s_min, s_max))
 
 function (M::LinearLocalModel)(
     q,
@@ -125,10 +131,9 @@ function (M::LinearLocalModel)(
     y_pred = zeros(size(ynn[1]))
     k= length(xnn)
     #Weight Function
-    ω(r) = (1-r^M.n)^M.n
     dmax = maximum(dists)
     #Create Weight Matrix
-    W = diagm([ω(di/dmax) for di in dists])
+    W = Diagonal([M.ω.(di,dmax) for di in dists])
     x_mean = mean(xnn)
     y_mean = mean(ynn)
     #Create X
@@ -141,7 +146,7 @@ function (M::LinearLocalModel)(
 
     #Regularization
     #D+1 Singular Values
-    Sp = diagm([σ>0 ? M.f(σ)/σ : 0 for σ in S])
+    Sp = Diagonal([σ>0 ? M.f(σ)/σ : 0 for σ in S])
     Xw_inv = V*Sp*U'
     #The following code is meant for 1D ynn values
     #Repeat for all components
@@ -253,7 +258,7 @@ function _localmodel_tsp(R::AbstractDataset{D,T},
                         tree::KDTree,
                         q::SVector{D,T},
                         p::Int;
-                        method::AbstractLocalModel = AverageLocalModel(2),
+                        method::AbstractLocalModel = AverageLocalModel(),
                         ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
                         stepsize::Int = 1) where {D,T}
 
@@ -287,7 +292,7 @@ is done. Keep in mind that the intented behavior of the algorithm is to work wit
 a reconstruction, and not "raw" data.
 
 ## Keyword Arguments
-  * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
+  * `method = AverageLocalModel(ω_unsafe)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(2)` : Subtype of [`AbstractNeighborhood`](@ref).
   * `stepsize = 1` : Prediction step size.
 
@@ -305,7 +310,7 @@ been created, starting with the query point to be the last point of the timeseri
 VCH-Wiley (2006)
 """
 function localmodel_tsp(R::AbstractDataset{B}, p::Int;
-    method::AbstractLocalModel = AverageLocalModel(2),
+    method::AbstractLocalModel = AverageLocalModel(),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
     stepsize::Int = 1) where B
     B > 1 || throw(ArgumentError("Dataset Dimension needs to be >1! ",
@@ -336,7 +341,7 @@ function MSE1(
     R::AbstractDataset{D,T},
     tree::KDTree,
     R_test::AbstractDataset{D,T};
-    method::AbstractLocalModel = AverageLocalModel(2),
+    method::AbstractLocalModel = AverageLocalModel(),
     ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
     stepsize::Int = 1) where {D,T}
 
@@ -394,7 +399,7 @@ function MSEp(
     return error
 end
 #FIXME: I shouldn't have to square the norm... What is the solution?
-MSEp(R, R_test, p; method::AbstractLocalModel = AverageLocalModel(2),
+MSEp(R, R_test, p; method::AbstractLocalModel = AverageLocalModel(),
 ntype::AbstractNeighborhood = FixedMassNeighborhood(2),
 stepsize::Int = 1) =
 MSEp(R, KDTree(R[1:end-stepsize]), R_test, p; method=method,

@@ -20,7 +20,7 @@ In most cases `k=1` and `τ=1,2,3` give best results.
 
 ## Keyword Arguments
   * `boundary, weighting` : Passed directly to [`STReconstruction`](@ref).
-  * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
+  * `method = AverageLocalModel(ω_safe)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
   * `printprogress = true` : To print progress done.
 
@@ -39,7 +39,7 @@ function localmodel_stts(s::AbstractVector{<:AbstractArray{T, Φ}},
     D, τ, p, B, k;
     boundary=20,
     weighting::Tuple{Real, Real} = (0,0),
-    method::AbstractLocalModel = AverageLocalModel(2),
+    method::AbstractLocalModel = AverageLocalModel(ω_safe),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3),
     printprogress = true) where {T, Φ}
     M = prod(size(s[1]))
@@ -107,7 +107,7 @@ In most cases `k=1` and `τ=1,2,3` give best results.
 
 ## Keyword Arguments
   * `boundary, weighting` : Passed directly to [`STReconstruction`](@ref).
-  * `method = AverageLocalModel(2)` : Subtype of [`AbstractLocalModel`](@ref).
+  * `method = AverageLocalModel(ω_safe)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
   * `printprogress = true` : To print progress done.
 
@@ -138,7 +138,7 @@ function crosspred_stts(
     D,τ,B=1,k=1;
     boundary=20,
     weighting::Tuple{Real, Real} = (0,0),
-    method::AbstractLocalModel = AverageLocalModel(2),
+    method::AbstractLocalModel = AverageLocalModel(ω_safe),
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Φ}
     R = STReconstruction(train_in,D,τ,B,k,boundary, weighting)
     tree = KDTree(R)
