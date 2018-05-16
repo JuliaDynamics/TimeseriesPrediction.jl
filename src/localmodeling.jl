@@ -13,16 +13,22 @@ Supertype of methods for making a prediction of a query point `q` using local mo
 following the methods of [1]. Concrete subtypes are `AverageLocalModel` and
 `LinearLocalModel`.
 
-All models weight neighbors with the following weight function
+All models weight neighbors with the weight function ``ω_{\\text{unsafe}}`` by default.
 ```math
 \\begin{aligned}
-ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^2\\right]^4
+ω_{\\text{unsafe}} =& \\left( 1- \\left(\\frac{d_i}{d_{max}}\\right)^2\\right)^2\\\\
+ω_{\\text{safe}} =& \\begin{cases}
+\\left( 1.1- \\left(\\frac{d_i}{d_{max}}\\right)^2\\right)^2, & d_{max} > 0\\\\
+1, & d_{max} = 0
+\\end{cases}
 \\end{aligned}
 ```
-with ``d_i = ||x_{nn,i} -q||_2`` ensuring smoothness of interpolation.
+with ``d_i = ||x_{nn,i} -q||_2`` ensuring smoothness of interpolation. Alternatively
+``ω_{\\text{safe}}`` can be used by passing `AverageLocalModel(ω_safe)` to the prediction
+algorithm.
 
 ### Average Local Model
-    AverageLocalModel(n::Int)
+    AverageLocalModel(ω::Function = ω_unsafe)
 
 The prediction is simply the weighted average of the images ``y_{nn, i}`` of
 the neighbors ``x_{nn, i}`` of the query point `q`:
@@ -33,8 +39,8 @@ y\_{pred} = \\frac{\\sum{\\omega_i y_{nn,i}}}{\\sum{\\omega_i}}
 ```
 
 ### Linear Local Model
-    LinearLocalModel(n::Int, μ::Real)
-    LinearLocalModel(n::Int, s_min::Real, s_max::Real)
+    LinearLocalModel([ω::Function=ω_unsafe, μ::Real=2.])
+    LinearLocalModel(ω::Function, s_min::Real, s_max::Real)
 
 The prediction is a weighted linear regression over the neighbors ``x_{nn, i}`` of
 the query and their images ``y_{nn,i}`` as shown in [1].
