@@ -105,9 +105,9 @@ end
     LinearLocalModel(ω::Function, s_min::Real, s_max::Real)
 See [`AbstractLocalModel`](@ref).
 """
-struct LinearLocalModel{F} <: AbstractLocalModel
+struct LinearLocalModel{F, G} <: AbstractLocalModel
     ω::F # weighting
-    f::F # regularization
+    f::G # regularization
 end
 
 LinearLocalModel(μ::Real=2.) = LinearLocalModel(ω_unsafe, μ)
