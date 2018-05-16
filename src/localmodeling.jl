@@ -69,8 +69,8 @@ VCH-Wiley (2006)
 """
 abstract type AbstractLocalModel end
 
-ω_safe(d,dmax) = dmax > 0 ? (1.1-(d/dmax)^2)^4 : 1.
-ω_unsafe(d,dmax) = (1-(d/dmax)^2)^4
+ω_safe(d,dmax) = dmax > 0 ? (x = (d/dmax); (1.1-x*x)*(1.1-x*x)) : 1.0
+ω_unsafe(d,dmax) = (x = (d/dmax); (1-x*x)*(1-x*x))
 
 """
     AverageLocalModel(ω::Function = ω_unsafe)
