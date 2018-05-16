@@ -5,7 +5,6 @@ export AbstractLocalModel
 export AverageLocalModel,LinearLocalModel
 export localmodel_tsp
 export MSEp
-export ω_safe, ω_unsafe
 
 """
     AbstractLocalModel
@@ -13,19 +12,30 @@ Supertype of methods for making a prediction of a query point `q` using local mo
 following the methods of [1]. Concrete subtypes are `AverageLocalModel` and
 `LinearLocalModel`.
 
-All models weight neighbors with the following weight function
+All models weight neighbors with a chosen function, so that distant neighbors
+have smaller impact on the prediction and so that the interpolation
+is smooth. The default weighting function we use is
 ```math
 \\begin{aligned}
-ω_i = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^2\\right]^4
+ω_i(d_i,d_{max}) = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^2\\right]^4
 \\end{aligned}
 ```
-with ``d_i = ||x_{nn,i} -q||_2`` ensuring smoothness of interpolation.
+with ``d_i = ||x_{nn,i} -q||_2`` being the distance of each neighbor from
+the query point.
+
+You can also provide your own function or give
+`ω_safe(d, dmax) = dmax > 0 ? (1.1 - (d/dmax)^2)^4 : 1.0`
+for a safe version of ``ω`` that takes into acount edge cases. Finally
+you can also give `nothing` in place of `ω`. In that case no weighting is done
+and direct average of neighbors is returned.
 
 ### Average Local Model
-    AverageLocalModel(n::Int)
+
+    AverageLocalModel(ω)
 
 The prediction is simply the weighted average of the images ``y_{nn, i}`` of
-the neighbors ``x_{nn, i}`` of the query point `q`:
+the neighbors ``x_{nn, i}`` of the query point `q`, weighting using given
+function `ω`
 ```math
 \\begin{aligned}
 y\_{pred} = \\frac{\\sum{\\omega_i y_{nn,i}}}{\\sum{\\omega_i}}
@@ -33,8 +43,9 @@ y\_{pred} = \\frac{\\sum{\\omega_i y_{nn,i}}}{\\sum{\\omega_i}}
 ```
 
 ### Linear Local Model
-    LinearLocalModel(n::Int, μ::Real)
-    LinearLocalModel(n::Int, s_min::Real, s_max::Real)
+
+    LinearLocalModel([ω ], μ::Real=2.])
+    LinearLocalModel([ω ], s_min::Real, s_max::Real)
 
 The prediction is a weighted linear regression over the neighbors ``x_{nn, i}`` of
 the query and their images ``y_{nn,i}`` as shown in [1].
@@ -63,8 +74,8 @@ VCH-Wiley (2006)
 """
 abstract type AbstractLocalModel end
 
-ω_safe(d,dmax) = dmax > 0 ? (1.1-(d/dmax)^2)^4 : 1.
-ω_unsafe(d,dmax) = (1-(d/dmax)^2)^4
+ω_safe(d, dmax) = dmax > 0 ? (1.1-(d/dmax)^2)^4 : 1.
+ω_unsafe(d, dmax) = (1-(d/dmax)^2)^4
 
 """
     AverageLocalModel(ω::Function = ω_unsafe)
@@ -75,13 +86,10 @@ struct AverageLocalModel{F} <: AbstractLocalModel
 end
 AverageLocalModel() = AverageLocalModel(ω_unsafe)
 
-
-
-
 function (M::AverageLocalModel)(q,xnn,ynn,dists)
     if length(xnn) > 1 && (dmax = maximum(dists)) > 0
         y_pred = zeros(typeof(ynn[1]))
-        Ω = 0.
+        Ω = zero(typeof(dmax))
         for (y,d) in zip(ynn,dists)
             ω2 = M.ω.(d, dmax)
             Ω += ω2
@@ -93,14 +101,17 @@ function (M::AverageLocalModel)(q,xnn,ynn,dists)
     return ynn[1]
 end
 
+(M::AverageLocalModel{Void})(q,xnn,ynn,dists) = sum(ynn)/length(ynn)
+
+
 
 """
-    LinearLocalModel([ω::Function=ω_unsafe, μ::Real=2.])
-    LinearLocalModel(ω::Function, s_min::Real, s_max::Real)
+    LinearLocalModel([ω ], μ::Real=2.])
+    LinearLocalModel([ω ], s_min::Real, s_max::Real)
 See [`AbstractLocalModel`](@ref).
 """
-struct LinearLocalModel{F} <: AbstractLocalModel
-    ω::F # weighting
+struct LinearLocalModel{Ω, F} <: AbstractLocalModel
+    ω::Ω # weighting
     f::F # regularization
 end
 
