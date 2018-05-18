@@ -10,11 +10,48 @@ N_train = 45000
 s_train = data[1:N_train, 1]
 s_test  = data[N_train:end,1]
 
-@testset "localmodel_tsp" begin
+@testset "ALM localmodel_tsp" begin
     @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
         p = 50
         method = AverageLocalModel()
         ntype = FixedMassNeighborhood(2)
+        stepsize = 1
+        s_pred = localmodel_tsp(s_train, D, τ, p;
+        method=method, ntype=ntype, stepsize=stepsize)
+        @test length(s_pred) == p+1
+        @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
+
+        #Repeat with reconstruction given
+        R = Reconstruction(s_train, D, τ)
+        s_pred = localmodel_tsp(R, p; method=method, ntype=ntype, stepsize=stepsize)[:,D]
+        @test length(s_pred) == p+1
+        @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
+    end
+end
+
+@testset "LinearLocalModel Ridge Reg" begin
+    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
+        p = 50
+        method = LinearLocalModel()
+        ntype = FixedMassNeighborhood(3)
+        stepsize = 1
+        s_pred = localmodel_tsp(s_train, D, τ, p;
+        method=method, ntype=ntype, stepsize=stepsize)
+        @test length(s_pred) == p+1
+        @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
+
+        #Repeat with reconstruction given
+        R = Reconstruction(s_train, D, τ)
+        s_pred = localmodel_tsp(R, p; method=method, ntype=ntype, stepsize=stepsize)[:,D]
+        @test length(s_pred) == p+1
+        @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
+    end
+end
+@testset "LinearLocalModel McNames Reg" begin
+    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
+        p = 50
+        method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.1,1.)
+        ntype = FixedMassNeighborhood(3)
         stepsize = 1
         s_pred = localmodel_tsp(s_train, D, τ, p;
         method=method, ntype=ntype, stepsize=stepsize)
