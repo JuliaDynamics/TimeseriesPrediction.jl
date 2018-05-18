@@ -17,7 +17,7 @@ have smaller impact on the prediction and so that the interpolation
 is smooth. The default weighting function we use is
 ```math
 \\begin{aligned}
-ω_i(d_i,d_{max}) = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^2\\right]^4
+ω_i(d_i,d_{max}) = \\left[ 1- \\left(\\frac{d_i}{d_{max}}\\right)^2\\right]^2
 \\end{aligned}
 ```
 with ``d_i = ||x_{nn,i} -q||_2`` being the distance of each neighbor from
@@ -74,8 +74,8 @@ VCH-Wiley (2006)
 """
 abstract type AbstractLocalModel end
 
-ω_safe(d, dmax) = dmax > 0 ? (1.1-(d/dmax)^2)^4 : 1.
-ω_unsafe(d, dmax) = (1-(d/dmax)^2)^4
+ω_safe(d, dmax) = dmax > 0 ? (1.1-(d/dmax)^2)*(1.1-(d/dmax)^2) : 1.
+ω_unsafe(d, dmax) = (1-(d/dmax)^2)*(1-(d/dmax)^2)
 
 """
     AverageLocalModel(ω::Function = ω_unsafe)
