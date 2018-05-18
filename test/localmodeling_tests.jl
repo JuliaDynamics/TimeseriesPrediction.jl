@@ -27,7 +27,7 @@ s_test  = data[N_train:end,1]
         @test length(s_pred) == p+1
         @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
     end
-
+end
 
 @testset "LinearLocalModel" begin
     @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
