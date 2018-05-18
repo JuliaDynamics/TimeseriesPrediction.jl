@@ -19,6 +19,16 @@ include("system_defs.jl")
     vtest  = V[N_train:N_train+p]
 
     @testset "D=$D, B=$B" for D=2:3, B=1:2
+        method = AverageLocalModel()
+        upred = localmodel_stts(utrain,D,1,p,B,1; method=method)
+
+        @test upred[1] == utrain[end]
+        @test sum(abs.(utest[2]-upred[2]))/M/p < 0.05
+        ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]
+        @test sum(ε)/M / p < 0.15
+    end
+    @testset "D=$D, B=$B" for D=2:3, B=1:2
+        method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.001, 1.)
         upred = localmodel_stts(utrain,D,1,p,B,1)
 
         @test upred[1] == utrain[end]
