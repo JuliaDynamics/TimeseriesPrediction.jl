@@ -26,8 +26,17 @@ In most cases `k=1` and `τ=1,2,3` give best results.
 
 
 ## Description
-This method works identically to [`localmodel_tsp`](@ref), by expanding the concept
-from vector-states to general array-states.
+This method works similarly to [`localmodel_tsp`](@ref), by expanding the concept
+of delay embedding to spatially extended systems. Instead of reconstructing
+complete states of the system, local states are used. This implicitely assumes
+a finite speed `c` at which information travels within the system as well as a
+sufficiently fine spatial and temporal sampling such that
+``\\frac{\\Delta x}{\\Delta t}\\sim c``.
+See [`STReconstruction`](@ref) for details on the embedding.
+
+Predictions are then performed frame by frame and point py point. Once all values for a new
+frame are found, the frame is added to the end of the timeseries and used to generate
+new prediction queries for the next time step.
 
 ## Performance Notes
 Be careful when choosing `B` as memory usage and computation time depend strongly on it.
