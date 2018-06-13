@@ -77,7 +77,7 @@ function my_reconstruct_impl(::Type{Val{Φ}}, ::Type{Val{lims}},::Type{Val{D}},
         T = eltype(s[1][1])
         data = Array{T}($D*(2*$B + 1)^$Φ+$w,L*M)
 
-        for t ∈ 1:L
+        @inbounds for t ∈ 1:L
             for (n,midx) ∈ enumerate($(midxs))
                 if $is_middle
                     data[:,n+(t-1)*M] .= SVector($(middle_gens...))
