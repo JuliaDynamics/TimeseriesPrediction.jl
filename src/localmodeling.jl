@@ -101,7 +101,7 @@ function (M::AverageLocalModel)(q,xnn,ynn,dists)
     return ynn[1]
 end
 
-(M::AverageLocalModel{Void})(q,xnn,ynn,dists) = sum(ynn)/length(ynn)
+(M::AverageLocalModel{Nothing})(q,xnn,ynn,dists) = sum(ynn)/length(ynn)
 
 
 

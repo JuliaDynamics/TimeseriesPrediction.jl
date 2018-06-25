@@ -1,5 +1,5 @@
 using TimeseriesPrediction
-using Base.Test
+using Test
 
 include("system_defs.jl")
 
