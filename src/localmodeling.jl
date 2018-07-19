@@ -38,7 +38,7 @@ the neighbors ``x_{nn, i}`` of the query point `q`, weighting using given
 function `ω`
 ```math
 \\begin{aligned}
-y\_{pred} = \\frac{\\sum{\\omega_i y_{nn,i}}}{\\sum{\\omega_i}}
+y_{pred} = \\frac{\\sum{\\omega_i y_{nn,i}}}{\\sum{\\omega_i}}
 \\end{aligned}
 ```
 
