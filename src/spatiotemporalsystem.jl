@@ -1,5 +1,5 @@
 export SpatioTemporalSystem
-using DynamicalSystemsBase: MDP, isinplace
+using DynamicalSystemsBase: isinplace
 
 
 struct SpatioTemporalProblem{Φ, T, F, P}
