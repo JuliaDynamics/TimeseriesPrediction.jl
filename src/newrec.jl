@@ -200,11 +200,14 @@ function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
 	pt_in_space = CartesianIndices(s[1])
 	lin_idxs    = LinearIndices(s[1])
 	data = Matrix{T}(undef,X,L)
-
+	recv = zeros(X)
 	@inbounds for t in 1:timesteps, α in pt_in_space
 		n = (t-1)*num_pt+lin_idxs[α]
 		#Maybe unsafe array views here
-		stem(@view(data[:,n]) ,s,t,α)
+		#recv = view(data,:,n)
+		stem(recv,s,t,α)
+		#very odd. data[:,n] .= recv allocates
+		for i=1:X data[i,n] = recv[i] end
 	end
 	return data
 end
