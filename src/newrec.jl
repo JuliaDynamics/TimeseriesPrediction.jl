@@ -1,32 +1,47 @@
 using Statistics
 export STDelayEmbedding, PCAEmbedding, reconstruct
+using LinearAlgebra
 
-#Rewrite this properly
+struct Region{Φ}
+	mini::NTuple{Φ,Int64}
+	maxi::NTuple{Φ,Int64}
+end
+
+function Base.in(idx, r::Region{Φ}) where Φ
+	#all(re.mini .<= α.I .<= re.maxi)
+	for φ=1:Φ
+		r.mini[φ] <= idx[φ] <= r.maxi[φ] || return false
+ 	end
+ 	return true
+end
+
+Base.length(r::Region{Φ}) where Φ = prod(r.maxi .- r.mini .+1)
+
+Base.CartesianIndices(r::Region{Φ}) where Φ =
+	 CartesianIndices(([r.mini[φ]:r.maxi[φ] for φ=1:Φ]...,))
+
 function inner_field(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
-	ranges = Vector{UnitRange{Int64}}(undef,Φ)
+	mini = Int[]
+	maxi = Int[]
 	for φ = 1:Φ
 		js = map(β -> β[φ], βs) # jth entries
 		mi,ma = extrema(js)
-		mi = 1 - min(mi, 0)
-		ma = fsize[φ] - max(ma, 0)
-		ranges[φ] = mi:ma
+		push!(mini, 1 - min(mi, 0))
+		push!(maxi,fsize[φ] - max(ma, 0))
 	end
-	return CartesianIndices((ranges...,))
+	return Region{Φ}((mini...,), (maxi...,))
 end
 
-#Very odd behavior here. em.β[10] allocates if <:AbstractEmbedding
-struct STDelayEmbedding{T,Φ,X,R1,R2} <: AbstractEmbedding
+struct STDelayEmbedding{T,Φ,X} <: AbstractEmbedding
   	τ::Vector{Int64}
 	β::Vector{CartesianIndex{Φ}}
  	boundary::Float64
-	inner::CartesianIndices{Φ,R1}  #inner field far from boundary
-	outer::CartesianIndices{Φ,R2}	#whole field
+	inner::Region{Φ}  #inner field far from boundary
+	outer::Region{Φ}	#whole field
 	function STDelayEmbedding{T,Φ,X}(τ,β,boundary,fsize) where {T,Φ,X}
 		inner = inner_field(β, fsize)
-		outer = CartesianIndices(fsize)
-		R1 = typeof(inner.indices)
-		R2 = typeof(outer.indices)
-		return new{T,Φ,X,R1,R2}(τ,β,boundary,inner,outer)
+		outer = Region((ones(Int,Φ)...,), fsize)
+		return new{T,Φ,X}(τ,β,boundary,inner,outer)
 	end
 end
 
@@ -48,69 +63,92 @@ end
 function Base.summary(::IO, ::STDelayEmbedding{T,Φ,X}) where {T,Φ,X}
 	println("$(Φ)D Spatio-Temporal Delay Embedding with $X Entries")
 end
-function Base.in(α::CartesianIndex{Φ}, fsize) where {T,Φ}
-	for φ=1:Φ
-		0 < α[φ] <= fsize[φ] || return false
-	end
-	return true
-end
 
-function impl_rec(::Val{T}, ::Val{X}) where {T,X}
-	gens = [:( 	if α + r.β[$n] in r.outer
-					s[ t + r.τ[$n] ][ α + r.β[$n] ]
-				else
-					r.boundary
-				end )  for n=1:X]
-	gens_inner = [:( s[t+r.τ[$n]][α+r.β[$n]] )  for n=1:X]
-
-	quote
-		#inline_meta
-		#Base.@_inline_meta
-		if α in r.inner
-			@inbounds return SVector{$X,$T}($(gens_inner...))
-		else
-			@inbounds return SVector{$X,$T}($(gens...))
-		end
-	end
-end
-#This function is not safe. If you call it directly with bad params - can fail
-@generated function (r::STDelayEmbedding{T,Φ,X})(
-		s::AbstractArray{<:AbstractArray{T,Φ}},t,α) where {T,Φ,X}
-	impl_rec(Val(T),Val(X))
-end
-# #while this thing does not allocate
-# @generated function rec_vec(s::AbstractArray{<:AbstractArray{T,Φ}},t,α, r::STDelayEmbedding{T,Φ,X}) where {T,Φ,X}
+# function impl_rec(::Val{T}, ::Val{X}) where {T,X}
+# 	gens = [:( 	if α + r.β[$n] in r.outer
+# 					s[ t + r.τ[$n] ][ α + r.β[$n] ]
+# 				else
+# 					r.boundary
+# 				end )  for n=1:X]
+# 	gens_inner = [:( s[t+r.τ[$n]][α+r.β[$n]] )  for n=1:X]
+#
+# 	quote
+# 		#inline_meta
+# 		#Base.@_inline_meta
+# 		if α in r.inner
+# 			@inbounds for i=1:X
+# 				rvec .= $(gens_inner)[i]
+# 			#@inbounds rvec .= ($(gens_inner...),)
+# 		else
+# 			@inbounds rvec .= SVector{$X,$T}($(gens...))
+# 		end
+# 		return nothing
+# 	end
+	# quote
+	# 	#inline_meta
+	# 	#Base.@_inline_meta
+	# 	if α in r.inner
+	# 		@inbounds rvec .= SVector{$X,$T}($(gens_inner...))
+	# 		#@inbounds rvec .= ($(gens_inner...),)
+	# 	else
+	# 		@inbounds rvec .= SVector{$X,$T}($(gens...))
+	# 	end
+	# 	return nothing
+	# end
+#end
+# @generated function (r::STDelayEmbedding{T,Φ,X})(rvec,
+# 		s::AbstractArray{<:AbstractArray{T,Φ}},t,α) where {T,Φ,X}
 # 	impl_rec(Val(T),Val(X))
 # end
+
+#This function is not safe. If you call it directly with bad params - can fail
+function (r::STDelayEmbedding{T,Φ,X})(rvec,
+		s::AbstractArray{<:AbstractArray{T,Φ}},t,α) where {T,Φ,X}
+	if α in r.inner
+		@inbounds for n=1:X
+			rvec[n] = s[ t + r.τ[n] ][ α + r.β[n] ]
+		end
+	else
+		@inbounds for n=1:X
+			rvec[n] = 	if α + r.β[n] in r.outer
+							s[ t + r.τ[n] ][ α + r.β[n] ]
+						else
+							r.boundary
+						end
+		end
+	end
+	return nothing
+end
 
 
 
 using PrincipalComponentAnalysis
 
-struct PCAEmbedding{T,Φ,X,Y,R1,R2} <: AbstractEmbedding
-	stem::STDelayEmbedding{T,Φ,Y,R1,R2}
+struct PCAEmbedding{T,Φ,X,Y} <: AbstractEmbedding
+	stem::STDelayEmbedding{T,Φ,Y}
 	meanv::T
 	covmat::Matrix{T}
 	drmodel::PCA{T}
+	tmp::Vector{T} #length Y
 end
 
 compute_pca(covmat::Matrix{T}, pratio, maxoutdim) where T=
 	PrincipalComponentAnalysis.pcacov(covmat, T[];
 										maxoutdim=maxoutdim,
 										pratio=pratio)
-function recompute_pca(em::PCAEmbedding{T,Φ,X,Y,R1,R2}, pratio, maxoutdim) where {T,Φ,X,Y,R1,R2}
+function recompute_pca(em::PCAEmbedding{T,Φ,X,Y}, pratio, maxoutdim) where {T,Φ,X,Y}
 	drmodel = compute_pca(em.covmat, pratio, maxoutdim)
 	Ynew = outdim(drmodel)
-	PCAEmbedding{T,Φ,X,Ynew,R1,R2}(em.stemb, em.meanv, em.covmat, drmodel)
+	PCAEmbedding{T,Φ,X,Ynew}(em.stemb, em.meanv, em.covmat, drmodel)
 end
 
 
 function PCAEmbedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
-		stem::STDelayEmbedding{T,Φ,Y,R1,R2};
+		stem::STDelayEmbedding{T,Φ,Y};
 		pratio   = 0.99,
 		maxoutdim= 25,
-		every::Int    = 1) where {T,Φ,Y,R1,R2}
+		every::Int    = 1) where {T,Φ,Y}
 	meanv = Statistics.mean(Statistics.mean.(s))
 	tsteps = (length(s) - maximum(stem.τ))
 	num_pt = length(stem.inner)
@@ -118,26 +156,27 @@ function PCAEmbedding(
 
 	recv = zeros(T,Y)
 	covmat = zeros(T,Y,Y)
+	inner_idxs = CartesianIndices(stem.inner)
 	for n = 1:every:L
 		t = 1 + (n-1) ÷ num_pt
-		α = stem.inner[n-(t-1)*num_pt]
-		recv .= stem(s,t,α) .- meanv
+		α = inner_idxs[n-(t-1)*num_pt]
+		stem(recv, s,t,α)
+		recv  .-= meanv
 		#covmat .+= recv' .* recv / L
 		@inbounds for j=1:Y, i=1:Y
 			covmat[i,j] += recv[i]*recv[j] / L
 		end
 	end
 	drmodel = compute_pca(covmat,pratio, maxoutdim)
-	#X = size(drmodel.proj)[2]
 	X = PrincipalComponentAnalysis.outdim(drmodel)
-	return PCAEmbedding{T,Φ,X,Y,R1,R2}(stem, meanv, covmat, drmodel)
+	tmp = zeros(Y)
+	return PCAEmbedding{T,Φ,X,Y}(stem, meanv, covmat, drmodel,tmp)
 end
 
-#This allocates the resulting vector. Also this is Mat*SVector
-#which is slower than Mat*Vector even if you add preallocated tmp .= SVector
-#This should be alleviated via preallocated temporary vectors
-function (r::PCAEmbedding{T,X,Φ})(s, t, α) where {T,Φ,X}
-	transpose(r.drmodel.proj) * (r.stem(s,t,α) - r.meanv)
+function (r::PCAEmbedding{T,X,Φ})(data, s, t, α) where {T,Φ,X}
+	r.stem(r.tmp, s,t,α)
+	r.tmp .-= r.meanv
+	mul!(data,transpose(r.drmodel.proj),r.tmp)
 end
 
 function Base.show(io::IO, em::PCAEmbedding{T,X,Φ}) where {T,X,Φ}
@@ -164,7 +203,8 @@ function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
 
 	@inbounds for t in 1:timesteps, α in pt_in_space
 		n = (t-1)*num_pt+lin_idxs[α]
-		data[:,n] .= stem(s,t,α)
+		#Maybe unsafe array views here
+		stem(@view(data[:,n]) ,s,t,α)
 	end
 	return data
 end

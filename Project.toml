@@ -5,6 +5,7 @@ repo = "https://github.com/JuliaDynamics/TimeseriesPrediction.jl.git"
 [deps]
 DynamicalSystemsBase = "6e36e845-645a-534a-86f2-f5d4aa5a06b4"
 IterTools = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
 NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 PrincipalComponentAnalysis = "e54bf64a-8cc9-5da5-89aa-ed3721773e14"
