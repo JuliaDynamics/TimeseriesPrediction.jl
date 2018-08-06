@@ -18,7 +18,8 @@ end
 Base.length(r::Region{Φ}) where Φ = prod(r.maxi .- r.mini .+1)
 
 Base.CartesianIndices(r::Region{Φ}) where Φ =
-	 CartesianIndices(([r.mini[φ]:r.maxi[φ] for φ=1:Φ]...,))
+	 CartesianIndices{Φ,NTuple{Φ,UnitRange{Int64}}}(
+	 ([r.mini[φ]:r.maxi[φ] for φ=1:Φ]...,))
 
 function inner_field(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
 	mini = Int[]
@@ -45,7 +46,8 @@ struct STDelayEmbedding{T,Φ,X} <: AbstractEmbedding
 	end
 end
 
-function STDelayEmbedding(s::AbstractArray{<:AbstractArray{T,Φ}},
+function STDelayEmbedding(
+	s::AbstractArray{<:AbstractArray{T,Φ}},
 	D,τ,B,k,c) where {T,Φ}
 	X = (D+1)*(2B+1)^Φ
 	τs = Vector{Int64}(undef,X)
@@ -63,43 +65,6 @@ end
 function Base.summary(::IO, ::STDelayEmbedding{T,Φ,X}) where {T,Φ,X}
 	println("$(Φ)D Spatio-Temporal Delay Embedding with $X Entries")
 end
-
-# function impl_rec(::Val{T}, ::Val{X}) where {T,X}
-# 	gens = [:( 	if α + r.β[$n] in r.outer
-# 					s[ t + r.τ[$n] ][ α + r.β[$n] ]
-# 				else
-# 					r.boundary
-# 				end )  for n=1:X]
-# 	gens_inner = [:( s[t+r.τ[$n]][α+r.β[$n]] )  for n=1:X]
-#
-# 	quote
-# 		#inline_meta
-# 		#Base.@_inline_meta
-# 		if α in r.inner
-# 			@inbounds for i=1:X
-# 				rvec .= $(gens_inner)[i]
-# 			#@inbounds rvec .= ($(gens_inner...),)
-# 		else
-# 			@inbounds rvec .= SVector{$X,$T}($(gens...))
-# 		end
-# 		return nothing
-# 	end
-	# quote
-	# 	#inline_meta
-	# 	#Base.@_inline_meta
-	# 	if α in r.inner
-	# 		@inbounds rvec .= SVector{$X,$T}($(gens_inner...))
-	# 		#@inbounds rvec .= ($(gens_inner...),)
-	# 	else
-	# 		@inbounds rvec .= SVector{$X,$T}($(gens...))
-	# 	end
-	# 	return nothing
-	# end
-#end
-# @generated function (r::STDelayEmbedding{T,Φ,X})(rvec,
-# 		s::AbstractArray{<:AbstractArray{T,Φ}},t,α) where {T,Φ,X}
-# 	impl_rec(Val(T),Val(X))
-# end
 
 #This function is not safe. If you call it directly with bad params - can fail
 function (r::STDelayEmbedding{T,Φ,X})(rvec,
@@ -200,7 +165,7 @@ function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
 	pt_in_space = CartesianIndices(s[1])
 	lin_idxs    = LinearIndices(s[1])
 	data = Matrix{T}(undef,X,L)
-	recv = zeros(X)
+	recv = zeros(T,X)
 	@inbounds for t in 1:timesteps, α in pt_in_space
 		n = (t-1)*num_pt+lin_idxs[α]
 		#Maybe unsafe array views here
