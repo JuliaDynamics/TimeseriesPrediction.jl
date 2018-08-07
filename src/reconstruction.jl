@@ -1,6 +1,8 @@
 using Statistics
-export STDelayEmbedding, PCAEmbedding, reconstruct
 using LinearAlgebra
+using PrincipalComponentAnalysis
+export STDelayEmbedding, PCAEmbedding, reconstruct
+
 
 struct Region{Φ}
 	mini::NTuple{Φ,Int64}
@@ -8,7 +10,7 @@ struct Region{Φ}
 end
 
 function Base.in(idx, r::Region{Φ}) where Φ
-	#all(re.mini .<= α.I .<= re.maxi)
+	#all(r.mini .<= α.I .<= r.maxi)
 	for φ=1:Φ
 		r.mini[φ] <= idx[φ] <= r.maxi[φ] || return false
  	end
@@ -39,10 +41,16 @@ struct STDelayEmbedding{T,Φ,X} <: AbstractEmbedding
  	boundary::Float64
 	inner::Region{Φ}  #inner field far from boundary
 	outer::Region{Φ}	#whole field
+	#Additional fields for values that are needed VERY often like millions of times
+	τmax::Int64  	# maximum(τ)
+	num_pt::Int64   #  number of points in space
+
 	function STDelayEmbedding{T,Φ,X}(τ,β,boundary,fsize) where {T,Φ,X}
 		inner = inner_field(β, fsize)
 		outer = Region((ones(Int,Φ)...,), fsize)
-		return new{T,Φ,X}(τ,β,boundary,inner,outer)
+		τmax  = maximum(τ)
+		num_pt= prod(fsize)
+		return new{T,Φ,X}(τ,β,boundary,inner,outer, τmax, num_pt)
 	end
 end
 
@@ -67,8 +75,7 @@ function Base.summary(::IO, ::STDelayEmbedding{T,Φ,X}) where {T,Φ,X}
 end
 
 #This function is not safe. If you call it directly with bad params - can fail
-function (r::STDelayEmbedding{T,Φ,X})(rvec,
-		s::AbstractArray{<:AbstractArray{T,Φ}},t,α) where {T,Φ,X}
+function (r::STDelayEmbedding{T,Φ,X})(rvec,s,t,α) where {T,Φ,X}
 	if α in r.inner
 		@inbounds for n=1:X
 			rvec[n] = s[ t + r.τ[n] ][ α + r.β[n] ]
@@ -86,8 +93,8 @@ function (r::STDelayEmbedding{T,Φ,X})(rvec,
 end
 
 
+get_num_pt(em::STDelayEmbedding) = em.num_pt
 
-using PrincipalComponentAnalysis
 
 struct PCAEmbedding{T,Φ,X,Y} <: AbstractEmbedding
 	stem::STDelayEmbedding{T,Φ,Y}
@@ -98,9 +105,8 @@ struct PCAEmbedding{T,Φ,X,Y} <: AbstractEmbedding
 end
 
 compute_pca(covmat::Matrix{T}, pratio, maxoutdim) where T=
-	PrincipalComponentAnalysis.pcacov(covmat, T[];
-										maxoutdim=maxoutdim,
-										pratio=pratio)
+	pcacov(covmat, T[]; maxoutdim=maxoutdim, pratio=pratio)
+
 function recompute_pca(em::PCAEmbedding{T,Φ,X,Y}, pratio, maxoutdim) where {T,Φ,X,Y}
 	drmodel = compute_pca(em.covmat, pratio, maxoutdim)
 	Ynew = outdim(drmodel)
@@ -115,7 +121,7 @@ function PCAEmbedding(
 		maxoutdim= 25,
 		every::Int    = 1) where {T,Φ,Y}
 	meanv = Statistics.mean(Statistics.mean.(s))
-	tsteps = (length(s) - maximum(stem.τ))
+	tsteps = (length(s) - get_τmax(stem))
 	num_pt = length(stem.inner)
 	L      = tsteps*num_pt
 
@@ -150,15 +156,18 @@ function Base.show(io::IO, em::PCAEmbedding{T,X,Φ}) where {T,X,Φ}
 end
 
 
-get_tmax(em::STDelayEmbedding) = maximum(em.τ)
-get_tmax(em::PCAEmbedding) = get_tmax(em.stem)
+get_τmax(em::STDelayEmbedding) = em.τmax
+get_τmax(em::PCAEmbedding) = get_τmax(em.stem)
+get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)
 
+outdim(em::PCAEmbedding{T,Φ,X}) where {T,Φ,X} = X
+outdim(em::STDelayEmbedding{T,Φ,X}) where {T,Φ,X} = X
 
 function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
 	stem::Union{STDelayEmbedding{T,Φ,X}, PCAEmbedding{T,Φ,X,Y}}
 	) where {T<:Number,Φ,X,Y}
-	timesteps = (length(s) - get_tmax(stem))
-	num_pt    = prod(size(s[1]))
+	timesteps = (length(s) - get_τmax(stem))
+	num_pt    = get_num_pt(stem)
 	L         = timesteps*num_pt
 
 
