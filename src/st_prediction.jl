@@ -2,96 +2,114 @@ using NearestNeighbors
 
 export localmodel_stts
 export crosspred_stts
+export KDTree
 
-###########################################################################################
-#                                     Prediction                                          #
-###########################################################################################
-"""
-    localmodel_stts(U::AbstractVector{<:AbstractArray{T, Φ}}, D, τ, p, B, k; kwargs...)
+#Return struct
+struct TemporalPrediction{T,Φ}
+    em::AbstractEmbedding
+    treetype#::NNTree what's the type here?
+    spred::Vector{Array{T,Φ}}
+    #fun facts
+  #  runtime::Float64
+  #  reconstruction_time::Float64
+  #  prediction_time::Float64
+end
 
-Perform a spatio-temporal timeseries prediction for `p` iterations,
-using local weighted modeling [1]. The function always returns an
-object of the same type as `U`, with each entry being a predicted state.
-The returned data always contains the final state of `U` as starting point
-(total returned length is `p+1`).
+function localmodel_stts(s,em,timesteps; progress=true, kwargs...)
 
-`(D, τ, B, k)` are used to make a [`STReconstruction`](@ref) on `U`.
-In most cases `k=1` and `τ=1,2,3` give best results.
+    progress && println("Reconstructing")
+    R = reconstruct(s,em)
 
-## Keyword Arguments
-  * `boundary, weighting` : Passed directly to [`STReconstruction`](@ref).
-  * `method = AverageLocalModel(ω_safe)` : Subtype of [`AbstractLocalModel`](@ref).
-  * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
-  * `printprogress = true` : To print progress done.
+    localmodel_stts(s,em,timesteps, R; progress=progress, kwargs...)
+end
 
-
-## Description
-This method works similarly to [`localmodel_tsp`](@ref), by expanding the concept
-of delay embedding to spatially extended systems. Instead of reconstructing
-complete states of the system, local states are used. This implicitely assumes
-a finite speed `c` at which information travels within the system as well as a
-sufficiently fine spatial and temporal sampling such that
-``\\frac{\\Delta x}{\\Delta t}\\sim c``.
-See [`STReconstruction`](@ref) for details on the embedding.
-
-Predictions are then performed frame by frame and point py point. Once all values for a new
-frame are found, the frame is added to the end of the timeseries and used to generate
-new prediction queries for the next time step.
-
-## Performance Notes
-Be careful when choosing `B` as memory usage and computation time depend strongly on it.
-
-## References
-[1] : U. Parlitz & C. Merkwirth, [Phys. Rev. Lett. **84**, pp 1890 (2000)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890)
-"""
-function localmodel_stts(s::AbstractVector{<:AbstractArray{T, Φ}},
-    D, τ, p, B, k;
-    boundary=20,
-    weighting::Tuple{Real, Real} = (0,0),
-    method::AbstractLocalModel = AverageLocalModel(ω_safe),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(3),
-    printprogress = true) where {T, Φ}
-    M = prod(size(s[1]))
-    L = length(s) #Number of temporal points
-    printprogress && println("Reconstructing")
-    R = STReconstruction(s,D,τ,B,k,boundary, weighting)
+function localmodel_stts(s,em,timesteps,R; progress=true, treetype=KDTree, kwargs...)
     #Prepare tree but remove the last reconstructed states first
-    printprogress && println("Creating Tree")
-    tree = KDTree(R[1:end-M])
+    progress && println("Creating Tree")
+    L = length(R)
+    M = get_num_pt(em)
+    tree = treetype(view(R,:,1:L-M))
 
-    s_pred = s[L-D*τ:L]
-    return _localmodel_stts(s_pred, R, tree, D, τ, p, B, k, boundary,
-    weighting, method, ntype, printprogress)[D*τ+1:end]
+    localmodel_stts(s,em,timesteps, R, tree; progress=progess, kwargs...)
 end
 
-function gen_qs(s_pred, D, τ, B, k, boundary, weighting)
-    N = length(s_pred)
-    s_slice = @view(s_pred[N-(D-1)*τ:N])
-    return STReconstruction(s_slice, D, τ, B, k, boundary, weighting)
+
+#    s_pred = s[L-D*τ:L]
+#    return _localmodel_stts(s_pred, R, tree, D, τ, p, B, k, boundary,
+#    weighting, method, ntype, printprogress)[D*τ+1:end]
+#end
+
+function working_ts(s,em)
+    L = length(s)
+    τmax = get_τmax(em)
+    return s[L-τmax : L]
 end
 
-function _localmodel_stts(s::AbstractVector{Array{T, Φ}},
-    R, tree ,D, τ, p, B, k, boundary, weighting, method, ntype,
-    printprogress = true) where {T, Φ}
-    M = prod(size(s[1]))
+function gen_queries(s,em)
+    L = length(s)
+    τmax = get_τmax(em)
+    s_slice = view( s, L-τmax:L)
+    return reconstruct(s_slice, em)
+end
+
+function neighbors(point, R, tree, ntype)
+    idxs,dists = knn(tree, point, ntype.K, false)
+    return idxs,dists
+end
+function convert_idx(idx, em)
+    τmax = get_τmax(em)
+    num_pt = get_num_pt(em)
+    t = 1 + get_τmax(em) + (idx-1) ÷ num_pt
+    α = 1 + (idx-1) % num_pt
+    return t,α
+end
+
+cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
+
+function localmodel_stts(   s::AbstractVector{Array{T, Φ}},
+                            em::AbstractEmbedding,
+                            timesteps::Int,
+                            R::AbstractMatrix{T},
+                            tree::NNTree;
+                            progress=true,
+                            method::AbstractLocalModel  = AverageLocalModel(ω_safe),
+                            ntype::AbstractNeighborhood = FixedMassNeighborhood(3)
+                        ) where {T, Φ}
+    @assert outdim(em) == size(R,1)
+    num_pt = get_num_pt(em)
     #New state that will be predicted, allocate once and reuse
     state = similar(s[1])
-    #Index of relevant element in ynn (not proven but seemingly correct)
-    im = 1 + (D-1)*(2B+1)^Φ + B*sum(i -> (2B+1)^(Φ-i), 1:Φ)
-    for n=1:p
-        printprogress && println("Working on Frame $(n)/$p")
-        qs = gen_qs(s, D, τ, B, k, boundary, weighting)
-        for (m,q) ∈ enumerate(qs)
-            #make prediction & put into state
-            idxs,dists = TimeseriesPrediction.neighborhood_and_distances(q,R,tree,ntype)
-            xnn = R[idxs]
-            ynn = map(y -> y[im],R[idxs+M])
 
+    #End of timeseries to work with
+    spred = working_ts(s,em)
+
+    for n=1:timesteps
+        progress && println("Working on Frame $(n)/$timesteps")
+        queries = gen_queries(spred, em)
+        
+        #Iterate over queries/ spatial points
+        for m=1:num_pt
+            q = queries[:,m]
+
+            #Find neighbors
+            #Note, not yet compatible with old `neighborhood_and_distances` functions
+            idxs,dists = neighbors(q,R,tree,ntype) #call this on all queries at once?
+
+            xnn = @view R[:, idxs]
+            #Retrieve ynn
+            ynn = map(idxs) do idx
+                #Indices idxs are indices of R. Convert to indices of s
+                t,α = convert_idx(idx,em)
+                s[t][α]
+            end
             state[m] = method(q,xnn,ynn,dists)[1]
+            #won't work for lin loc model, needs Vector{SVector}
         end
-        s = push!(s,copy(state))
+        spred = push!(spred,copy(state))
     end
-    return s
+    cut_off_beginning!(spred,em)
+
+    return TemporalPrediction{T,Φ}(em, typeof(tree), spred) #funfacts runtimes
 end
 
 
