@@ -87,13 +87,13 @@ end
 AverageLocalModel() = AverageLocalModel(ω_unsafe)
 
 function (M::AverageLocalModel)(q,xnn,ynn,dists)
-    if length(xnn) > 1 && (dmax = maximum(dists)) > 0
+    if length(ynn) > 1 && (dmax = maximum(dists)) > 0
         y_pred = zeros(typeof(ynn[1]))
         Ω = zero(typeof(dmax))
         for (y,d) in zip(ynn,dists)
             ω2 = M.ω.(d, dmax)
             Ω += ω2
-            y_pred += ω2*y
+            y_pred .+= ω2*y
         end
         y_pred /= Ω
         return y_pred
