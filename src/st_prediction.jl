@@ -14,6 +14,16 @@ struct TemporalPrediction{T,Φ}
   #  reconstruction_time::Float64
   #  prediction_time::Float64
 end
+struct CrossPrediction{T,Φ}
+    em::AbstractEmbedding
+    treetype#::NNTree what's the type here?
+    pred_in::Vector{Array{T,Φ}}
+    pred_out::Vector{Array{T,Φ}}
+    #fun facts
+  #  runtime::Float64
+  #  reconstruction_time::Float64
+  #  prediction_time::Float64
+end
 
 function localmodel_stts(s,em,timesteps; progress=true, kwargs...)
 
@@ -32,12 +42,6 @@ function localmodel_stts(s,em,timesteps,R; progress=true, treetype=KDTree, kwarg
 
     localmodel_stts(s,em,timesteps, R, tree; progress=progess, kwargs...)
 end
-
-
-#    s_pred = s[L-D*τ:L]
-#    return _localmodel_stts(s_pred, R, tree, D, τ, p, B, k, boundary,
-#    weighting, method, ntype, printprogress)[D*τ+1:end]
-#end
 
 function working_ts(s,em)
     L = length(s)
@@ -59,7 +63,7 @@ end
 function convert_idx(idx, em)
     τmax = get_τmax(em)
     num_pt = get_num_pt(em)
-    t = 1 + get_τmax(em) + (idx-1) ÷ num_pt
+    t = get_τmax(em) + (idx-1) ÷ num_pt
     α = 1 + (idx-1) % num_pt
     return t,α
 end
@@ -86,26 +90,26 @@ function localmodel_stts(   s::AbstractVector{Array{T, Φ}},
     for n=1:timesteps
         progress && println("Working on Frame $(n)/$timesteps")
         queries = gen_queries(spred, em)
-        
+
         #Iterate over queries/ spatial points
         for m=1:num_pt
-            q = queries[:,m]
+            q = @view queries[:,m]
 
             #Find neighbors
             #Note, not yet compatible with old `neighborhood_and_distances` functions
-            idxs,dists = neighbors(q,R,tree,ntype) #call this on all queries at once?
+            idxs,dists = neighbors(q,R,tree,ntype)
 
             xnn = @view R[:, idxs]
             #Retrieve ynn
             ynn = map(idxs) do idx
                 #Indices idxs are indices of R. Convert to indices of s
                 t,α = convert_idx(idx,em)
-                s[t][α]
+                s[t+1][α]
             end
             state[m] = method(q,xnn,ynn,dists)[1]
             #won't work for lin loc model, needs Vector{SVector}
         end
-        spred = push!(spred,copy(state))
+        push!(spred,copy(state))
     end
     cut_off_beginning!(spred,em)
 
@@ -114,91 +118,45 @@ end
 
 
 
+function crosspred_stts(    train_out::AbstractVector{<:AbstractArray{T, Φ}},
+                            pred_in  ::AbstractVector{<:AbstractArray{T, Φ}},
+                            em::AbstractEmbedding,
+                            R::AbstractMatrix{T},
+                            tree::NNTree;
+                            progress=true,
+                            method::AbstractLocalModel  = AverageLocalModel(ω_safe),
+                            ntype::AbstractNeighborhood = FixedMassNeighborhood(3)
+                        ) where {T, Φ}
+    @assert outdim(em) == size(R,1)
+    @show num_pt = get_num_pt(em)
+    #New state that will be predicted, allocate once and reuse
+    state = similar(train_out[1])
 
+    queries = reconstruct(pred_in, em)
 
+    for n=1:length(pred_in)-get_τmax(em)
+        progress && println("Working on Frame $(n)/$(length(pred_in)-get_τmax(em))")
+        #Iterate over queries/ spatial points
+        for m=1:num_pt
+            q = @view queries[:,m+(n-1)*num_pt]
 
-"""
-    crosspred_stts(source_train, target_train, source_pred,
-                   D, τ, B, k; kwargs...)
+            #Find neighbors
+            #Note, not yet compatible with old `neighborhood_and_distances` functions
+            idxs,dists = neighbors(q,R,tree,ntype)
 
-Perform a spatio-temporal timeseries cross-prediction for `target` from
-`source`, using local weighted modeling [1]. This can be used for example
-when there are coupled spatial fields and one is used to predict the other.
-
-It is assumed that `source_train`, `target_train`, `source_pred` are all of
-the same type, `AbstractVector{<:AbstractArray{T, Φ}}`.
-
-`(D, τ, B, k)` are used to make a [`STReconstruction`](@ref) on `source_train`.
-In most cases `k=1` and `τ=1,2,3` give best results.
-
-
-## Keyword Arguments
-  * `boundary, weighting` : Passed directly to [`STReconstruction`](@ref).
-  * `method = AverageLocalModel(ω_safe)` : Subtype of [`AbstractLocalModel`](@ref).
-  * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
-  * `printprogress = true` : To print progress done.
-
-## Description
-The reconstructed state of `source_train[t][i,j,...]` is associated with the output
-value `target_train[t][i,j,...]`. This establishes a "connection"
-between `target` and `source`.
-
-Taking a reconstructed state of `source_pred` as query point,
-the function finds its neighbors in the reconstructed space of `source_train` using
-neighborhood `ntype`. Then, the neighbor *indices* are used
-to make a prediction for the corresponding value of the `target`, using the
-established "connection" between fields (from the training data).
-
-The algorithm is applied for all points in space and time of `pred_in` minus the first
-`(D-1)τ` states that are needed for reconstruction.
-
-## Performance Notes
-Be careful when choosing `B` as memory usage and computation time depend strongly on it.
-
-## References
-[1] : U. Parlitz & C. Merkwirth, [Phys. Rev. Lett. **84**, pp 1890 (2000)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890)
-"""
-function crosspred_stts(
-    train_in::AbstractVector{<:AbstractArray{T, Φ}},
-    train_out::AbstractVector{<:AbstractArray{T, Φ}},
-    pred_in ::AbstractVector{<:AbstractArray{T, Φ}},
-    D,τ,B=1,k=1;
-    boundary=20,
-    weighting::Tuple{Real, Real} = (0,0),
-    method::AbstractLocalModel = AverageLocalModel(ω_safe),
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)) where {T, Φ}
-    R = STReconstruction(train_in,D,τ,B,k,boundary, weighting)
-    tree = KDTree(R)
-    return _crosspred_stts(train_out,pred_in, R, tree, D, τ, B, k, boundary,
-     weighting, method, ntype)
-end
-
-
-function _crosspred_stts(
-    train_out::AbstractVector{<:AbstractArray{T, Φ}},
-    pred_in, R, tree, D, τ, B, k,
-    boundary,weighting,method,ntype) where {T,Φ}
-
-    M = prod(size(pred_in[1]))
-    L = length(pred_in)
-
-    pred_out = Vector{Array{T, Φ}}()
-    state = similar(pred_in[1])
-
-    #create all qs
-    qs = STReconstruction(pred_in, D, τ, B, k, boundary, weighting)
-    for n=1:L-(D-1)τ
-        println("Cross-prediction frame $(n)/$(L-(D-1)τ)")
-        for m=1:M
-            q = qs[m + M*(n-1)]
-            #make prediction & put into state
-            idxs,dists = TimeseriesPrediction.neighborhood_and_distances(q,R,tree,ntype)
-            xnn = R[idxs]   #not used in method...
-            ynn = [train_out[1 + (D-1)*τ + (ind-1)÷ M][1 + (ind-1) % M] for ind ∈ idxs]
-
+            xnn = @view R[:, idxs]
+            #Retrieve ynn
+            ynn = map(idxs) do idx
+                #Indices idxs are indices of R. Convert to indices of s
+                t,α = convert_idx(idx,em)
+                train_out[t][α]
+            end
             state[m] = method(q,xnn,ynn,dists)[1]
+            #won't work for lin loc model, needs Vector{SVector}
         end
-        push!(pred_out, copy(state))
+        push!(pred_out,copy(state))
     end
-    return pred_out
+
+    return CrossPrediction{T,Φ}(em, typeof(tree), pred_in, pred_out)
+     #funfacts runtimes
 end
