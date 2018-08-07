@@ -9,8 +9,7 @@ using Reexport
 @reexport using DynamicalSystemsBase
 
 include("localmodeling.jl")
-include("streconstruction.jl")
+include("reconstruction.jl")
 include("st_prediction.jl")
 #include("spatiotemporalsystem.jl")
-include("newrec.jl")
 end
