@@ -36,11 +36,11 @@ end
 function localmodel_stts(s,em,timesteps,R; progress=true, treetype=KDTree, kwargs...)
     #Prepare tree but remove the last reconstructed states first
     progress && println("Creating Tree")
-    L = length(R)
+    L = size(R,2)
     M = get_num_pt(em)
-    tree = treetype(view(R,:,1:L-M))
+    tree = treetype(R[:,1:L-M])
 
-    localmodel_stts(s,em,timesteps, R, tree; progress=progess, kwargs...)
+    localmodel_stts(s,em,timesteps, R, tree; progress=progress, kwargs...)
 end
 
 function working_ts(s,em)
@@ -63,7 +63,7 @@ end
 function convert_idx(idx, em)
     τmax = get_τmax(em)
     num_pt = get_num_pt(em)
-    t = get_τmax(em) + (idx-1) ÷ num_pt
+    t = 1 + (idx-1) ÷ num_pt + get_τmax(em)
     α = 1 + (idx-1) % num_pt
     return t,α
 end
@@ -128,11 +128,12 @@ function crosspred_stts(    train_out::AbstractVector{<:AbstractArray{T, Φ}},
                             ntype::AbstractNeighborhood = FixedMassNeighborhood(3)
                         ) where {T, Φ}
     @assert outdim(em) == size(R,1)
-    @show num_pt = get_num_pt(em)
+    num_pt = get_num_pt(em)
     #New state that will be predicted, allocate once and reuse
     state = similar(train_out[1])
 
     queries = reconstruct(pred_in, em)
+    pred_out = eltype(train_out)[]
 
     for n=1:length(pred_in)-get_τmax(em)
         progress && println("Working on Frame $(n)/$(length(pred_in)-get_τmax(em))")
