@@ -1,7 +1,13 @@
 using Statistics
 using LinearAlgebra
-using PrincipalComponentAnalysis
 export STDelayEmbedding, PCAEmbedding, reconstruct
+export PeriodicBoundary,ConstantBoundary
+
+abstract type AbstractBoundaryCondition end
+struct ConstantBoundary{C} <: AbstractBoundaryCondition end
+struct PeriodicBoundary    <: AbstractBoundaryCondition end
+
+abstract type AbstractSpatialEmbedding{T,Φ,BC,X} <: AbstractEmbedding end
 
 
 struct Region{Φ}
@@ -9,21 +15,19 @@ struct Region{Φ}
 	maxi::NTuple{Φ,Int64}
 end
 
-function Base.in(idx, r::Region{Φ}) where Φ
-	#all(r.mini .<= α.I .<= r.maxi)
+Base.length(r::Region{Φ}) where Φ = prod(r.maxi .- r.mini .+1)
+Base.in(idx, r::Region{Φ}) where Φ = begin
 	for φ=1:Φ
 		r.mini[φ] <= idx[φ] <= r.maxi[φ] || return false
  	end
  	return true
 end
-
-Base.length(r::Region{Φ}) where Φ = prod(r.maxi .- r.mini .+1)
-
 Base.CartesianIndices(r::Region{Φ}) where Φ =
 	 CartesianIndices{Φ,NTuple{Φ,UnitRange{Int64}}}(
 	 ([r.mini[φ]:r.maxi[φ] for φ=1:Φ]...,))
 
-function inner_field(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
+
+function inner_region(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
 	mini = Int[]
 	maxi = Int[]
 	for φ = 1:Φ
@@ -35,28 +39,36 @@ function inner_field(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
 	return Region{Φ}((mini...,), (maxi...,))
 end
 
-struct STDelayEmbedding{T,Φ,X} <: AbstractEmbedding
+#TODO: Not pretty, not good, make better
+function project_inside(α::CartesianIndex{Φ}, r::Region{Φ}) where Φ
+	CartesianIndex(mod.(α.I .-1, r.maxi).+1)
+end
+
+
+struct STDelayEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X}
   	τ::Vector{Int64}
 	β::Vector{CartesianIndex{Φ}}
- 	boundary::Float64
 	inner::Region{Φ}  #inner field far from boundary
-	outer::Region{Φ}	#whole field
+	whole::Region{Φ}	#whole field
+
 	#Additional fields for values that are needed VERY often like millions of times
 	τmax::Int64  	# maximum(τ)
 	num_pt::Int64   #  number of points in space
 
-	function STDelayEmbedding{T,Φ,X}(τ,β,boundary,fsize) where {T,Φ,X}
-		inner = inner_field(β, fsize)
-		outer = Region((ones(Int,Φ)...,), fsize)
+	function STDelayEmbedding{T,Φ,BC,X}(τ,β,fsize) where {T,Φ,BC,X}
+		inner = inner_region(β, fsize)
+		whole = Region((ones(Int,Φ)...,), fsize)
 		τmax  = maximum(τ)
 		num_pt= prod(fsize)
-		return new{T,Φ,X}(τ,β,boundary,inner,outer, τmax, num_pt)
+		return new{T,Φ,BC,X}(τ,β,inner,whole, τmax, num_pt)
 	end
 end
 
 function STDelayEmbedding(
-	s::AbstractArray{<:AbstractArray{T,Φ}},
-	D,τ,B,k,c) where {T,Φ}
+		s::AbstractArray{<:AbstractArray{T,Φ}},
+		D, τ, B, k, ::Type{BC}
+		) where {T,Φ, BC<:AbstractBoundaryCondition}
+
 	X = (D+1)*(2B+1)^Φ
 	τs = Vector{Int64}(undef,X)
 	βs = Vector{CartesianIndex{Φ}}(undef,X)
@@ -66,108 +78,57 @@ function STDelayEmbedding(
 		βs[n] = CartesianIndex(α)
 		n +=1
 	end
-	return STDelayEmbedding{T,Φ,X}(τs, βs, c, size(s[1]))
+	return STDelayEmbedding{T,Φ,BC, X}(τs, βs, size(s[1]))
 end
 
 
-function Base.summary(::IO, ::STDelayEmbedding{T,Φ,X}) where {T,Φ,X}
+function Base.summary(::IO, ::STDelayEmbedding{T,Φ,BC, X}) where {T,Φ,BC,X}
 	println("$(Φ)D Spatio-Temporal Delay Embedding with $X Entries")
 end
 
 #This function is not safe. If you call it directly with bad params - can fail
-function (r::STDelayEmbedding{T,Φ,X})(rvec,s,t,α) where {T,Φ,X}
+function (r::STDelayEmbedding{T,Φ,ConstantBoundary{C},X})(rvec,s,t,α) where {T,Φ,C,X}
 	if α in r.inner
 		@inbounds for n=1:X
 			rvec[n] = s[ t + r.τ[n] ][ α + r.β[n] ]
 		end
 	else
 		@inbounds for n=1:X
-			rvec[n] = 	if α + r.β[n] in r.outer
+			rvec[n] = 	if α + r.β[n] in r.whole
 							s[ t + r.τ[n] ][ α + r.β[n] ]
 						else
-							r.boundary
+							C
 						end
 		end
 	end
 	return nothing
 end
 
-
-get_num_pt(em::STDelayEmbedding) = em.num_pt
-
-
-struct PCAEmbedding{T,Φ,X,Y} <: AbstractEmbedding
-	stem::STDelayEmbedding{T,Φ,Y}
-	meanv::T
-	covmat::Matrix{T}
-	drmodel::PCA{T}
-	tmp::Vector{T} #length Y
-end
-
-compute_pca(covmat::Matrix{T}, pratio, maxoutdim) where T=
-	pcacov(covmat, T[]; maxoutdim=maxoutdim, pratio=pratio)
-
-function recompute_pca(em::PCAEmbedding{T,Φ,X,Y}, pratio, maxoutdim) where {T,Φ,X,Y}
-	drmodel = compute_pca(em.covmat, pratio, maxoutdim)
-	Ynew = outdim(drmodel)
-	PCAEmbedding{T,Φ,X,Ynew}(em.stemb, em.meanv, em.covmat, drmodel)
-end
-
-
-function PCAEmbedding(
-		s::AbstractArray{<:AbstractArray{T,Φ}},
-		stem::STDelayEmbedding{T,Φ,Y};
-		pratio   = 0.99,
-		maxoutdim= 25,
-		every::Int    = 1) where {T,Φ,Y}
-	meanv = Statistics.mean(Statistics.mean.(s))
-	tsteps = (length(s) - get_τmax(stem))
-	num_pt = length(stem.inner)
-	L      = tsteps*num_pt
-
-	recv = zeros(T,Y)
-	covmat = zeros(T,Y,Y)
-	inner_idxs = CartesianIndices(stem.inner)
-	for n = 1:every:L
-		t = 1 + (n-1) ÷ num_pt
-		α = inner_idxs[n-(t-1)*num_pt]
-		stem(recv, s,t,α)
-		recv  .-= meanv
-		#covmat .+= recv' .* recv / L
-		@inbounds for j=1:Y, i=1:Y
-			covmat[i,j] += recv[i]*recv[j] / L
+function (r::STDelayEmbedding{T,Φ,PeriodicBoundary,X})(rvec,s,t,α) where {T,Φ,X}
+	if α in r.inner
+		@inbounds for n=1:X
+			rvec[n] = s[ t + r.τ[n] ][ α + r.β[n] ]
+		end
+	else
+		@inbounds for n=1:X
+			rvec[n] = s[ t + r.τ[n] ][ project_inside(α + r.β[n], r.whole) ]
 		end
 	end
-	drmodel = compute_pca(covmat,pratio, maxoutdim)
-	X = PrincipalComponentAnalysis.outdim(drmodel)
-	tmp = zeros(Y)
-	return PCAEmbedding{T,Φ,X,Y}(stem, meanv, covmat, drmodel,tmp)
-end
-
-function (r::PCAEmbedding{T,X,Φ})(data, s, t, α) where {T,Φ,X}
-	r.stem(r.tmp, s,t,α)
-	r.tmp .-= r.meanv
-	mul!(data,transpose(r.drmodel.proj),r.tmp)
-end
-
-function Base.show(io::IO, em::PCAEmbedding{T,X,Φ}) where {T,X,Φ}
-	Base.show(io, em.stem)
-	Base.show(io, em.drmodel)
+	return nothing
 end
 
 
+
+get_num_pt(em::STDelayEmbedding) = em.num_pt
 get_τmax(em::STDelayEmbedding) = em.τmax
-get_τmax(em::PCAEmbedding) = get_τmax(em.stem)
-get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)
+outdim(em::STDelayEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X
 
-outdim(em::PCAEmbedding{T,Φ,X}) where {T,Φ,X} = X
-outdim(em::STDelayEmbedding{T,Φ,X}) where {T,Φ,X} = X
 
 function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
-	stem::Union{STDelayEmbedding{T,Φ,X}, PCAEmbedding{T,Φ,X,Y}}
-	) where {T<:Number,Φ,X,Y}
-	timesteps = (length(s) - get_τmax(stem))
-	num_pt    = get_num_pt(stem)
+	em::AbstractSpatialEmbedding{T,Φ,BC,X}
+	) where {T<:Number,Φ,BC,X}
+	timesteps = (length(s) - get_τmax(em))
+	num_pt    = get_num_pt(em)
 	L         = timesteps*num_pt
 
 
@@ -179,7 +140,7 @@ function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
 		n = (t-1)*num_pt+lin_idxs[α]
 		#Maybe unsafe array views here
 		#recv = view(data,:,n)
-		stem(recv,s,t,α)
+		em(recv,s,t,α)
 		#very odd. data[:,n] .= recv allocates
 		for i=1:X data[i,n] = recv[i] end
 	end
