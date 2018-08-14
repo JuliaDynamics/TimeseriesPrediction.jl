@@ -2,9 +2,9 @@ using TimeseriesPrediction
 
 ti = time()
 
-#include("localmodeling_tests.jl")
-#include("st_pred_barkley.jl")
-#include("st_pred_tests.jl")
+include("localmodeling_tests.jl")
+include("st_pred_barkley.jl")
+include("st_pred_tests.jl")
 include("reconstruction_tests.jl")
 ti = time() - ti
 println("\nTest took total time of:")

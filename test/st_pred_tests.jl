@@ -7,7 +7,7 @@ include("system_defs.jl")
 @testset "Coupled Henon 1D" begin
     M = 100
     ds = coupled_henon1D(M)
-    N_train = 1000
+    N_train = 2000
     p = 5
     data = trajectory(ds,N_train+p)
     U = [d[:,1] for d in data]
@@ -19,23 +19,24 @@ include("system_defs.jl")
     vtest  = V[N_train:N_train+p]
 
     @testset "ALM D=$D, B=$B" for D=2:3, B=1:2
-        method = AverageLocalModel()
-        upred = localmodel_stts(utrain,D,1,p,B,1; method=method)
+        em = STDelayEmbedding(utrain,D,1,B,1,10)
+        upred = localmodel_stts(utrain,em, p).spred
 
         @test upred[1] == utrain[end]
         @test sum(abs.(utest[2]-upred[2]))/M/p < 0.05
         ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]
         @test sum(ε)/M / p < 0.15
     end
-    @testset "LLM D=$D, B=$B" for D=2:3, B=1:2
-        method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.001, 1.)
-        upred = localmodel_stts(utrain,D,1,p,B,1)
-
-        @test upred[1] == utrain[end]
-        @test sum(abs.(utest[2]-upred[2]))/M/p < 0.05
-        ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]
-        @test sum(ε)/M / p < 0.15
-    end
+    # @testset "LLM D=$D, B=$B" for D=2:3, B=1:2
+    #     method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.001, 1.)
+    #     em = STDelayEmbedding(utrain, D, 1, B,1, 10)
+    #     upred = localmodel_stts(utrain,em,p; method=method).spred
+    #
+    #     @test upred[1] == utrain[end]
+    #     @test sum(abs.(utest[2]-upred[2]))/M/p < 0.05
+    #     ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]
+    #     @test sum(ε)/M / p < 0.15
+    # end
 end
 
 
@@ -56,7 +57,8 @@ end
     vtest  = V[N_train:N_train+p]
 
     @testset "D=$D, B=$B" for D=2:3, B=1:2
-        upred = localmodel_stts(utrain,D,1,p,B,1)
+        em = STDelayEmbedding(utrain,D,1,B,1,10)
+        upred = localmodel_stts(utrain,em,p).spred
 
         @test upred[1] == utrain[end]
         ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]

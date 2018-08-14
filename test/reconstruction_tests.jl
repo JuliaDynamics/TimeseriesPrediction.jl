@@ -16,8 +16,11 @@ println("Reconstruction Tests")
                 @test length(emb.β) == X
 
                 #check spatial extent
-                @test emb.inner == CartesianIndices(([B*k+1:10-B*k for i=1:Φ]...,))
-                @test emb.outer == CartesianIndices(([1:10 for i=1:Φ]...,))
+                @test emb.inner == TimeseriesPrediction.Region(
+                                ([B*k+1 for i=1:Φ]...,),
+                                ([10-B*k for i=1:Φ]...,))
+
+                @test emb.outer == TimeseriesPrediction.Region((ones(Int,Φ)...,),(10ones(Int,Φ)...,) )
 
                 #boundary value
                 @test emb.boundary == c
@@ -31,10 +34,13 @@ println("Reconstruction Tests")
         emb = STDelayEmbedding(data, D,τ,B,k,c)
         t = 1
         α = CartesianIndex(2,2)
-        @test 1:18 == emb(data, t, α)
+        rvec = zeros(18);
+        emb(rvec, data, t, α)
+        @test 1:18 == rvec
         α = CartesianIndex(1,1)
         rec = [c,c,c,c,1,2,c,4,5,c,c,c,c,10,11,c,13,14]
-        @test rec == emb(data, t, α)
+        emb(rvec, data, t, α)
+        @test rec == rvec
     end
 end
 
@@ -46,15 +52,15 @@ println("Testing PCA Functions")
     U,V = barkley_periodic_boundary_nonlin(500,50,50)
     for D=10, τ=1, B=1,k=1, c=false, Φ=2
         em = STDelayEmbedding(U,D,τ,B,k,c)
-        R = TimeseriesPrediction.reconstruct(U, em)
+        R = DynamicalSystemsBase.reconstruct(U, em)
         Rmat = Matrix(R)
         drmodel = fit(PCA,Rmat)
         pcaem = PCAEmbedding(U,em)
         #Compare Outdim
         @test outdim(drmodel) == outdim(pcaem.drmodel)
         #Compare singular values
-        @test isapprox(principalvars(drmodel), principalvars(pcaem.drmodel), atol=1e-2)
+        @test isapprox(principalvars(drmodel), principalvars(pcaem.drmodel), atol=5e-2)
          #Compare Projection Matrices
-        @test isapprox(drmodel.proj, pcaem.drmodel.proj, atol=1e-2)
+        @test isapprox(drmodel.proj, pcaem.drmodel.proj, atol=5e-2)
     end
 end

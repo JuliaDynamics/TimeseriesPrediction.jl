@@ -13,8 +13,8 @@ end
 
 function coupled_henon2D(X,Y)
     function henon(du, u, p, t)
-        du[1,:,1] = du[:,1,1] = du[X, :, 1] = du[:, Y, 1] = 0.5
-        du[1,:,2] = du[:,1,2] = du[X, :, 2] = du[:, Y ,2] = 0
+        du[1,:,1] = du[:,1,1] = du[X, :, 1] = du[:, Y, 1] .= 0.5
+        du[1,:,2] = du[:,1,2] = du[X, :, 2] = du[:, Y ,2] .= 0
         for mx=2:X-1 , my=2:Y-1
             du[mx,my,1] = 1 - 1.45*(.5*u[mx,my,1]+ .125*u[mx-1,my,1] +
              .125u[mx+1,my,1]+ .125u[mx, my-1,1]+ .125u[mx,my+1,1])^2 + 0.3*u[mx,my,2]
