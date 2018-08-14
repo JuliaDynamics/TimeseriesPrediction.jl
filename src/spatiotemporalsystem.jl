@@ -1,5 +1,5 @@
 export SpatioTemporalSystem
-using DynamicalSystemsBase: MDP, isinplace
+using DynamicalSystemsBase: isinplace
 
 
 struct SpatioTemporalProblem{Φ, T, F, P}
@@ -54,7 +54,7 @@ function DynamicalSystemsBase.trajectory(ds::STS{Φ, T, F, P}, t, u = ds.prob.u0
     ti = ds.prob.t0
     tvec = ti:dt:t
     L = length(tvec)
-    data = Vector{Array{T, Φ}}(L)
+    data = Vector{Array{T, Φ}}(undef,L)
     uprev = copy(ds.prob.u0)
     unext = copy(uprev)
     data[1] = copy(uprev)
