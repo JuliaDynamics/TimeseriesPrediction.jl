@@ -93,7 +93,7 @@ function (M::AverageLocalModel)(q,xnn,ynn,dists)
         for (y,d) in zip(ynn,dists)
             ω2 = M.ω.(d, dmax)
             Ω += ω2
-            y_pred = y_pred + ω2*y
+            y_pred = y_pred .+ ω2*y
         end
         y_pred /= Ω
         return y_pred
