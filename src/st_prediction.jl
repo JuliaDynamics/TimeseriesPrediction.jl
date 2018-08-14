@@ -56,7 +56,7 @@ function gen_queries(s,em)
     return reconstruct(s_slice, em)
 end
 
-function neighbors(point, R, tree, ntype)
+function neighbors(point, R, tree::KDTree, ntype)
     idxs,dists = knn(tree, point, ntype.K, false)
     return idxs,dists
 end

@@ -143,5 +143,5 @@ end
     method = AverageLocalModel()
     ntype = FixedMassNeighborhood(2)
     s_pred = localmodel_tsp(s,2,1,p; method=method, ntype=ntype)
-    @test norm(s_pred -s_real)/var(s)/p < 0.15
+    @test norm(s_pred -s_real)/var(s)/p < 0.2
 end

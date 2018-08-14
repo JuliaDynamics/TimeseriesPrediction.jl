@@ -51,16 +51,10 @@ struct STDelayEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X}
 	inner::Region{Φ}  #inner field far from boundary
 	whole::Region{Φ}	#whole field
 
-	#Additional fields for values that are needed VERY often like millions of times
-	τmax::Int64  	# maximum(τ)
-	num_pt::Int64   #  number of points in space
-
 	function STDelayEmbedding{T,Φ,BC,X}(τ,β,fsize) where {T,Φ,BC,X}
 		inner = inner_region(β, fsize)
 		whole = Region((ones(Int,Φ)...,), fsize)
-		τmax  = maximum(τ)
-		num_pt= prod(fsize)
-		return new{T,Φ,BC,X}(τ,β,inner,whole, τmax, num_pt)
+		return new{T,Φ,BC,X}(τ,β,inner,whole)
 	end
 end
 
@@ -68,7 +62,7 @@ function STDelayEmbedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
 		D, τ, B, k, ::Type{BC}
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
-
+	@assert issorted(τ) "Delays need to be sorted in ascending order"
 	X = (D+1)*(2B+1)^Φ
 	τs = Vector{Int64}(undef,X)
 	βs = Vector{CartesianIndex{Φ}}(undef,X)
@@ -78,13 +72,10 @@ function STDelayEmbedding(
 		βs[n] = CartesianIndex(α)
 		n +=1
 	end
-	return STDelayEmbedding{T,Φ,BC, X}(τs, βs, size(s[1]))
+	return STDelayEmbedding{T,Φ,BC,X}(τs, βs, size(s[1]))
 end
 
 
-function Base.summary(::IO, ::STDelayEmbedding{T,Φ,BC, X}) where {T,Φ,BC,X}
-	println("$(Φ)D Spatio-Temporal Delay Embedding with $X Entries")
-end
 
 #This function is not safe. If you call it directly with bad params - can fail
 function (r::STDelayEmbedding{T,Φ,ConstantBoundary{C},X})(rvec,s,t,α) where {T,Φ,C,X}
@@ -94,11 +85,7 @@ function (r::STDelayEmbedding{T,Φ,ConstantBoundary{C},X})(rvec,s,t,α) where {T
 		end
 	else
 		@inbounds for n=1:X
-			rvec[n] = 	if α + r.β[n] in r.whole
-							s[ t + r.τ[n] ][ α + r.β[n] ]
-						else
-							C
-						end
+			rvec[n] = α + r.β[n] in r.whole ? s[ t+r.τ[n] ][ α+r.β[n] ] : C
 		end
 	end
 	return nothing
@@ -119,9 +106,17 @@ end
 
 
 
-get_num_pt(em::STDelayEmbedding) = em.num_pt
-get_τmax(em::STDelayEmbedding) = em.τmax
+get_num_pt(em::STDelayEmbedding) = prod(em.whole.maxi)
+get_τmax(em::STDelayEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = em.τ[X]
 outdim(em::STDelayEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X
+
+
+
+
+function Base.summary(::IO, ::STDelayEmbedding{T,Φ,BC, X}) where {T,Φ,BC,X}
+	println("$(Φ)D Spatio-Temporal Delay Embedding with $X Entries")
+end
+
 
 
 function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
@@ -131,14 +126,13 @@ function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
 	num_pt    = get_num_pt(em)
 	L         = timesteps*num_pt
 
-
 	pt_in_space = CartesianIndices(s[1])
 	lin_idxs    = LinearIndices(s[1])
 	data = Matrix{T}(undef,X,L)
 	recv = zeros(T,X)
+
 	@inbounds for t in 1:timesteps, α in pt_in_space
 		n = (t-1)*num_pt+lin_idxs[α]
-		#Maybe unsafe array views here
 		#recv = view(data,:,n)
 		em(recv,s,t,α)
 		#very odd. data[:,n] .= recv allocates
