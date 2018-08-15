@@ -1,15 +1,47 @@
 using Statistics
 using LinearAlgebra
 export SpatioTemporalEmbedding,reconstruct, STE
-export PeriodicBoundary,ConstantBoundary
+export AbstractBoundaryCondition,PeriodicBoundary,ConstantBoundary
 
-abstract type AbstractBoundaryCondition end
-struct ConstantBoundary{C} <: AbstractBoundaryCondition end
-struct PeriodicBoundary    <: AbstractBoundaryCondition end
-
+#####################################################################################
+#                 Spatio Temporal Delay Embedding Reconstruction                    #
+#####################################################################################
+"""
+    AbstractSpatialEmbedding <: AbstractEmbedding
+Super-type of spatiotemporal embedding methods.
+Use `subtypes(AbstractSpatialEmbedding)` for available methods.
+"""
 abstract type AbstractSpatialEmbedding{T,Φ,BC,X} <: AbstractEmbedding end
 
+"""
+    AbstractBoundaryCondition
+Super-type of boundary conditions for [`SpatioTemporalEmbedding`](@ref).
+Use `subtypes(AbstractBoundaryCondition)` for available methods.
+"""
+abstract type AbstractBoundaryCondition end
 
+"""
+	ConstantBoundary{C}
+Constant boundary condition type. Enforces constant boundary conditions
+when passed to [`SpatioTemporalEmbedding`](@ref)
+by filling missing out-of-bounds values in the reconstruction with
+type parameter `C`
+"""
+struct ConstantBoundary{C} <: AbstractBoundaryCondition end
+
+"""
+	PeriodicBoundary
+Periodic boundary condition type. Enforces periodic boundary conditions
+when passed to [`SpatioTemporalEmbedding`](@ref) in the reconstruction.
+"""
+struct PeriodicBoundary    <: AbstractBoundaryCondition end
+
+
+"""
+	Region{Φ}
+Internal struct for efficiently keeping track of region far from boundaries of field.
+Used to speed up reconstruction process.
+"""
 struct Region{Φ}
 	mini::NTuple{Φ,Int64}
 	maxi::NTuple{Φ,Int64}
@@ -43,7 +75,38 @@ function project_inside(α::CartesianIndex{Φ}, r::Region{Φ}) where Φ
 	CartesianIndex(mod.(α.I .-1, r.maxi).+1)
 end
 
+"""
+	 SpatioTemporalEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X} → `embedding`
+A spatio temporal delay coordinates structure to be used as a functor.
 
+```julia
+	embedding(rvec, s, t, α)
+```
+Operates inplace on `rvec` and reconstructs vector from spatial timeseries `s` at
+timestep `t` and cartesian index `α`.
+
+## Constructors
+The structure can be created directly by calling
+```julia
+	SpatioTemporalEmbedding{T,Φ,BC,X}(τ,β,fsize)
+```
+where `T` is the `eltype` of the timeseries, `Φ` the spatial dimension of the system,
+`BC` the boundary condition type and `X` the length of reconstructed vectors.
+Arguments `τ` and `β` are Vectors of `Int64` and `CartesianIndex` that contain
+all points to be included in the reconstruction in *relative* coordinates
+and `fsize` is the size of each state in the timeseries.
+
+Note that this is a forward embedding and `τ` needs to be sorted in ascending order.
+The most recent values in the reconstruction are located at the end of each vector.
+
+A simpler constructor for convenience
+```julia
+	SpatioTemporalEmbedding(s, D, τ, B, k, ::Type{<:AbstractBoundaryCondition})
+```
+Takes as arguments the spatial timeseries `s` and reconstructs
+`B` spatial shells separated by `k` points around each point
+and repeats this for `D` past timesteps separated by `τ` each.
+"""
 struct SpatioTemporalEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X}
   	τ::Vector{Int64}
 	β::Vector{CartesianIndex{Φ}}
@@ -118,7 +181,15 @@ function Base.summary(::IO, ::SpatioTemporalEmbedding{T,Φ,BC, X}) where {T,Φ,B
 end
 
 
+"""
+	reconstruct(s, em)
+Reconstruct the spatial timeseries `s` represented by a `Vector` of `AbstractArray`
+states using the embedding struct `em` of type [`AbstractSpatialEmbedding`](@ref).
 
+Returns the reconstruction in the form of a `Matrix` where each reconstructed
+state is a column-vector and they are ordered first through linear indexing into each state
+and then incrementing in time.
+"""
 function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
 	em::AbstractSpatialEmbedding{T,Φ,BC,X}
 	) where {T<:Number,Φ,BC,X}
