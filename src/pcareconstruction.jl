@@ -1,8 +1,9 @@
-using PrincipalComponentAnalysis
-
+import PrincipalComponentAnalysis.PCA
+import PrincipalComponentAnalysis.pcacov
+export PCA, PCAEmbedding
 
 struct PCAEmbedding{T,Φ,BC,X,Y} <: AbstractSpatialEmbedding{T,Φ,BC,X}
-	stem::STDelayEmbedding{T,Φ,BC,Y}
+	stem::SpatioTemporalEmbedding{T,Φ,BC,Y}
 	meanv::T
 	covmat::Matrix{T}
 	drmodel::PCA{T}
@@ -17,16 +18,16 @@ compute_pca(covmat::Matrix{T}, pratio, maxoutdim) where T=
 get_τmax(em::PCAEmbedding) = get_τmax(em.stem)
 get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)
 
-get_usable_idxs(em::STDelayEmbedding{T,Φ,PeriodicBoundary,X}) where {T,Φ,X} =
+get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,PeriodicBoundary,X}) where {T,Φ,X} =
 			CartesianIndices(em.whole)
-get_usable_idxs(em::STDelayEmbedding{T,Φ,ConstantBoundary,X}) where {T,Φ,X} =
+get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,ConstantBoundary,X}) where {T,Φ,X} =
 			CartesianIndices(em.inner)
 
 outdim(em::PCAEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X
 
 function PCAEmbedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
-		stem::STDelayEmbedding{T,Φ,BC,Y};
+		stem::SpatioTemporalEmbedding{T,Φ,BC,Y};
 		pratio   = 0.99,
 		maxoutdim= 25,
 		every::Int    = 1) where {T,Φ,BC,Y}
@@ -49,7 +50,7 @@ function PCAEmbedding(
 		end
 	end
 	drmodel = compute_pca(covmat,pratio, maxoutdim)
-	X = PrincipalComponentAnalysis.outdim(drmodel)
+	X = size(drmodel.proj,2)
 	tmp = zeros(Y)
 	return PCAEmbedding{T,Φ,BC,X,Y}(stem, meanv, covmat, drmodel,tmp)
 end

@@ -4,16 +4,16 @@ using PrincipalComponentAnalysis
 using Statistics, LinearAlgebra
 
 println("Reconstruction Tests")
-@testset "STDelayEmbedding" begin
+@testset "SpatioTemporalEmbedding" begin
     for D=[0,4], τ ∈ [1,20], B=[1,3], k=[1,3], Φ=1:4
         BC=ConstantBoundary{10}
         @testset "D=$D, τ=$τ, B=$B, k=$k, Φ=$Φ" begin
                 #Ugly way of creating Φ dim array
                 s = [rand(Float64,([10 for i=1:Φ]...,)) for i=1:10]
-                emb = STDelayEmbedding(s,D,τ,B,k,BC)
+                emb = SpatioTemporalEmbedding(s,D,τ,B,k,BC)
                 #Check Embedding Dimension X
                 X = (D+1)*(2B+1)^Φ
-                @test typeof(emb) <: STDelayEmbedding{Float64,Φ,BC,X}
+                @test typeof(emb) <: SpatioTemporalEmbedding{Float64,Φ,BC,X}
                 @test length(emb.τ) == X
                 @test length(emb.β) == X
 
@@ -30,7 +30,7 @@ println("Reconstruction Tests")
     @testset "Order of rec. points" begin
         D=1; τ=1; B=1; k=1; c=10; BC=ConstantBoundary{c}; Φ=2
         data = [reshape(1+i:9+i, 3,3) for i∈[0,9]]
-        emb = STDelayEmbedding(data, D,τ,B,k,BC)
+        emb = SpatioTemporalEmbedding(data, D,τ,B,k,BC)
         t = 1
         α = CartesianIndex(2,2)
         rvec = zeros(18);
@@ -51,7 +51,7 @@ println("Testing PCA Functions")
     U,V = barkley_periodic_boundary_nonlin(500,50,50)
     for D=5, τ=1, B=1,k=1
         BC = PeriodicBoundary
-        em = STDelayEmbedding(U,D,τ,B,k,BC)
+        em = SpatioTemporalEmbedding(U,D,τ,B,k,BC)
         R = TimeseriesPrediction.reconstruct(U, em)
         meanv = mean(mean.(U))
         R .-= meanv

@@ -1,6 +1,6 @@
 using Statistics
 using LinearAlgebra
-export STDelayEmbedding, PCAEmbedding, reconstruct
+export SpatioTemporalEmbedding,reconstruct, STE
 export PeriodicBoundary,ConstantBoundary
 
 abstract type AbstractBoundaryCondition end
@@ -23,8 +23,7 @@ Base.in(idx, r::Region{Φ}) where Φ = begin
  	return true
 end
 Base.CartesianIndices(r::Region{Φ}) where Φ =
-	 CartesianIndices{Φ,NTuple{Φ,UnitRange{Int64}}}(
-	 ([r.mini[φ]:r.maxi[φ] for φ=1:Φ]...,))
+	 CartesianIndices{Φ,NTuple{Φ,UnitRange{Int64}}}(([r.mini[φ]:r.maxi[φ] for φ=1:Φ]...,))
 
 
 function inner_region(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
@@ -45,20 +44,21 @@ function project_inside(α::CartesianIndex{Φ}, r::Region{Φ}) where Φ
 end
 
 
-struct STDelayEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X}
+struct SpatioTemporalEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X}
   	τ::Vector{Int64}
 	β::Vector{CartesianIndex{Φ}}
 	inner::Region{Φ}  #inner field far from boundary
-	whole::Region{Φ}	#whole field
+	whole::Region{Φ}
 
-	function STDelayEmbedding{T,Φ,BC,X}(τ,β,fsize) where {T,Φ,BC,X}
+	function SpatioTemporalEmbedding{T,Φ,BC,X}(τ,β,fsize) where {T,Φ,BC,X}
 		inner = inner_region(β, fsize)
 		whole = Region((ones(Int,Φ)...,), fsize)
 		return new{T,Φ,BC,X}(τ,β,inner,whole)
 	end
 end
+const STE = SpatioTemporalEmbedding
 
-function STDelayEmbedding(
+function SpatioTemporalEmbedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
 		D, τ, B, k, ::Type{BC}
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
@@ -72,13 +72,13 @@ function STDelayEmbedding(
 		βs[n] = CartesianIndex(α)
 		n +=1
 	end
-	return STDelayEmbedding{T,Φ,BC,X}(τs, βs, size(s[1]))
+	return SpatioTemporalEmbedding{T,Φ,BC,X}(τs, βs, size(s[1]))
 end
 
 
 
 #This function is not safe. If you call it directly with bad params - can fail
-function (r::STDelayEmbedding{T,Φ,ConstantBoundary{C},X})(rvec,s,t,α) where {T,Φ,C,X}
+function (r::SpatioTemporalEmbedding{T,Φ,ConstantBoundary{C},X})(rvec,s,t,α) where {T,Φ,C,X}
 	if α in r.inner
 		@inbounds for n=1:X
 			rvec[n] = s[ t + r.τ[n] ][ α + r.β[n] ]
@@ -91,7 +91,7 @@ function (r::STDelayEmbedding{T,Φ,ConstantBoundary{C},X})(rvec,s,t,α) where {T
 	return nothing
 end
 
-function (r::STDelayEmbedding{T,Φ,PeriodicBoundary,X})(rvec,s,t,α) where {T,Φ,X}
+function (r::SpatioTemporalEmbedding{T,Φ,PeriodicBoundary,X})(rvec,s,t,α) where {T,Φ,X}
 	if α in r.inner
 		@inbounds for n=1:X
 			rvec[n] = s[ t + r.τ[n] ][ α + r.β[n] ]
@@ -106,14 +106,14 @@ end
 
 
 
-get_num_pt(em::STDelayEmbedding) = prod(em.whole.maxi)
-get_τmax(em::STDelayEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = em.τ[X]
-outdim(em::STDelayEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X
+get_num_pt(em::SpatioTemporalEmbedding) = prod(em.whole.maxi)
+get_τmax(em::SpatioTemporalEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = em.τ[X]
+outdim(em::SpatioTemporalEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X
 
 
 
 
-function Base.summary(::IO, ::STDelayEmbedding{T,Φ,BC, X}) where {T,Φ,BC,X}
+function Base.summary(::IO, ::SpatioTemporalEmbedding{T,Φ,BC, X}) where {T,Φ,BC,X}
 	println("$(Φ)D Spatio-Temporal Delay Embedding with $X Entries")
 end
 

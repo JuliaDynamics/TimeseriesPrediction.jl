@@ -19,7 +19,7 @@ include("system_defs.jl")
     vtest  = V[N_train:N_train+p]
 
     @testset "ALM D=$D, B=$B" for D=2:3, B=1:2
-        em = STDelayEmbedding(utrain,D,1,B,1,ConstantBoundary{10})
+        em = SpatioTemporalEmbedding(utrain,D,1,B,1,ConstantBoundary{10})
         upred = localmodel_stts(utrain,em, p).spred
 
         @test upred[1] == utrain[end]
@@ -29,7 +29,7 @@ include("system_defs.jl")
     end
     # @testset "LLM D=$D, B=$B" for D=2:3, B=1:2
     #     method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.001, 1.)
-    #     em = STDelayEmbedding(utrain, D, 1, B,1, 10)
+    #     em = SpatioTemporalEmbedding(utrain, D, 1, B,1, 10)
     #     upred = localmodel_stts(utrain,em,p; method=method).spred
     #
     #     @test upred[1] == utrain[end]
@@ -57,7 +57,7 @@ end
     vtest  = V[N_train:N_train+p]
 
     @testset "D=$D, B=$B" for D=2:3, B=1:2
-        em = STDelayEmbedding(utrain,D,1,B,1,ConstantBoundary{10})
+        em = SpatioTemporalEmbedding(utrain,D,1,B,1,ConstantBoundary{10})
         upred = localmodel_stts(utrain,em,p).spred
 
         @test upred[1] == utrain[end]

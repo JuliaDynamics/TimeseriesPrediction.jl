@@ -21,7 +21,7 @@ include("system_defs.jl")
     @testset "V, D=$D, B=$B" for D=2, B=1
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Vtest  = V[Tskip + Ttrain :  T]
-        em = STDelayEmbedding(Vtrain,D,τ,B,k,BC)
+        em = SpatioTemporalEmbedding(Vtrain,D,τ,B,k,BC)
         Vpred = localmodel_stts(Vtrain,em,p).spred
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
@@ -33,7 +33,7 @@ include("system_defs.jl")
         D=2; B=1
         Utrain = U[Tskip + 1:Tskip + Ttrain]
         Utest  = U[Tskip + Ttrain :  T]
-        em = STDelayEmbedding(Utrain,D,τ,B,k,BC)
+        em = SpatioTemporalEmbedding(Utrain,D,τ,B,k,BC)
         Upred = localmodel_stts(Utrain,em,p).spred
         @test Upred[1] == Utrain[end]
         err = [abs.(Utest[i]-Upred[i]) for i=1:p+1]
@@ -47,7 +47,7 @@ include("system_defs.jl")
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Utest  = U[Tskip + Ttrain - (D-1)τ + 1:  T]
         Vtest  = V[Tskip + Ttrain - (D-1)τ + 1:  T]
-        em = STDelayEmbedding(Vtrain, D,τ,B,k,BC)
+        em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
         R = reconstruct(Vtrain, em)
         tree = KDTree(R[:,1:end-2500])
         Upred = crosspred_stts(Utrain,Vtest, em, R, tree).pred_out
@@ -64,7 +64,7 @@ include("system_defs.jl")
         c = false
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Vtest  = V[Tskip + Ttrain :  T]
-        em = STDelayEmbedding(Vtrain, D,τ,B,k,BC)
+        em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
         Vpred = localmodel_stts(Vtrain, em, p).spred
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
@@ -80,7 +80,7 @@ include("system_defs.jl")
         BC = PeriodicBoundary
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Vtest  = V[Tskip + Ttrain :  T]
-        em = STDelayEmbedding(Vtrain, D,τ,B,k,BC)
+        em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
         Vpred = localmodel_stts(Vtrain, em, p).spred
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
