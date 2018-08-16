@@ -1,6 +1,6 @@
 using Test
 using TimeseriesPrediction
-using PrincipalComponentAnalysis
+#using PrincipalComponentAnalysis
 using Statistics, LinearAlgebra
 
 println("Reconstruction Tests")
@@ -63,7 +63,7 @@ println("Testing PCA Functions")
         drmodel = fit(PCA,R; mean=0)
         @test outdim(drmodel) == outdim(pcaem.drmodel)
         #Compare singular values
-        @test all(isapprox.(principalvars(drmodel), principalvars(pcaem.drmodel), atol=0.1))
+        @test all(isapprox.(TimeseriesPrediction.principalvars(drmodel), TimeseriesPrediction.principalvars(pcaem.drmodel), atol=0.1))
 
     end
 end

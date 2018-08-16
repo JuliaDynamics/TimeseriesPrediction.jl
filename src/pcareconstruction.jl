@@ -1,6 +1,5 @@
-import PrincipalComponentAnalysis.PCA
-import PrincipalComponentAnalysis.pcacov
-export PCA, PCAEmbedding
+export PCAEmbedding
+
 
 struct PCAEmbedding{T,Φ,BC,X,Y} <: AbstractSpatialEmbedding{T,Φ,BC,X}
 	stem::SpatioTemporalEmbedding{T,Φ,BC,Y}

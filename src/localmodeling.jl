@@ -1,4 +1,4 @@
-using NearestNeighbors, StaticArrays
+using NearestNeighbors, StaticArrays, Statistics
 using DynamicalSystemsBase
 
 export AbstractLocalModel
@@ -145,12 +145,12 @@ function (M::LinearLocalModel)(
     dmax = maximum(dists)
     #Create Weight Matrix
     W = Diagonal([M.ω.(di,dmax) for di in dists])
-    x_mean = mean(xnn)
-    y_mean = mean(ynn)
+    x_mean = mean(mean.(xnn))
+    y_mean = mean(mean.(ynn))
     #Create X
     X = zeros(k,L)
     for i=1:k
-        X[i,1:end] = xnn[i] - x_mean
+        X[i,1:end] = xnn[i] .- x_mean
     end
     #Pseudo Inverse
     U,S,V = svd(W*X)

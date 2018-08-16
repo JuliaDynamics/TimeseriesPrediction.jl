@@ -6,9 +6,15 @@ module TimeseriesPrediction
 using Reexport
 @reexport using DynamicalSystemsBase
 
+using Statistics, LinearAlgebra
+
 include("localmodeling.jl")
 include("reconstruction.jl")
+
+include("pca/pca.jl")
+include("pca/common.jl")
 include("pcareconstruction.jl")
+
 include("st_prediction.jl")
 include("spatiotemporalsystem.jl")
 end
