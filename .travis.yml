@@ -12,5 +12,6 @@ notifications:
       - jonas.isensee@stud.uni-goettingen.de
     on_success: never
     on_failure: always
-#script:
-# 	- julia -e 'import Pkg; Pkg.build(); Pkg.test()'
+
+script:
+ 	- julia -e 'import Pkg; Pkg.build(); Pkg.test()'
