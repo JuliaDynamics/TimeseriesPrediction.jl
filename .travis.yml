@@ -4,17 +4,13 @@ os:
   - linux
 #  - osx
 julia:
-#  - 0.6
-   - nightly
+	- 0.7
+	- 1.0
 notifications:
   email:
     recipients:
       - jonas.isensee@stud.uni-goettingen.de
     on_success: never
     on_failure: always
-script:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'using UUIDs; import Pkg; p = "Project.toml"; uuid = "f218859d-9706-56aa-9ebf-1fa4ed7b8020"; write(p, replace(read(p, String), uuid => uuid4()));  Pkg.up(); Pkg.test(; coverage=true)'
-
-#  - julia -e 'Pkg.clone(pwd())'
-#  - julia -e 'Pkg.test("TimeseriesPrediction")'
+#script:
+# 	- julia -e 'import Pkg; Pkg.build(); Pkg.test()'
