@@ -145,8 +145,8 @@ function (M::LinearLocalModel)(
     dmax = maximum(dists)
     #Create Weight Matrix
     W = Diagonal([M.ω.(di,dmax) for di in dists])
-    x_mean = mean(mean.(xnn))
-    y_mean = mean(mean.(ynn))
+    x_mean = mean(xnn)
+    y_mean = mean(ynn)
     #Create X
     X = zeros(k,L)
     for i=1:k
