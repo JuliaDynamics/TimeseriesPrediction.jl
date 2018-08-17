@@ -43,8 +43,8 @@ Internal struct for efficiently keeping track of region far from boundaries of f
 Used to speed up reconstruction process.
 """
 struct Region{Φ}
-	mini::NTuple{Φ,Int64}
-	maxi::NTuple{Φ,Int64}
+	mini::NTuple{Φ,Int}
+	maxi::NTuple{Φ,Int}
 end
 
 Base.length(r::Region{Φ}) where Φ = prod(r.maxi .- r.mini .+1)
@@ -55,7 +55,7 @@ Base.in(idx, r::Region{Φ}) where Φ = begin
  	return true
 end
 Base.CartesianIndices(r::Region{Φ}) where Φ =
-	 CartesianIndices{Φ,NTuple{Φ,UnitRange{Int64}}}(([r.mini[φ]:r.maxi[φ] for φ=1:Φ]...,))
+	 CartesianIndices{Φ,NTuple{Φ,UnitRange{Int}}}(([r.mini[φ]:r.maxi[φ] for φ=1:Φ]...,))
 
 
 function inner_region(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
@@ -92,7 +92,7 @@ The structure can be created directly by calling
 ```
 where `T` is the `eltype` of the timeseries, `Φ` the spatial dimension of the system,
 `BC` the boundary condition type and `X` the length of reconstructed vectors.
-Arguments `τ` and `β` are Vectors of `Int64` and `CartesianIndex` that contain
+Arguments `τ` and `β` are Vectors of `Int` and `CartesianIndex` that contain
 all points to be included in the reconstruction in *relative* coordinates
 and `fsize` is the size of each state in the timeseries.
 
@@ -108,7 +108,7 @@ Takes as arguments the spatial timeseries `s` and reconstructs
 and repeats this for `D` past timesteps separated by `τ` each.
 """
 struct SpatioTemporalEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X}
-  	τ::Vector{Int64}
+  	τ::Vector{Int}
 	β::Vector{CartesianIndex{Φ}}
 	inner::Region{Φ}  #inner field far from boundary
 	whole::Region{Φ}
@@ -127,7 +127,7 @@ function SpatioTemporalEmbedding(
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
 	@assert issorted(τ) "Delays need to be sorted in ascending order"
 	X = (D+1)*(2B+1)^Φ
-	τs = Vector{Int64}(undef,X)
+	τs = Vector{Int}(undef,X)
 	βs = Vector{CartesianIndex{Φ}}(undef,X)
 	n = 1
 	for d=0:D, α = Iterators.product([-B*k:k:B*k for φ=1:Φ]...)
