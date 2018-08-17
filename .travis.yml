@@ -4,13 +4,11 @@ os:
   - linux
 #  - osx
 julia:
-	- 0.7
-	- 1.0
+  - 0.7
+  - 1.0
 notifications:
   email:
     recipients:
       - jonas.isensee@stud.uni-goettingen.de
     on_success: never
     on_failure: always
-
-
