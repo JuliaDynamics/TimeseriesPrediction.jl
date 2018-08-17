@@ -8,7 +8,7 @@ include("system_defs.jl")
     Nx = 50
     Ny = 50
     Tskip = 200
-    Ttrain = 400
+    Ttrain = 350
     p = 20
     T = Tskip + Ttrain + p
     U, V = barkley_const_boundary(T, Nx, Ny)
@@ -43,10 +43,10 @@ include("system_defs.jl")
     end
     @testset "crosspred V → U" begin
         D = 2; B = 2
-        Utrain = U[Tskip + 1:Tskip + Ttrain]
-        Vtrain = V[Tskip + 1:Tskip + Ttrain]
-        Utest  = U[Tskip + Ttrain - (D-1)τ + 1:  T]
-        Vtest  = V[Tskip + Ttrain - (D-1)τ + 1:  T]
+        Utrain = @view U[Tskip + 1:Tskip + Ttrain]
+        Vtrain = @view V[Tskip + 1:Tskip + Ttrain]
+        Utest  = @view U[Tskip + Ttrain - (D-1)τ + 1:  T]
+        Vtest  = @view V[Tskip + Ttrain - (D-1)τ + 1:  T]
         em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
         R = reconstruct(Vtrain, em)
         tree = KDTree(R[:,1:end-2500])
@@ -60,6 +60,16 @@ include("system_defs.jl")
     end
 end
 @testset "Periodic Barkley" begin
+    Nx = 50
+    Ny = 50
+    Tskip = 200
+    Ttrain = 400
+    p = 20
+    T = Tskip + Ttrain + p
+    τ = 1
+    k = 1
+    BC = ConstantBoundary{20}
+
     @testset "Periodic, D=$D, B=$B" for D=2:3, B=1
         U,V = barkley_periodic_boundary(T, Nx, Ny)
         c = false
