@@ -4,7 +4,7 @@ using Test
 
 include("system_defs.jl")
 
-@testset "Barkley STTS" begin
+@testset "Barkley Const Boundary" begin
     Nx = 50
     Ny = 50
     Tskip = 200
@@ -58,8 +58,9 @@ include("system_defs.jl")
             @test mean(err[i]) < 0.1
         end
     end
-
-    @testset "Periodic, D=$D, B=$B" for D=2:3, B=1:2
+end
+@testset "Periodic Barkley" begin
+    @testset "Periodic, D=$D, B=$B" for D=2:3, B=1
         U,V = barkley_periodic_boundary(T, Nx, Ny)
         c = false
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
@@ -73,7 +74,7 @@ include("system_defs.jl")
         end
     end
 
-    @testset "Periodic diff. inital, D=$D, B=$B" for D=2:3, B=2
+    @testset "Periodic diff. inital, D=$D, B=$B" for D=2, B=2
         Ttrain = 500
         T = Tskip + Ttrain + p
         U,V = barkley_periodic_boundary_nonlin(T, Nx, Ny)
