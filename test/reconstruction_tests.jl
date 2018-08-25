@@ -52,7 +52,7 @@ println("Testing PCA Functions")
     for D=5, τ=1, B=1,k=1
         BC = PeriodicBoundary
         em = SpatioTemporalEmbedding(U,D,τ,B,k,BC)
-        R = TimeseriesPrediction.reconstruct(U, em)
+        R = reconstruct(U, em)
         meanv = mean(mean.(U))
         R .-= meanv
         covmat = Statistics.covzm(R,2)

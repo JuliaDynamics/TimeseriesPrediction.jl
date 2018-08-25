@@ -1,7 +1,9 @@
 using Statistics
 using LinearAlgebra
-export SpatioTemporalEmbedding,reconstruct, STE
-export AbstractBoundaryCondition,PeriodicBoundary,ConstantBoundary
+export SpatioTemporalEmbedding, STE
+export AbstractBoundaryCondition, PeriodicBoundary, ConstantBoundary
+
+import DynamicalSystemsBase: reconstruct
 
 #####################################################################################
 #                 Spatio Temporal Delay Embedding Reconstruction                    #
@@ -182,7 +184,7 @@ end
 
 
 """
-	reconstruct(s, em)
+	reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}}, em)
 Reconstruct the spatial timeseries `s` represented by a `Vector` of `AbstractArray`
 states using the embedding struct `em` of type [`AbstractSpatialEmbedding`](@ref).
 

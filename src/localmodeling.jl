@@ -332,13 +332,13 @@ end
 
 function localmodel_tsp(
     s::AbstractVector, D::Int, τ::T, p::Int; kwargs... ) where {T}
-    localmodel_tsp(DynamicalSystemsBase.reconstruct(s, D, τ), p; kwargs...)[:,D+1]
+    localmodel_tsp(reconstruct(s, D, τ), p; kwargs...)[:,D+1]
 end
 
 function localmodel_tsp(
     ss::AbstractDataset{B}, D::Int, τ::T, p::Int; kwargs...) where {B,T}
     sind = SVector{B, Int}(((D+1)*B - i for i in B-1:-1:0)...)
-    localmodel_tsp(DynamicalSystemsBase.reconstruct(ss, D, τ), p; kwargs...)[:,sind]
+    localmodel_tsp(reconstruct(ss, D, τ), p; kwargs...)[:,sind]
 end
 
 

@@ -23,7 +23,7 @@ s_test  = data[N_train:end,1]
         @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
 
         #Repeat with reconstruction given
-        R = DynamicalSystemsBase.reconstruct(s_train, D, τ)
+        R = reconstruct(s_train, D, τ)
         s_pred = localmodel_tsp(R, p; method=method, ntype=ntype, stepsize=stepsize)[:,D+1]
         @test length(s_pred) == p+1
         @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
@@ -42,7 +42,7 @@ end
         @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
 
         #Repeat with reconstruction given
-        R = DynamicalSystemsBase.reconstruct(s_train, D, τ)
+        R = reconstruct(s_train, D, τ)
         s_pred = localmodel_tsp(R, p; method=method, ntype=ntype, stepsize=stepsize)[:,D+1]
         @test length(s_pred) == p+1
         @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
@@ -60,7 +60,7 @@ end
         @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
 
         #Repeat with reconstruction given
-        R = DynamicalSystemsBase.reconstruct(s_train, D, τ)
+        R = reconstruct(s_train, D, τ)
         s_pred = localmodel_tsp(R, p; method=method, ntype=ntype, stepsize=stepsize)[:,D+1]
         @test length(s_pred) == p+1
         @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
@@ -83,7 +83,7 @@ end
 @testset "Multivariate Input predict" begin
     sm_train = data[1:N_train,SVector(1,2)]
     @testset "D=$D and τ=$τ" for D ∈ [3,4], τ=15
-        R = DynamicalSystemsBase.reconstruct(sm_train,D,τ)
+        R = reconstruct(sm_train,D,τ)
         num_points = 50
         method = AverageLocalModel()
         ntype = FixedMassNeighborhood(2)
@@ -102,7 +102,7 @@ end
 
         D = 3;
         τ=[15 15; 30 29; 45 45]#[14 15; 29 30; 45 47]
-        R = DynamicalSystemsBase.reconstruct(sm_train,D,τ)
+        R = reconstruct(sm_train,D,τ)
         num_points = 25
         method = AverageLocalModel()
         ntype = FixedMassNeighborhood(2)
@@ -121,8 +121,8 @@ end
 @testset "MSE" begin
     @testset "p=$p" for p ∈ [50,100]
         D = 3; τ = 15;
-        R = DynamicalSystemsBase.reconstruct(s_train,D,τ)
-        R_test = DynamicalSystemsBase.reconstruct(s_test[end-D*τ-p-50:end],D,τ)
+        R = reconstruct(s_train,D,τ)
+        R_test = reconstruct(s_test[end-D*τ-p-50:end],D,τ)
         method = AverageLocalModel()
         ntype = FixedMassNeighborhood(2)
         stepsize = 1
