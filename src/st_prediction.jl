@@ -6,7 +6,7 @@ export KDTree
 
 #Return struct
 struct TemporalPrediction{T,Φ}
-    em::AbstractEmbedding
+    em::AbstractSpatialEmbedding
     treetype#::NNTree what's the type here?
     spred::Vector{Array{T,Φ}}
     #fun facts
@@ -15,7 +15,7 @@ struct TemporalPrediction{T,Φ}
   #  prediction_time::Float64
 end
 struct CrossPrediction{T,Φ}
-    em::AbstractEmbedding
+    em::AbstractSpatialEmbedding
     treetype#::NNTree what's the type here?
     pred_in::Vector{Array{T,Φ}}
     pred_out::Vector{Array{T,Φ}}
