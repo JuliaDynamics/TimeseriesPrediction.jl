@@ -36,9 +36,9 @@ end
 function localmodel_stts(s,em,timesteps,R; progress=true, treetype=KDTree, kwargs...)
     #Prepare tree but remove the last reconstructed states first
     progress && println("Creating Tree")
-    L = size(R,2)
+    L = length(R)
     M = get_num_pt(em)
-    tree = treetype(R[:,1:L-M])
+    tree = treetype(R[1:L-M])
 
     localmodel_stts(s,em,timesteps, R, tree; progress=progress, kwargs...)
 end
@@ -71,15 +71,15 @@ end
 cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
 
 function localmodel_stts(   s::AbstractVector{Array{T, Φ}},
-                            em::AbstractEmbedding,
+                            em::AbstractSpatialEmbedding{T,Φ,BC,X},
                             timesteps::Int,
-                            R::AbstractMatrix{T},
+                            R::AbstractDataset{X,T},
                             tree::NNTree;
                             progress=true,
                             method::AbstractLocalModel  = AverageLocalModel(ω_safe),
                             ntype::AbstractNeighborhood = FixedMassNeighborhood(3)
-                        ) where {T, Φ}
-    @assert outdim(em) == size(R,1)
+                        ) where {T, Φ, BC, X}
+    @assert outdim(em) == size(R,2)
     num_pt = get_num_pt(em)
     #New state that will be predicted, allocate once and reuse
     state = similar(s[1])
@@ -93,13 +93,13 @@ function localmodel_stts(   s::AbstractVector{Array{T, Φ}},
 
         #Iterate over queries/ spatial points
         for m=1:num_pt
-            q = @view queries[:,m]
+            q = queries[m]
 
             #Find neighbors
             #Note, not yet compatible with old `neighborhood_and_distances` functions
             idxs,dists = neighbors(q,R,tree,ntype)
 
-            xnn = @view R[:, idxs]
+            xnn = R[idxs]
             #Retrieve ynn
             ynn = map(idxs) do idx
                 #Indices idxs are indices of R. Convert to indices of s
@@ -107,7 +107,6 @@ function localmodel_stts(   s::AbstractVector{Array{T, Φ}},
                 s[t+1][α]
             end
             state[m] = method(q,xnn,ynn,dists)[1]
-            #won't work for lin loc model, needs Vector{SVector}
         end
         push!(spred,copy(state))
     end
@@ -120,14 +119,14 @@ end
 
 function crosspred_stts(    train_out::AbstractVector{<:AbstractArray{T, Φ}},
                             pred_in  ::AbstractVector{<:AbstractArray{T, Φ}},
-                            em::AbstractEmbedding,
-                            R::AbstractMatrix{T},
+                            em::AbstractSpatialEmbedding{T,Φ,BC,X},
+                            R::AbstractDataset{X,T},
                             tree::NNTree;
                             progress=true,
                             method::AbstractLocalModel  = AverageLocalModel(ω_safe),
                             ntype::AbstractNeighborhood = FixedMassNeighborhood(3)
-                        ) where {T, Φ}
-    @assert outdim(em) == size(R,1)
+                        ) where {T, Φ, BC, X}
+    @assert outdim(em) == size(R,2)
     num_pt = get_num_pt(em)
     #New state that will be predicted, allocate once and reuse
     state = similar(train_out[1])
@@ -139,13 +138,13 @@ function crosspred_stts(    train_out::AbstractVector{<:AbstractArray{T, Φ}},
         progress && println("Working on Frame $(n)/$(length(pred_in)-get_τmax(em))")
         #Iterate over queries/ spatial points
         for m=1:num_pt
-            q = @view queries[:,m+(n-1)*num_pt]
+            q = queries[m+(n-1)*num_pt]
 
             #Find neighbors
             #Note, not yet compatible with old `neighborhood_and_distances` functions
             idxs,dists = neighbors(q,R,tree,ntype)
 
-            xnn = @view R[:, idxs]
+            xnn = R[idxs]
             #Retrieve ynn
             ynn = map(idxs) do idx
                 #Indices idxs are indices of R. Convert to indices of s
