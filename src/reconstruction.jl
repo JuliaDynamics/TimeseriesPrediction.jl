@@ -1,5 +1,6 @@
 using Statistics
 using LinearAlgebra
+export AbstractSpatialEmbedding
 export SpatioTemporalEmbedding, STE
 export AbstractBoundaryCondition, PeriodicBoundary, ConstantBoundary
 
@@ -188,8 +189,8 @@ end
 Reconstruct the spatial timeseries `s` represented by a `Vector` of `AbstractArray`
 states using the embedding struct `em` of type [`AbstractSpatialEmbedding`](@ref).
 
-Returns the reconstruction in the form of a `Matrix` where each reconstructed
-state is a column-vector and they are ordered first through linear indexing into each state
+Returns the reconstruction in the form of a [`Dataset`](@ref) where each row is a
+reconstructed state and they are ordered first through linear indexing into each state
 and then incrementing in time.
 """
 function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
@@ -201,15 +202,12 @@ function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
 
 	pt_in_space = CartesianIndices(s[1])
 	lin_idxs    = LinearIndices(s[1])
-	data = Matrix{T}(undef,X,L)
+	data = Vector{SVector{X,T}}(undef,L)
 	recv = zeros(T,X)
-
 	@inbounds for t in 1:timesteps, α in pt_in_space
 		n = (t-1)*num_pt+lin_idxs[α]
-		#recv = view(data,:,n)
 		em(recv,s,t,α)
-		#very odd. data[:,n] .= recv allocates
-		for i=1:X data[i,n] = recv[i] end
+		data[n] = recv
 	end
-	return data
+	return Dataset(data)
 end
