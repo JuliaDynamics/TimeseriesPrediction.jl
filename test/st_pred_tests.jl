@@ -27,16 +27,16 @@ include("system_defs.jl")
         ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]
         @test sum(ε)/M / p < 0.15
     end
-    # @testset "LLM D=$D, B=$B" for D=2:3, B=1:2
-    #     method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.001, 1.)
-    #     em = SpatioTemporalEmbedding(utrain, D, 1, B,1, 10)
-    #     upred = localmodel_stts(utrain,em,p; method=method).spred
-    #
-    #     @test upred[1] == utrain[end]
-    #     @test sum(abs.(utest[2]-upred[2]))/M/p < 0.05
-    #     ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]
-    #     @test sum(ε)/M / p < 0.15
-    # end
+    @testset "LLM D=$D, B=$B" for D=2:3, B=1:2
+        method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.001, 1.)
+        em = SpatioTemporalEmbedding(utrain, D, 1, B,1, ConstantBoundary{10})
+        upred = localmodel_stts(utrain,em,p; method=method).spred
+
+        @test upred[1] == utrain[end]
+        @test sum(abs.(utest[2]-upred[2]))/M/p < 0.05
+        ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]
+        @test sum(ε)/M / p < 0.15
+    end
 end
 
 

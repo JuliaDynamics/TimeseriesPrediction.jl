@@ -135,11 +135,10 @@ LinearLocalModel(ω, (σ) -> mcnames_reg(σ, s_min, s_max))
 function (M::LinearLocalModel)(
     q,
     xnn::Vector{SVector{L,T}},
-    ynn::Vector{SVector{L,T}},
-    dists) where {L,T}
+    ynn::Vector{TT},
+    dists) where {L,T,TT}
 
     @assert length(ynn)>0 "No Nearest Neighbors given"
-    y_pred = zeros(size(ynn[1]))
     k= length(xnn)
     #Weight Function
     dmax = maximum(dists)
@@ -161,11 +160,11 @@ function (M::LinearLocalModel)(
     Xw_inv = V*Sp*U'
     #The following code is meant for 1D ynn values
     #Repeat for all components
-    for i=1:length(ynn[1])
+    y_pred = map(eachindex(ynn[1])) do i
         y = map(ynn->ynn[i], ynn)
         #Coefficient Vector
         ν = Xw_inv * W* y
-        y_pred[i] = y_mean[i] + (q-x_mean)'* ν
+        y_mean[i] + (q-x_mean)'* ν
     end
 
     return y_pred
