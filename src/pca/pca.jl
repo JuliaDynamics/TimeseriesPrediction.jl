@@ -28,7 +28,7 @@ end
 
 ## properties
 
-# indim(M::PCA) = size(M.proj, 1)
+indim(M::PCA) = size(M.proj, 1)
 outdim(M::PCA) = size(M.proj, 2)
 #
 # mean(M::PCA) = fullmean(indim(M), M.mean)
