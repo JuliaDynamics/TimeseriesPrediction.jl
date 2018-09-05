@@ -4,118 +4,106 @@ export localmodel_stts
 export crosspred_stts
 export KDTree
 
-#Return struct
-struct TemporalPrediction{T,Φ}
-    em::AbstractSpatialEmbedding
+###########################################################################################
+#                        Iterated Time Series Prediction                                  #
+###########################################################################################
+
+mutable struct TemporalPrediction{T,Φ,X,BC}
+    em::AbstractSpatialEmbedding{T,Φ,X,BC}
+    method::AbstractLocalModel
+    ntype::AbstractNeighborhood
     treetype#::NNTree what's the type here?
+    timesteps::Int64
+
+    runtimes::Dict{Symbol,Float64}
     spred::Vector{Array{T,Φ}}
-    #fun facts
-  #  runtime::Float64
-  #  reconstruction_time::Float64
-  #  prediction_time::Float64
-end
-struct CrossPrediction{T,Φ}
-    em::AbstractSpatialEmbedding
-    treetype#::NNTree what's the type here?
-    pred_in::Vector{Array{T,Φ}}
-    pred_out::Vector{Array{T,Φ}}
-    #fun facts
-  #  runtime::Float64
-  #  reconstruction_time::Float64
-  #  prediction_time::Float64
 end
 
-function localmodel_stts(s,em,timesteps; progress=true, kwargs...)
 
+
+function localmodel_stts(s,
+    em::AbstractSpatialEmbedding{T,Φ,X,BC},
+    tsteps;
+    ttype=KDTree,
+    method = AverageLocalModel(ω_safe),
+    ntype = FixedMassNeighborhood(3),
+    progress=true) where {T,Φ,X,BC}
+
+    sol = TemporalPrediction{T,Φ,X,BC}(em,method, ntype,ttype,tsteps,Dict{Symbol,Float64}(),Array{T,Φ}[])
+
+    localmodel_stts(sol, s; progress=progress)
+end
+
+function localmodel_stts(sol, s; progress=true)
     progress && println("Reconstructing")
-    R = reconstruct(s,em)
+    sol.runtimes[:recontruct] = @elapsed(
+        R = reconstruct(s,sol.em)
+    )
 
-    localmodel_stts(s,em,timesteps, R; progress=progress, kwargs...)
-end
-
-function localmodel_stts(s,em,timesteps,R; progress=true, treetype=KDTree, kwargs...)
     #Prepare tree but remove the last reconstructed states first
     progress && println("Creating Tree")
     L = length(R)
-    M = get_num_pt(em)
-    tree = treetype(R[1:L-M])
+    M = get_num_pt(sol.em)
 
-    localmodel_stts(s,em,timesteps, R, tree; progress=progress, kwargs...)
+    sol.runtimes[:tree] = @elapsed(
+        tree = sol.treetype(R[1:L-M])
+    )
+    localmodel_stts(sol, s, R, tree; progress=progress)
 end
 
-function working_ts(s,em)
-    L = length(s)
-    τmax = get_τmax(em)
-    return s[L-τmax : L]
-end
 
-function gen_queries(s,em)
-    L = length(s)
-    τmax = get_τmax(em)
-    s_slice = view( s, L-τmax:L)
-    return reconstruct(s_slice, em)
-end
 
-function neighbors(point, R, tree::KDTree, ntype)
-    idxs,dists = knn(tree, point, ntype.K, false)
-    return idxs,dists
-end
-function convert_idx(idx, em)
-    τmax = get_τmax(em)
-    num_pt = get_num_pt(em)
-    t = 1 + (idx-1) ÷ num_pt + get_τmax(em)
-    α = 1 + (idx-1) % num_pt
-    return t,α
-end
-
-cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
-
-function localmodel_stts(   s::AbstractVector{Array{T, Φ}},
-                            em::AbstractSpatialEmbedding{T,Φ,BC,X},
-                            timesteps::Int,
-                            R::AbstractDataset{X,T},
-                            tree::NNTree;
-                            progress=true,
-                            method::AbstractLocalModel  = AverageLocalModel(ω_safe),
-                            ntype::AbstractNeighborhood = FixedMassNeighborhood(3)
-                        ) where {T, Φ, BC, X}
+function localmodel_stts(sol, s, R, tree; progress=true) where {T, Φ, BC, X}
+    em = sol.em
     @assert outdim(em) == size(R,2)
     num_pt = get_num_pt(em)
     #New state that will be predicted, allocate once and reuse
     state = similar(s[1])
 
     #End of timeseries to work with
-    spred = working_ts(s,em)
+    sol.spred = spred = working_ts(s,em)
 
-    for n=1:timesteps
-        progress && println("Working on Frame $(n)/$timesteps")
-        queries = gen_queries(spred, em)
+    sol.runtimes[:prediction] = @elapsed(
+        for n=1:sol.timesteps
+            progress && println("Working on Frame $(n)/$(sol.timesteps)")
+            queries = gen_queries(spred, em)
 
-        #Iterate over queries/ spatial points
-        for m=1:num_pt
-            q = queries[m]
+            #Iterate over queries/ spatial points
+            for m=1:num_pt
+                q = queries[m]
 
-            #Find neighbors
-            #Note, not yet compatible with old `neighborhood_and_distances` functions
-            idxs,dists = neighbors(q,R,tree,ntype)
+                #Find neighbors
+                #Note, not yet compatible with old `neighborhood_and_distances` functions
+                idxs,dists = neighbors(q,R,tree,sol.ntype)
 
-            xnn = R[idxs]
-            #Retrieve ynn
-            ynn = map(idxs) do idx
-                #Indices idxs are indices of R. Convert to indices of s
-                t,α = convert_idx(idx,em)
-                s[t+1][α]
+                xnn = R[idxs]
+                #Retrieve ynn
+                ynn = map(idxs) do idx
+                    #Indices idxs are indices of R. Convert to indices of s
+                    t,α = convert_idx(idx,em)
+                    s[t+1][α]
+                end
+                state[m] = sol.method(q,xnn,ynn,dists)[1]
             end
-            state[m] = method(q,xnn,ynn,dists)[1]
+            push!(spred,copy(state))
         end
-        push!(spred,copy(state))
-    end
-    cut_off_beginning!(spred,em)
+    )
 
-    return TemporalPrediction{T,Φ}(em, typeof(tree), spred) #funfacts runtimes
+    cut_off_beginning!(spred,em)
+    return sol
 end
 
 
+
+struct CrossPrediction{T,Φ}
+    em::AbstractSpatialEmbedding
+    treetype#::NNTree what's the type here?
+    pred_in::Vector{Array{T,Φ}}
+    pred_out::Vector{Array{T,Φ}}
+
+    runtimes::Dict{Symbol,Float64}
+    CrossPrediction{T,Φ}() where {T,Φ} = new()
+end
 
 function crosspred_stts(    train_out::AbstractVector{<:AbstractArray{T, Φ}},
                             pred_in  ::AbstractVector{<:AbstractArray{T, Φ}},
@@ -160,3 +148,32 @@ function crosspred_stts(    train_out::AbstractVector{<:AbstractArray{T, Φ}},
     return CrossPrediction{T,Φ}(em, typeof(tree), pred_in, pred_out)
      #funfacts runtimes
 end
+
+
+
+function working_ts(s,em)
+    L = length(s)
+    τmax = get_τmax(em)
+    return s[L-τmax : L]
+end
+
+function gen_queries(s,em)
+    L = length(s)
+    τmax = get_τmax(em)
+    s_slice = view( s, L-τmax:L)
+    return reconstruct(s_slice, em)
+end
+
+function neighbors(point, R, tree::KDTree, ntype)
+    idxs,dists = knn(tree, point, ntype.K, false)
+    return idxs,dists
+end
+function convert_idx(idx, em)
+    τmax = get_τmax(em)
+    num_pt = get_num_pt(em)
+    t = 1 + (idx-1) ÷ num_pt + get_τmax(em)
+    α = 1 + (idx-1) % num_pt
+    return t,α
+end
+
+cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
