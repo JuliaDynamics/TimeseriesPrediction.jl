@@ -1,4 +1,4 @@
-export CrossPrediction, CrossPrediction
+export CrossPrediction
 
 ###########################################################################################
 #                                  Cross Prediction                                       #

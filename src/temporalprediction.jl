@@ -1,6 +1,6 @@
 using NearestNeighbors
 export KDTree
-export TemporalPrediction, localmodel_stts
+export TemporalPrediction
 
 function working_ts(s,em)
     L = length(s)
@@ -48,7 +48,7 @@ end
 
 
 
-function localmodel_stts(s,
+function TemporalPrediction(s,
     em::AbstractSpatialEmbedding{T,Φ,BC,X},
     tsteps;
     ttype=KDTree,
@@ -58,10 +58,10 @@ function localmodel_stts(s,
 
     sol = TemporalPrediction{T,Φ,BC,X}(em,method, ntype,ttype,tsteps,Dict{Symbol,Float64}(),Array{T,Φ}[])
 
-    localmodel_stts(sol, s; progress=progress)
+    TemporalPrediction(sol, s; progress=progress)
 end
 
-function localmodel_stts(sol, s; progress=true)
+function TemporalPrediction(sol, s; progress=true)
     progress && println("Reconstructing")
     sol.runtimes[:recontruct] = @elapsed(
         R = reconstruct(s,sol.em)
@@ -75,12 +75,12 @@ function localmodel_stts(sol, s; progress=true)
     sol.runtimes[:tree] = @elapsed(
         tree = sol.treetype(R[1:L-M])
     )
-    localmodel_stts(sol, s, R, tree; progress=progress)
+    TemporalPrediction(sol, s, R, tree; progress=progress)
 end
 
 
 
-function localmodel_stts(sol, s, R, tree; progress=true) where {T, Φ, BC, X}
+function TemporalPrediction(sol, s, R, tree; progress=true) where {T, Φ, BC, X}
     em = sol.em
     @assert outdim(em) == size(R,2)
     num_pt = get_num_pt(em)
