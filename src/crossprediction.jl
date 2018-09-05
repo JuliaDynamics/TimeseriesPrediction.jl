@@ -31,14 +31,11 @@ end
 
 function CrossPrediction(sol, train_in, train_out; progress=true)
     progress && println("Reconstructing")
-    sol.runtimes[:recontruct] = @elapsed(
-        R = reconstruct(train_in,sol.em)
-    )
+    @record :recontruct   R = reconstruct(train_in,sol.em)
 
     progress && println("Creating Tree")
-    sol.runtimes[:tree] = @elapsed(
-        tree = sol.treetype(R)
-    )
+    @record :tree         tree = sol.treetype(R)
+
     CrossPrediction(sol, train_out, R, tree; progress=progress)
 end
 
@@ -52,29 +49,26 @@ function CrossPrediction(sol, train_out, R, tree; progress=true)
     queries = reconstruct(sol.pred_in, em)
     sol.pred_out = eltype(train_out)[]
 
-    sol.runtimes[:prediction] = @elapsed(
-        for n=1:length(sol.pred_in)-get_τmax(em)
-            progress && println("Working on Frame $(n)/$(length(sol.pred_in)-get_τmax(em))")
-            #Iterate over queries/ spatial points
-            for m=1:num_pt
-                q = queries[m+(n-1)*num_pt]
+    @record :prediction for n=1:length(sol.pred_in)-get_τmax(em)
+        progress && println("Working on Frame $(n)/$(length(sol.pred_in)-get_τmax(em))")
+        #Iterate over queries/ spatial points
+        for m=1:num_pt
+            q = queries[m+(n-1)*num_pt]
 
-                #Find neighbors
-                #Note, not yet compatible with old `neighborhood_and_distances` functions
-                idxs,dists = neighbors(q,R,tree,sol.ntype)
+            #Find neighbors
+            idxs,dists = neighborhood_and_distances(q,R,tree,sol.ntype)
 
-                xnn = R[idxs]
-                #Retrieve ynn
-                ynn = map(idxs) do idx
-                    #Indices idxs are indices of R. Convert to indices of s
-                    t,α = convert_idx(idx,em)
-                    train_out[t][α]
-                end
-                state[m] = sol.method(q,xnn,ynn,dists)[1]
-                #won't work for lin loc model, needs Vector{SVector}
+            xnn = R[idxs]
+            #Retrieve ynn
+            ynn = map(idxs) do idx
+                #Indices idxs are indices of R. Convert to indices of s
+                t,α = convert_idx(idx,em)
+                train_out[t][α]
             end
-            push!(sol.pred_out,copy(state))
+            state[m] = sol.method(q,xnn,ynn,dists)[1]
+            #won't work for lin loc model, needs Vector{SVector}
         end
-    )
+        push!(sol.pred_out,copy(state))
+    end
     return sol
 end

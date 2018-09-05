@@ -15,10 +15,6 @@ function gen_queries(s,em)
     return reconstruct(s_slice, em)
 end
 
-function neighbors(point, R, tree::KDTree, ntype)
-    idxs,dists = knn(tree, point, ntype.K, false)
-    return idxs,dists
-end
 function convert_idx(idx, em)
     τmax = get_τmax(em)
     num_pt = get_num_pt(em)
@@ -29,7 +25,9 @@ end
 
 cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
 
-
+macro record(name, to_record)
+    return esc(:(sol.runtimes[$name] = @elapsed $to_record))
+end
 
 ###########################################################################################
 #                        Iterated Time Series Prediction                                  #
@@ -56,25 +54,22 @@ function TemporalPrediction(s,
     ntype = FixedMassNeighborhood(3),
     progress=true) where {T,Φ,X,BC}
 
-    sol = TemporalPrediction{T,Φ,BC,X}(em,method, ntype,ttype,tsteps,Dict{Symbol,Float64}(),Array{T,Φ}[])
+    sol = TemporalPrediction{T,Φ,BC,X}(em, method, ntype, ttype, tsteps,
+                                       Dict{Symbol,Float64}(),Array{T,Φ}[])
 
     TemporalPrediction(sol, s; progress=progress)
 end
 
 function TemporalPrediction(sol, s; progress=true)
     progress && println("Reconstructing")
-    sol.runtimes[:recontruct] = @elapsed(
-        R = reconstruct(s,sol.em)
-    )
+    @record :recontruct   R = reconstruct(s,sol.em)
 
     #Prepare tree but remove the last reconstructed states first
     progress && println("Creating Tree")
     L = length(R)
     M = get_num_pt(sol.em)
 
-    sol.runtimes[:tree] = @elapsed(
-        tree = sol.treetype(R[1:L-M])
-    )
+    @record :tree   tree = sol.treetype(R[1:L-M])
     TemporalPrediction(sol, s, R, tree; progress=progress)
 end
 
@@ -90,31 +85,28 @@ function TemporalPrediction(sol, s, R, tree; progress=true) where {T, Φ, BC, X}
     #End of timeseries to work with
     sol.spred = spred = working_ts(s,em)
 
-    sol.runtimes[:prediction] = @elapsed(
-        for n=1:sol.timesteps
-            progress && println("Working on Frame $(n)/$(sol.timesteps)")
-            queries = gen_queries(spred, em)
+    @record :prediction for n=1:sol.timesteps
+        progress && println("Working on Frame $(n)/$(sol.timesteps)")
+        queries = gen_queries(spred, em)
 
-            #Iterate over queries/ spatial points
-            for m=1:num_pt
-                q = queries[m]
+        #Iterate over queries/ spatial points
+        for m=1:num_pt
+            q = queries[m]
 
-                #Find neighbors
-                #Note, not yet compatible with old `neighborhood_and_distances` functions
-                idxs,dists = neighbors(q,R,tree,sol.ntype)
+            #Find neighbors
+            idxs,dists = neighborhood_and_distances(q,R,tree,sol.ntype)
 
-                xnn = R[idxs]
-                #Retrieve ynn
-                ynn = map(idxs) do idx
-                    #Indices idxs are indices of R. Convert to indices of s
-                    t,α = convert_idx(idx,em)
-                    s[t+1][α]
-                end
-                state[m] = sol.method(q,xnn,ynn,dists)[1]
+            xnn = R[idxs]
+            #Retrieve ynn
+            ynn = map(idxs) do idx
+                #Indices idxs are indices of R. Convert to indices of s
+                t,α = convert_idx(idx,em)
+                s[t+1][α]
             end
-            push!(spred,copy(state))
+            state[m] = sol.method(q,xnn,ynn,dists)[1]
         end
-    )
+        push!(spred,copy(state))
+    end
 
     cut_off_beginning!(spred,em)
     return sol
