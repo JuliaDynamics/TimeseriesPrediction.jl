@@ -15,6 +15,7 @@ include("pca/pca.jl")
 include("pca/common.jl")
 include("pcareconstruction.jl")
 
-include("st_prediction.jl")
+include("temporalprediction.jl")
+include("crossprediction.jl")
 include("spatiotemporalsystem.jl")
 end
