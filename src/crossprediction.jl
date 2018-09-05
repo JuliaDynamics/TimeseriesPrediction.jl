@@ -1,4 +1,4 @@
-export CrossPrediction, crosspred_stts
+export CrossPrediction, CrossPrediction
 
 ###########################################################################################
 #                                  Cross Prediction                                       #
@@ -15,7 +15,7 @@ mutable struct CrossPrediction{T,Φ,BC,X}
     pred_out::Vector{Array{T,Φ}}
 end
 
-function crosspred_stts(train_in ::AbstractVector{<:AbstractArray{T, Φ}},
+function CrossPrediction(train_in ::AbstractVector{<:AbstractArray{T, Φ}},
                         train_out::AbstractVector{<:AbstractArray{T, Φ}},
                         pred_in  ::AbstractVector{<:AbstractArray{T, Φ}},
                         em::AbstractSpatialEmbedding{T,Φ,BC,X};
@@ -26,10 +26,10 @@ function crosspred_stts(train_in ::AbstractVector{<:AbstractArray{T, Φ}},
                         ) where {T, Φ, BC, X}
     sol = CrossPrediction{T,Φ,BC,X}(em, method, ntype, treetype, pred_in,
                                     Dict{Symbol,Float64}(), Array{T,Φ}[])
-    crosspred_stts(sol, train_in, train_out; progress=true)
+    CrossPrediction(sol, train_in, train_out; progress=true)
 end
 
-function crosspred_stts(sol, train_in, train_out; progress=true)
+function CrossPrediction(sol, train_in, train_out; progress=true)
     progress && println("Reconstructing")
     sol.runtimes[:recontruct] = @elapsed(
         R = reconstruct(train_in,sol.em)
@@ -39,10 +39,10 @@ function crosspred_stts(sol, train_in, train_out; progress=true)
     sol.runtimes[:tree] = @elapsed(
         tree = sol.treetype(R)
     )
-    crosspred_stts(sol, train_out, R, tree; progress=progress)
+    CrossPrediction(sol, train_out, R, tree; progress=progress)
 end
 
-function crosspred_stts(sol, train_out, R, tree; progress=true)
+function CrossPrediction(sol, train_out, R, tree; progress=true)
     em = sol.em
     @assert outdim(em) == size(R,2)
     num_pt = get_num_pt(em)
