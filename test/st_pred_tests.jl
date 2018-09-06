@@ -20,7 +20,7 @@ include("system_defs.jl")
 
     @testset "ALM D=$D, B=$B" for D=2:3, B=1:2
         em = SpatioTemporalEmbedding(utrain,D,1,B,1,ConstantBoundary{10})
-        upred = TemporalPrediction(utrain,em, p).spred
+        upred = temporalprediction(utrain,em, p).spred
 
         @test upred[1] == utrain[end]
         @test sum(abs.(utest[2]-upred[2]))/M/p < 0.05
@@ -30,7 +30,7 @@ include("system_defs.jl")
     @testset "LLM D=$D, B=$B" for D=2:3, B=1:2
         method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.001, 1.)
         em = SpatioTemporalEmbedding(utrain, D, 1, B,1, ConstantBoundary{10})
-        upred = TemporalPrediction(utrain,em,p; method=method).spred
+        upred = temporalprediction(utrain,em,p; method=method).spred
 
         @test upred[1] == utrain[end]
         @test sum(abs.(utest[2]-upred[2]))/M/p < 0.05
@@ -58,7 +58,7 @@ end
 
     @testset "D=$D, B=$B" for D=2:3, B=1:2
         em = SpatioTemporalEmbedding(utrain,D,1,B,1,ConstantBoundary{10})
-        upred = TemporalPrediction(utrain,em,p).spred
+        upred = temporalprediction(utrain,em,p).spred
 
         @test upred[1] == utrain[end]
         ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]

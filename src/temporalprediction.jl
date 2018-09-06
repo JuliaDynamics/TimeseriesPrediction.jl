@@ -1,6 +1,7 @@
 using NearestNeighbors
+using Parameters
 export KDTree
-export TemporalPrediction
+export temporalprediction
 
 function working_ts(s,em)
     L = length(s)
@@ -25,62 +26,20 @@ end
 
 cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
 
-macro record(name, to_record)
-    return esc(:(sol.runtimes[$name] = @elapsed $to_record))
+@with_kw struct PredictionParameters{T,Φ,BC,X}
+    em::AbstractSpatialEmbedding{T,Φ,BC,X}
+    method::AbstractLocalModel = AverageLocalModel(ω_safe)
+    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)
+    treetype::DataType = KDTree
 end
+
 
 ###########################################################################################
 #                        Iterated Time Series Prediction                                  #
 ###########################################################################################
 
-mutable struct TemporalPrediction{T,Φ,BC,X}
-    em::AbstractSpatialEmbedding{T,Φ,BC,X}
-    method::AbstractLocalModel
-    ntype::AbstractNeighborhood
-    treetype#::NNTree what's the type here?
-    timesteps::Int64
 
-    runtimes::Dict{Symbol,Float64}
-    spred::Vector{Array{T,Φ}}
-end
-TemporalPrediction(em::ASE{T,Φ}, method, ntype, ttype, tsteps) where {T,Φ} =
-TemporalPrediction(em, method, ntype, ttype, tsteps, Dict{Symbol,Float64}(),Array{T,Φ}[])
-
-
-"""
-    TemporalPrediction(U, em::AbstractSpatialEmbedding, tsteps; kwargs...)
-Perform a spatio-temporal time series prediction for `tsteps` iterations,
-using local weighted modeling [1] give a time series of the form
-`U::AbstractVector{<:AbstractArray{T, Φ}}`. The function returns a
-solution struct with the prediction `spred` of the same type as `U`.
-
-The returned data always contains the final state of `U` as starting point
-(total returned length is `tsteps+1`).
-The reconstruction process is defined by `em`.
-For available methods and interfaces see [`AbstractSpatialEmbedding`](@ref)
-## Keyword Arguments
-  * `ttype = KDTree` : Type/Constructor of tree structure. So far only tested with `KDTree`.
-  * `method = AverageLocalModel(ω_safe)` : Subtype of [`AbstractLocalModel`](@ref).
-  * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
-  * `printprogress = true` : To print progress done.
-## Description
-This method works similarly to [`localmodel_tsp`](@ref), by expanding the concept
-of delay embedding to spatially extended systems. Instead of reconstructing
-complete states of the system, local states are used. This implicitely assumes
-a finite speed `c` at which information travels within the system as well as a
-sufficiently fine spatial and temporal sampling such that
-``\\frac{\\Delta x}{\\Delta t}\\sim c``.
-See [`AbstractSpatialEmbeddingn`](@ref) for details on the embedding.
-Predictions are then performed frame by frame and point py point. Once all values for a new
-frame are found, the frame is added to the end of the timeseries and used to generate
-new prediction queries for the next time step.
-## Performance Notes
-Be careful when choosing embedding parameters as memory usage and computation time
-depend strongly on the resulting embedding dimension.
-## References
-[1] : U. Parlitz & C. Merkwirth, [Phys. Rev. Lett. **84**, pp 1890 (2000)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890)
-"""
-function TemporalPrediction(s,
+function temporalprediction(s,
     em::AbstractSpatialEmbedding{T,Φ},
     tsteps;
     ttype=KDTree,
@@ -88,36 +47,36 @@ function TemporalPrediction(s,
     ntype = FixedMassNeighborhood(3),
     progress=true) where {T,Φ}
 
-    prelim_sol = TemporalPrediction(em, method, ntype, ttype, tsteps)
-    return TemporalPrediction(prelim_sol, s; progress=progress)
+    params = PredictionParameters(em, method, ntype, ttype)
+    return temporalprediction(params, s, tsteps; progress=progress)
 end
 
-function TemporalPrediction(sol, s; progress=true)
+function temporalprediction(params, s, tsteps; progress=true)
     progress && println("Reconstructing")
-    @record :recontruct   R = reconstruct(s,sol.em)
+    R = reconstruct(s,params.em)
 
     #Prepare tree but remove the last reconstructed states first
     progress && println("Creating Tree")
     L = length(R)
-    M = get_num_pt(sol.em)
+    M = get_num_pt(params.em)
 
-    @record :tree   tree = sol.treetype(R[1:L-M])
-    TemporalPrediction(sol, s, R, tree; progress=progress)
+    tree = params.treetype(R[1:L-M])
+    temporalprediction(params, s, tsteps, R, tree; progress=progress)
 end
 
 
 
-function TemporalPrediction(sol, s, R, tree; progress=true) where {T, Φ, BC, X}
-    em = sol.em
+function temporalprediction(params, s,tsteps, R, tree; progress=true) where {T, Φ, BC, X}
+    em = params.em
     @assert outdim(em) == size(R,2)
     num_pt = get_num_pt(em)
     #New state that will be predicted, allocate once and reuse
     state = similar(s[1])
 
     #End of timeseries to work with
-    sol.spred = spred = working_ts(s,em)
+    spred = working_ts(s,em)
 
-    @record :prediction for n=1:sol.timesteps
+    for n=1:sol.timesteps
         progress && println("Working on Frame $(n)/$(sol.timesteps)")
         queries = gen_queries(spred, em)
 
@@ -126,7 +85,7 @@ function TemporalPrediction(sol, s, R, tree; progress=true) where {T, Φ, BC, X}
             q = queries[m]
 
             #Find neighbors
-            idxs,dists = neighborhood_and_distances(q,R,tree,sol.ntype)
+            idxs,dists = neighborhood_and_distances(q,R,tree,params.ntype)
 
             xnn = R[idxs]
             #Retrieve ynn
@@ -135,11 +94,11 @@ function TemporalPrediction(sol, s, R, tree; progress=true) where {T, Φ, BC, X}
                 t,α = convert_idx(idx,em)
                 s[t+1][α]
             end
-            state[m] = sol.method(q,xnn,ynn,dists)[1]
+            state[m] = params.method(q,xnn,ynn,dists)[1]
         end
         push!(spred,copy(state))
     end
 
     cut_off_beginning!(spred,em)
-    return sol
+    return spred
 end

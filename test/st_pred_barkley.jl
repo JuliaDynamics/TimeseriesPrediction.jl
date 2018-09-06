@@ -22,7 +22,7 @@ include("system_defs.jl")
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Vtest  = V[Tskip + Ttrain :  T]
         em = SpatioTemporalEmbedding(Vtrain,D,τ,B,k,BC)
-        Vpred = TemporalPrediction(Vtrain,em,p).spred
+        Vpred = temporalprediction(Vtrain,em,p).spred
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
         for i in 1:p
@@ -34,7 +34,7 @@ include("system_defs.jl")
         Utrain = U[Tskip + 1:Tskip + Ttrain]
         Utest  = U[Tskip + Ttrain :  T]
         em = SpatioTemporalEmbedding(Utrain,D,τ,B,k,BC)
-        Upred = TemporalPrediction(Utrain,em,p).spred
+        Upred = temporalprediction(Utrain,em,p).spred
         @test Upred[1] == Utrain[end]
         err = [abs.(Utest[i]-Upred[i]) for i=1:p+1]
         for i in 1:p
@@ -48,7 +48,7 @@ include("system_defs.jl")
         Utest  = U[Tskip + Ttrain - (D-1)τ + 1:  T]
         Vtest  = V[Tskip + Ttrain - (D-1)τ + 1:  T]
         em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
-        Upred = CrossPrediction(Vtrain,Utrain,Vtest, em).pred_out
+        Upred = crossprediction(Vtrain,Utrain,Vtest, em).pred_out
         err = [abs.(Utest[1+(D-1)τ:end][i]-Upred[i]) for i=1:p-1]
         for i in 1:length(err)
             #@test maximum(err[i]) < 0.2 #difficult errors have peaks especially with
@@ -74,7 +74,7 @@ end
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Vtest  = V[Tskip + Ttrain :  T]
         em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
-        Vpred = TemporalPrediction(Vtrain, em, p).spred
+        Vpred = temporalprediction(Vtrain, em, p).spred
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
         for i in 1:p
@@ -91,7 +91,7 @@ end
             Vtrain = V[Tskip + 1:Tskip + Ttrain]
             Vtest  = V[Tskip + Ttrain :  T]
             em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
-            Vpred = TemporalPrediction(Vtrain, em, p).spred
+            Vpred = temporalprediction(Vtrain, em, p).spred
             @test Vpred[1] == Vtrain[end]
             err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
             for i in 1:p
@@ -107,7 +107,7 @@ end
             Vtrain = V[Tskip + 1:Tskip + Ttrain]
             Vtest  = V[Tskip + Ttrain :  T]
             em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
-            Vpred = TemporalPrediction(Vtrain, em, p).spred
+            Vpred = temporalprediction(Vtrain, em, p).spred
             @test Vpred[1] == Vtrain[end]
             err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
             for i in 1:p
