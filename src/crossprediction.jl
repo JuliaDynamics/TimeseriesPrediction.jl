@@ -13,6 +13,10 @@ mutable struct CrossPrediction{T,Φ,BC,X}
 
     runtimes::Dict{Symbol,Float64}
     pred_out::Vector{Array{T,Φ}}
+    CrossPrediction{T,Φ,BC,X}(em::ASE{T,Φ,BC,X}, method, ntype, ttype, pred_in
+                                ) where {T,Φ,BC,X} =
+                                new(em, method, ntype, ttype, pred_in,
+                                Dict{Symbol,Float64}(), Array{T,Φ}[])
 end
 
 function CrossPrediction(train_in ::AbstractVector{<:AbstractArray{T, Φ}},
@@ -20,6 +24,8 @@ function CrossPrediction(train_in ::AbstractVector{<:AbstractArray{T, Φ}},
                         pred_in  ::AbstractVector{<:AbstractArray{T, Φ}},
                         em::AbstractSpatialEmbedding{T,Φ,BC,X};
                         treetype = KDTree,
+                        em::AbstractSpatialEmbedding{T,Φ};
+                        ttype = KDTree,
                         method::AbstractLocalModel  = AverageLocalModel(ω_safe),
                         ntype::AbstractNeighborhood = FixedMassNeighborhood(3),
                         progress=true
@@ -27,6 +33,9 @@ function CrossPrediction(train_in ::AbstractVector{<:AbstractArray{T, Φ}},
     sol = CrossPrediction{T,Φ,BC,X}(em, method, ntype, treetype, pred_in,
                                     Dict{Symbol,Float64}(), Array{T,Φ}[])
     CrossPrediction(sol, train_in, train_out; progress=true)
+                        ) where {T, Φ}
+    prelim_sol = CrossPrediction(em, method, ntype, ttype, pred_in)
+    CrossPrediction(prelim_sol, train_in, train_out; progress=true)
 end
 
 function CrossPrediction(sol, train_in, train_out; progress=true)

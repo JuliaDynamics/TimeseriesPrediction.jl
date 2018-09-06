@@ -42,22 +42,24 @@ mutable struct TemporalPrediction{T,Φ,BC,X}
 
     runtimes::Dict{Symbol,Float64}
     spred::Vector{Array{T,Φ}}
+    TemporalPrediction{T,Φ,BC,X}(em::ASE{T,Φ,BC,X}, method, ntype, ttype, tsteps
+                                    ) where {T,Φ,BC,X} =
+                                    new(em, method, ntype, ttype, tsteps,
+                                    Dict{Symbol,Float64}(),Array{T,Φ}[])
 end
 
 
 
 function TemporalPrediction(s,
-    em::AbstractSpatialEmbedding{T,Φ,BC,X},
+    em::AbstractSpatialEmbedding{T,Φ},
     tsteps;
     ttype=KDTree,
     method = AverageLocalModel(ω_safe),
     ntype = FixedMassNeighborhood(3),
-    progress=true) where {T,Φ,X,BC}
+    progress=true) where {T,Φ}
 
-    sol = TemporalPrediction{T,Φ,BC,X}(em, method, ntype, ttype, tsteps,
-                                       Dict{Symbol,Float64}(),Array{T,Φ}[])
-
-    TemporalPrediction(sol, s; progress=progress)
+    prelim_sol = TemporalPrediction(em, method, ntype, ttype, tsteps)
+    return TemporalPrediction(prelim_sol, s; progress=progress)
 end
 
 function TemporalPrediction(sol, s; progress=true)
