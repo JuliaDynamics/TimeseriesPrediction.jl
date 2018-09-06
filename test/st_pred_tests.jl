@@ -1,12 +1,12 @@
 using TimeseriesPrediction
 using Test
-
+import Random: MersenneTwister
 
 include("system_defs.jl")
 
 @testset "Coupled Henon 1D" begin
     M = 100
-    ds = coupled_henon1D(M)
+    ds = coupled_henon1D(M,rand(MersenneTwister(42), M,2))
     N_train = 2000
     p = 5
     data = trajectory(ds,N_train+p)
@@ -44,7 +44,7 @@ end
     #Size
     X=5
     Y=5
-    ds = coupled_henon2D(X,Y)
+    ds = coupled_henon2D(X,Y, rand(MersenneTwister(42), X,Y,2))
     N_train = 1000
     p = 5
     data = trajectory(ds,N_train+p)

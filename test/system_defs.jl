@@ -1,4 +1,4 @@
-function coupled_henon1D(M)
+function coupled_henon1D(M, u0=rand(M,2))
     function henon(du, u, p, t)
         du[1,1] = du[M,1] = 0.5
         du[1,2] = du[M,2] = 0
@@ -8,10 +8,10 @@ function coupled_henon1D(M)
         end
         return nothing
     end
-    return SpatioTemporalSystem(henon,rand(M,2), nothing; t0=0)
+    return SpatioTemporalSystem(henon,u0, nothing; t0=0)
 end
 
-function coupled_henon2D(X,Y)
+function coupled_henon2D(X,Y,u0=rand(X,Y,2))
     function henon(du, u, p, t)
         du[1,:,1] = du[:,1,1] = du[X, :, 1] = du[:, Y, 1] .= 0.5
         du[1,:,2] = du[:,1,2] = du[X, :, 2] = du[:, Y ,2] .= 0
@@ -22,7 +22,7 @@ function coupled_henon2D(X,Y)
         end
         return nothing
     end
-    return SpatioTemporalSystem(henon,rand(X,Y,2), nothing; t0=0)
+    return SpatioTemporalSystem(henon,u0, nothing; t0=0)
 end
 
 
