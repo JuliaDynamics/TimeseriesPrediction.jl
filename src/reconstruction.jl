@@ -15,7 +15,7 @@ Super-type of spatiotemporal embedding methods.
 Use `subtypes(AbstractSpatialEmbedding)` for available methods.
 """
 abstract type AbstractSpatialEmbedding{T,Φ,BC,X} <: AbstractEmbedding end
-
+const ASE = AbstractSpatialEmbedding
 """
     AbstractBoundaryCondition
 Super-type of boundary conditions for [`SpatioTemporalEmbedding`](@ref).
@@ -73,7 +73,6 @@ function inner_region(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
 	return Region{Φ}((mini...,), (maxi...,))
 end
 
-#TODO: Not pretty, not good, make better
 function project_inside(α::CartesianIndex{Φ}, r::Region{Φ}) where Φ
 	CartesianIndex(mod.(α.I .-1, r.maxi).+1)
 end
