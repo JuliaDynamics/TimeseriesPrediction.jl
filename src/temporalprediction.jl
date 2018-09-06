@@ -42,11 +42,9 @@ mutable struct TemporalPrediction{T,Φ,BC,X}
 
     runtimes::Dict{Symbol,Float64}
     spred::Vector{Array{T,Φ}}
-    TemporalPrediction{T,Φ,BC,X}(em::ASE{T,Φ,BC,X}, method, ntype, ttype, tsteps
-                                    ) where {T,Φ,BC,X} =
-                                    new(em, method, ntype, ttype, tsteps,
-                                    Dict{Symbol,Float64}(),Array{T,Φ}[])
 end
+TemporalPrediction(em::ASE{T,Φ}, method, ntype, ttype, tsteps) where {T,Φ} =
+TemporalPrediction(em, method, ntype, ttype, tsteps, Dict{Symbol,Float64}(),Array{T,Φ}[])
 
 
 """

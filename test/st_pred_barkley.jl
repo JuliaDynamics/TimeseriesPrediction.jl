@@ -43,10 +43,10 @@ include("system_defs.jl")
     end
     @testset "crosspred V → U" begin
         D = 2; B = 2
-        Utrain = @view U[Tskip + 1:Tskip + Ttrain]
-        Vtrain = @view V[Tskip + 1:Tskip + Ttrain]
-        Utest  = @view U[Tskip + Ttrain - (D-1)τ + 1:  T]
-        Vtest  = @view V[Tskip + Ttrain - (D-1)τ + 1:  T]
+        Utrain = U[Tskip + 1:Tskip + Ttrain]
+        Vtrain = V[Tskip + 1:Tskip + Ttrain]
+        Utest  = U[Tskip + Ttrain - (D-1)τ + 1:  T]
+        Vtest  = V[Tskip + Ttrain - (D-1)τ + 1:  T]
         em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
         Upred = CrossPrediction(Vtrain,Utrain,Vtest, em).pred_out
         err = [abs.(Utest[1+(D-1)τ:end][i]-Upred[i]) for i=1:p-1]

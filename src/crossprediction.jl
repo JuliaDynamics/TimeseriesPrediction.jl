@@ -13,11 +13,9 @@ mutable struct CrossPrediction{T,Φ,BC,X}
 
     runtimes::Dict{Symbol,Float64}
     pred_out::Vector{Array{T,Φ}}
-    CrossPrediction{T,Φ,BC,X}(em::ASE{T,Φ,BC,X}, method, ntype, ttype, pred_in
-                                ) where {T,Φ,BC,X} =
-                                new(em, method, ntype, ttype, pred_in,
-                                Dict{Symbol,Float64}(), Array{T,Φ}[])
 end
+CrossPrediction(em::ASE{T,Φ}, method, ntype, ttype, pred_in) where {T,Φ} =
+CrossPrediction(em, method, ntype, ttype, pred_in, Dict{Symbol,Float64}(), Array{T,Φ}[])
 
 """
     CrossPrediction(source_train, target_train, source_pred,
