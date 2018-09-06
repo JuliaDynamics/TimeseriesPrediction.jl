@@ -2,6 +2,7 @@ using NearestNeighbors
 using Parameters
 export KDTree
 export temporalprediction
+export PredictionParameters
 
 function working_ts(s,em)
     L = length(s)
