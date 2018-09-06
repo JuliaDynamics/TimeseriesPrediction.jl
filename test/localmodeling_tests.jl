@@ -39,13 +39,13 @@ end
         s_pred = localmodel_tsp(s_train, D, τ, p;
         method=method, ntype=ntype, stepsize=stepsize)
         @test length(s_pred) == p+1
-        @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
+        @test norm(s_test[1:p+1] - s_pred)/p < 6e-2
 
         #Repeat with reconstruction given
         R = reconstruct(s_train, D, τ)
         s_pred = localmodel_tsp(R, p; method=method, ntype=ntype, stepsize=stepsize)[:,D+1]
         @test length(s_pred) == p+1
-        @test norm(s_test[1:p+1] - s_pred)/p < 5e-2
+        @test norm(s_test[1:p+1] - s_pred)/p < 6e-2
     end
 end
 @testset "LinearLocalModel McNames Reg" begin
