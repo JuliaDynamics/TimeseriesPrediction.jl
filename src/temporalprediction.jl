@@ -30,7 +30,7 @@ cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
     em::AbstractSpatialEmbedding{T,Φ,BC,X}
     method::AbstractLocalModel = AverageLocalModel(ω_safe)
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3)
-    treetype::DataType = KDTree
+    treetype = KDTree
 end
 
 
@@ -76,8 +76,8 @@ function temporalprediction(params, s,tsteps, R, tree; progress=true) where {T, 
     #End of timeseries to work with
     spred = working_ts(s,em)
 
-    for n=1:sol.timesteps
-        progress && println("Working on Frame $(n)/$(sol.timesteps)")
+    for n=1:tsteps
+        progress && println("Working on Frame $(n)/$(tsteps)")
         queries = gen_queries(spred, em)
 
         #Iterate over queries/ spatial points

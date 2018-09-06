@@ -18,7 +18,7 @@ function crossprediction(train_in ::AbstractVector{<:AbstractArray{T, Φ}},
     crossprediction(params, train_in, train_out, pred_in; progress=true)
 end
 
-function crossprediction(params, train_in, train_out,pred_in; progress=true)
+function crossprediction(params, train_in, train_out, pred_in; progress=true)
     progress && println("Reconstructing")
     R = reconstruct(train_in,params.em)
 
