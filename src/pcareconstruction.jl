@@ -19,7 +19,7 @@ get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)
 
 get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,PeriodicBoundary,X}) where {T,Φ,X} =
 			CartesianIndices(em.whole)
-get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,ConstantBoundary,X}) where {T,Φ,X} =
+get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,ConstantBoundary{C},X}) where {T,Φ,C,X} =
 			CartesianIndices(em.inner)
 
 outdim(em::PCAEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X

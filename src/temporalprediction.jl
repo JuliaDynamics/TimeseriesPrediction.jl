@@ -27,7 +27,7 @@ end
 
 cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
 
-@with_kw struct PredictionParameters{T,Φ,BC,X}
+@with_kw_noshow struct PredictionParameters{T,Φ,BC,X}
     em::AbstractSpatialEmbedding{T,Φ,BC,X}
     method::AbstractLocalModel = AverageLocalModel(ω_safe)
     ntype::AbstractNeighborhood = FixedMassNeighborhood(3)
