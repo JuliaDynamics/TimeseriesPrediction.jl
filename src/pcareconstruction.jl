@@ -1,8 +1,28 @@
 export PCAEmbedding
 
+"""
+	 PCAEmbedding <: AbstractSpatialEmbedding
+	 PCAEmbedding(s, em::SpatioTemporalEmbedding) → `embedding`
+A spatio temporal delay coordinates structure with
+Principal Component Analysis as a means of dimension reduction to be used as a functor.
+```julia
+	embedding(rvec, s, t, α)
+```
+Operates inplace on `rvec` and reconstructs vector from spatial time series `s` at
+timestep `t` and cartesian index `α`.
 
+Takes a [`SpatioTemporalEmbedding`](@ref) and computes PCA on the time series `s`.
+
+## Keyword Arguments
+ * `pratio = 0.99` : Ratio of variances that needs to be preserved in low-dim reconstruction
+ * `maxoutdim = 25`: Upper limit for output dimension. May break `pratio` criterion
+ * `every = 1` : Speed up computation by only using every nth point. (linear indexing in space and time)
+
+To set the output dimension to a certain value `X`, pass `pratio=1, maxoutdim=X`.
+"""
 struct PCAEmbedding{T,Φ,BC,X,Y} <: AbstractSpatialEmbedding{T,Φ,BC,X}
 	stem::SpatioTemporalEmbedding{T,Φ,BC,Y}
+	#This could be relaxed to AbstractSpatialEmbedding but I don't see a point in that
 	meanv::T
 	covmat::Matrix{T}
 	drmodel::PCA{T}
