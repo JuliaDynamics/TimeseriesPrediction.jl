@@ -12,7 +12,6 @@ include("localmodeling.jl")
 include("reconstruction.jl")
 
 include("pca/pca.jl")
-include("pca/common.jl")
 include("pcareconstruction.jl")
 
 include("temporalprediction.jl")
