@@ -16,7 +16,7 @@ include("system_defs.jl")
 
     τ = 1
     k = 1
-    BC = ConstantBoundary{20}
+    BC = ConstantBoundary(20.)
 
     @testset "V, D=$D, B=$B" for D=2, B=1
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
@@ -66,11 +66,9 @@ end
     T = Tskip + Ttrain + p
     τ = 1
     k = 1
-    BC = ConstantBoundary{20}
-
+    BC = PeriodicBoundary()
     @testset "Periodic, D=$D, B=$B" for D=2:3, B=1
         U,V = barkley_periodic_boundary(T, Nx, Ny)
-        c = false
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Vtest  = V[Tskip + Ttrain :  T]
         em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
@@ -87,7 +85,6 @@ end
             Ttrain = 500
             T = Tskip + Ttrain + p
             U,V = barkley_periodic_boundary_nonlin(T, Nx, Ny)
-            BC = PeriodicBoundary
             Vtrain = V[Tskip + 1:Tskip + Ttrain]
             Vtest  = V[Tskip + Ttrain :  T]
             em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
@@ -103,7 +100,6 @@ end
             Ttrain = 500
             T = Tskip + Ttrain + p
             U,V = barkley_periodic_boundary_nonlin(T, Nx, Ny)
-            BC = PeriodicBoundary
             Vtrain = V[Tskip + 1:Tskip + Ttrain]
             Vtest  = V[Tskip + Ttrain :  T]
             em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)

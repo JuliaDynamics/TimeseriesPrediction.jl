@@ -1,5 +1,5 @@
 using NearestNeighbors
-using Parameters
+import Parameters.@with_kw_noshow
 export KDTree
 export temporalprediction
 export PredictionParameters

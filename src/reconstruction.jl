@@ -24,17 +24,19 @@ Use `subtypes(AbstractBoundaryCondition)` for available methods.
 abstract type AbstractBoundaryCondition end
 
 """
-	ConstantBoundary{C}
+	ConstantBoundary(C)
 Constant boundary condition type. Enforces constant boundary conditions
 when passed to [`SpatioTemporalEmbedding`](@ref)
 by filling missing out-of-bounds values in the reconstruction with
-type parameter `C`
+parameter `C`.
 """
-struct ConstantBoundary{C} <: AbstractBoundaryCondition end
+struct ConstantBoundary{T} <: AbstractBoundaryCondition
+    C::T
+end
 
 """
 	PeriodicBoundary
-Periodic boundary condition type. Enforces periodic boundary conditions
+Periodic boundary condition struct. Enforces periodic boundary conditions
 when passed to [`SpatioTemporalEmbedding`](@ref) in the reconstruction.
 """
 struct PeriodicBoundary    <: AbstractBoundaryCondition end
@@ -110,20 +112,23 @@ struct SpatioTemporalEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X}
 	β::Vector{CartesianIndex{Φ}}
 	inner::Region{Φ}  #inner field far from boundary
 	whole::Region{Φ}
+    boundary::BC
 
-	function SpatioTemporalEmbedding{T,Φ,BC,X}(τ,β,fsize) where {T,Φ,BC,X}
+	function SpatioTemporalEmbedding{T,Φ,BC,X}(τ,β,bc,fsize) where {T,Φ,BC,X}
 		inner = inner_region(β, fsize)
 		whole = Region((ones(Int,Φ)...,), fsize)
-		return new{T,Φ,BC,X}(τ,β,inner,whole)
+		return new{T,Φ,BC,X}(τ,β,inner,whole, bc)
 	end
 end
 const STE = SpatioTemporalEmbedding
 
 function SpatioTemporalEmbedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
-		D, τ, B, k, ::Type{BC}
+		D, τ, B, k, boundary::BC
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
 	@assert issorted(τ) "Delays need to be sorted in ascending order"
+    #"ConstantBoundary condition value C needs to be the same type as values in s"
+    @assert BC <: PeriodicBoundary || typeof(boundary.C) == T "typeof(boundary.C) == eltype(s[1])"
 	X = (D+1)*(2B+1)^Φ
 	τs = Vector{Int}(undef,X)
 	βs = Vector{CartesianIndex{Φ}}(undef,X)
@@ -133,20 +138,20 @@ function SpatioTemporalEmbedding(
 		βs[n] = CartesianIndex(α)
 		n +=1
 	end
-	return SpatioTemporalEmbedding{T,Φ,BC,X}(τs, βs, size(s[1]))
+	return SpatioTemporalEmbedding{T,Φ,BC,X}(τs, βs, boundary, size(s[1]))
 end
 
 
 
 #This function is not safe. If you call it directly with bad params - can fail
-function (r::SpatioTemporalEmbedding{T,Φ,ConstantBoundary{C},X})(rvec,s,t,α) where {T,Φ,C,X}
+function (r::SpatioTemporalEmbedding{T,Φ,ConstantBoundary{T},X})(rvec,s,t,α) where {T,Φ,X}
 	if α in r.inner
 		@inbounds for n=1:X
 			rvec[n] = s[ t + r.τ[n] ][ α + r.β[n] ]
 		end
 	else
 		@inbounds for n=1:X
-			rvec[n] = α + r.β[n] in r.whole ? s[ t+r.τ[n] ][ α+r.β[n] ] : C
+			rvec[n] = α + r.β[n] in r.whole ? s[ t+r.τ[n] ][ α+r.β[n] ] : r.boundary.C
 		end
 	end
 	return nothing
