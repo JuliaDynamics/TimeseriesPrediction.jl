@@ -61,7 +61,7 @@ println("Testing PCA Functions")
         #Compare cov matrices
         @test norm(pcaem.covmat-covmat) < 1e-2
         #Compare Outdim
-        drmodel = fit(PCA,R; mean=0)
+        drmodel = TimeseriesPrediction.fit(PCA,R; mean=0)
         @test outdim(drmodel) == outdim(pcaem.drmodel)
         #Compare singular values
         @test all(isapprox.(TimeseriesPrediction.principalvars(drmodel), TimeseriesPrediction.principalvars(pcaem.drmodel), atol=0.1))

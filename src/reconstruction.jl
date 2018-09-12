@@ -2,6 +2,7 @@ using Statistics
 using LinearAlgebra
 export AbstractSpatialEmbedding
 export SpatioTemporalEmbedding, STE
+export outdim
 export AbstractBoundaryCondition, PeriodicBoundary, ConstantBoundary
 
 import DynamicalSystemsBase: reconstruct
@@ -101,7 +102,7 @@ Note that this is a forward embedding and `τ` needs to be sorted in ascending o
 The most recent values in the reconstruction are located at the end of each vector.
 
 A simpler constructor for convenience
-    
+
 	SpatioTemporalEmbedding(s, D, τ, B, k, ::Type{<:AbstractBoundaryCondition})
 Takes as arguments the spatial timeseries `s` and reconstructs
 `B` spatial shells separated by `k` points around each point
