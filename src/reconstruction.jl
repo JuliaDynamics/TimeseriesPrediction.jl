@@ -81,17 +81,14 @@ end
 	 SpatioTemporalEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X} → `embedding`
 A spatio temporal delay coordinates structure to be used as a functor.
 
-```julia
 	embedding(rvec, s, t, α)
-```
 Operates inplace on `rvec` and reconstructs vector from spatial timeseries `s` at
 timestep `t` and cartesian index `α`.
 
 ## Constructors
 The structure can be created directly by calling
-```julia
+
 	SpatioTemporalEmbedding{T,Φ,BC,X}(τ,β,fsize)
-```
 where `T` is the `eltype` of the timeseries, `Φ` the spatial dimension of the system,
 `BC` the boundary condition type and `X` the length of reconstructed vectors.
 Arguments `τ` and `β` are Vectors of `Int` and `CartesianIndex` that contain
@@ -102,9 +99,8 @@ Note that this is a forward embedding and `τ` needs to be sorted in ascending o
 The most recent values in the reconstruction are located at the end of each vector.
 
 A simpler constructor for convenience
-```julia
+    
 	SpatioTemporalEmbedding(s, D, τ, B, k, ::Type{<:AbstractBoundaryCondition})
-```
 Takes as arguments the spatial timeseries `s` and reconstructs
 `B` spatial shells separated by `k` points around each point
 and repeats this for `D` past timesteps separated by `τ` each.

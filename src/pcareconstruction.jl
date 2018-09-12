@@ -5,9 +5,8 @@ export PCAEmbedding
 	 PCAEmbedding(s, em::SpatioTemporalEmbedding) → `embedding`
 A spatio temporal delay coordinates structure with
 Principal Component Analysis as a means of dimension reduction to be used as a functor.
-```julia
+
 	embedding(rvec, s, t, α)
-```
 Operates inplace on `rvec` and reconstructs vector from spatial time series `s` at
 timestep `t` and cartesian index `α`.
 
