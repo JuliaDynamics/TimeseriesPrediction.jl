@@ -1,7 +1,26 @@
-using Printf, Statistics
+using Statistics
+using LinearAlgebra
 
-export fit,PCA, transform, outdim
-#export tprincipalvar, principalvars, principalvar
+export PCA
+
+
+
+preprocess_mean(X::AbstractMatrix{T}, m) where {T<:AbstractFloat} =
+  (m == nothing ? vec(Statistics.mean(X, dims=2)) : m == 0 ? T[] : m)::Vector{T}
+
+# choose the first k values and columns
+#
+# S must have fields: values & vectors
+
+function extract_kv(fac::Factorization{T}, ord::AbstractVector{Int}, k::Int
+	) where {T}
+    si = ord[1:k]
+    vals = fac.values[si]::Vector{T}
+    vecs = fac.vectors[:, si]::Matrix{T}
+    return (vals, vecs)
+end
+
+
 #### PCA type
 
 mutable struct PCA{T<:AbstractFloat}
@@ -30,48 +49,17 @@ end
 
 indim(M::PCA) = size(M.proj, 1)
 outdim(M::PCA) = size(M.proj, 2)
-#
-# mean(M::PCA) = fullmean(indim(M), M.mean)
-#
-# projection(M::PCA) = M.proj
 
 principalvar(M::PCA, i::Int) = M.prinvars[i]
 principalvars(M::PCA) = M.prinvars
-
-tprincipalvar(M::PCA) = M.tprinvar
-tresidualvar(M::PCA) = M.tvar - M.tprinvar
-tvar(M::PCA) = M.tvar
-
 principalratio(M::PCA) = M.tprinvar / M.tvar
 
-## use
-
-# transform(M::PCA{T}, x::AbstractVecOrMat{T}) where {T<:AbstractFloat} =
-# 	transpose(M.proj) * centralize(x, M.mean)
-# reconstruct(M::PCA{T}, y::AbstractVecOrMat{T}) where {T<:AbstractFloat} =
-# 	decentralize(M.proj * y, M.mean)
-
-## show & dump
+## show
 
 function Base.show(io::IO, M::PCA)
-    pr = @sprintf("%.5f", principalratio(M))
+    pr = round(principalratio(M), digits=5)
     println(io, "PCA(indim = $(indim(M)), outdim = $(outdim(M)), principalratio = $pr)")
 end
-
-function dump(io::IO, M::PCA)
-    show(io, M)
-    println(io)
-    print(io, "principal vars: ")
-    printvecln(io, M.prinvars)
-    println(io, "total var = $(tvar(M))")
-    println(io, "total principal var = $(tprincipalvar(M))")
-    println(io, "total residual var  = $(tresidualvar(M))")
-    println(io, "mean:")
-    printvecln(io, mean(M))
-    println(io, "projection:")
-    printarrln(io, projection(M))
-end
-
 
 #### PCA Training
 
@@ -102,7 +90,7 @@ end
 
 ## core algorithms
 
-function pcacov(C::DenseMatrix{T}, mean::Vector{T};
+function pcacov(C::AbstractMatrix{T}, mean::Vector{T};
                 maxoutdim::Int=size(C,1),
                 pratio::AbstractFloat=default_pca_pratio) where {T<:AbstractFloat}
 
@@ -116,25 +104,6 @@ function pcacov(C::DenseMatrix{T}, mean::Vector{T};
     PCA(mean, P, v, vsum)
 end
 
-function pcasvd(Z::AbstractMatrix{T}, mean::Vector{T}, tw::Real;
-                maxoutdim::Int=min(size(Z)...),
-                pratio::AbstractFloat=default_pca_pratio) where {T<:AbstractFloat}
-
-    check_pcaparams(size(Z,1), mean, maxoutdim, pratio)
-    Svd = svdfact(Z)
-    v = Svd.S::Vector{T}
-    U = Svd.U::Matrix{T}
-    for i = 1:length(v)
-        @inbounds v[i] = abs2(v[i]) / tw
-    end
-    ord = sortperm(v; rev=true)
-    vsum = sum(v)
-    k = choose_pcadim(v, ord, vsum, maxoutdim, pratio)
-    si = ord[1:k]
-    PCA(mean, U[:,si], v[si], vsum)
-end
-
-## interface functions
 
 function fit(::Type{PCA}, X::AbstractMatrix{T};
              method::Symbol=:auto,
@@ -156,9 +125,6 @@ function fit(::Type{PCA}, X::AbstractMatrix{T};
     if method == :cov
         C = isempty(mv) ? Statistics.cov(X; dims=2) : Statistics.covzm(X.-mv, 2)
         M = pcacov(C, mv; maxoutdim=maxoutdim, pratio=pratio)
-    elseif method == :svd
-        Z = isempty(mv) ? X : centralize(X, mv)
-        M = pcasvd(Z, mv, n; maxoutdim=maxoutdim, pratio=pratio)
     else
         throw(ArgumentError("Invalid method name $(method)"))
     end
