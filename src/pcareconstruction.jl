@@ -63,10 +63,13 @@ function PCAEmbedding(
 		stem(recv, s,t,α)
 		recv  .-= meanv
 		#covmat .+= recv' .* recv / L
-		@inbounds for j=1:Y, i=1:Y
+		# Compute only  upper triangular half
+		@inbounds for j=1:Y, i=1:j
 			covmat[i,j] += recv[i]*recv[j] / L
 		end
 	end
+	#Copy upper half to bottom
+	LowerTriangular(covmat) .= UpperTriangular(covmat)'
 	drmodel = compute_pca(covmat,pratio, maxoutdim)
 	X = size(drmodel.proj,2)
 	tmp = zeros(Y)
