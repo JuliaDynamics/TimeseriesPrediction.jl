@@ -51,7 +51,7 @@ struct Region{Φ}
 end
 
 Base.length(r::Region{Φ}) where Φ = prod(r.maxi .- r.mini .+1)
-Base.in(idx, r::Region{Φ}) where Φ = begin
+function Base.in(idx, r::Region{Φ}) where Φ
 	for φ=1:Φ
 		r.mini[φ] <= idx[φ] <= r.maxi[φ] || return false
  	end
