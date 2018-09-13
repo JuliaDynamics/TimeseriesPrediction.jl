@@ -5,9 +5,6 @@ export PCA
 
 
 
-preprocess_mean(X::AbstractMatrix{T}, m) where {T<:AbstractFloat} =
-  (m == nothing ? vec(Statistics.mean(X, dims=2)) : m == 0 ? T[] : m)::Vector{T}
-
 # choose the first k values and columns
 #
 # S must have fields: values & vectors
@@ -102,32 +99,4 @@ function pcacov(C::AbstractMatrix{T}, mean::Vector{T};
     k = choose_pcadim(ev, ord, vsum, maxoutdim, pratio)
     v, P = extract_kv(Eg, ord, k)
     PCA(mean, P, v, vsum)
-end
-
-
-function fit(::Type{PCA}, X::AbstractMatrix{T};
-             method::Symbol=:auto,
-             maxoutdim::Int=size(X,1),
-             pratio::AbstractFloat=default_pca_pratio,
-             mean=nothing) where {T<:AbstractFloat}
-
-    d, n = size(X)
-
-    # choose method
-    if method == :auto
-        method = d < n ? :cov : :svd
-    end
-
-    # process mean
-    mv = preprocess_mean(X, mean)
-
-    # delegate to core
-    if method == :cov
-        C = isempty(mv) ? Statistics.cov(X; dims=2) : Statistics.covzm(X.-mv, 2)
-        M = pcacov(C, mv; maxoutdim=maxoutdim, pratio=pratio)
-    else
-        throw(ArgumentError("Invalid method name $(method)"))
-    end
-
-    return M::PCA
 end
