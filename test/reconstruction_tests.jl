@@ -1,7 +1,8 @@
 using Test
 using TimeseriesPrediction
-#using PrincipalComponentAnalysis
 using Statistics, LinearAlgebra
+import MultivariateStats
+const MS = MultivariateStats
 
 println("Reconstruction Tests")
 @testset "SpatioTemporalEmbedding" begin
@@ -48,7 +49,9 @@ include("system_defs.jl")
 
 println("Testing PCA Functions")
 @testset "PCAEmbedding" begin
-    U,V = barkley_periodic_boundary_nonlin(500,50,50)
+    U,V = barkley_periodic_boundary_nonlin(600,50,50)
+    U = U[200:end]
+    V = V[200:end]
     let D=5, τ=1, B=1,k=1
         BC = PeriodicBoundary()
         em = SpatioTemporalEmbedding(U,D,τ,B,k,BC)
@@ -56,15 +59,15 @@ println("Testing PCA Functions")
         meanv = mean(mean.(U))
         R = reshape(reinterpret(Float64, RR.data), (size(RR)[2], size(RR)[1]))
         R .-= meanv
-        covmat = Statistics.covzm(R,2)
+        covmat = Statistics.cov(R,dims =2)
         pcaem = PCAEmbedding(U,em)
         #Compare cov matrices
-        @test norm(pcaem.covmat-covmat) < 1e-2
+        @test norm(pcaem.covmat-covmat) < 1e-4
         #Compare Outdim
-        drmodel = TimeseriesPrediction.fit(PCA,R; mean=0)
-        @test outdim(drmodel) == outdim(pcaem.drmodel)
+        drmodel = MS.fit(MultivariateStats.PCA,R)
+        @test MS.outdim(drmodel) == outdim(pcaem.drmodel)
         #Compare singular values
-        @test all(isapprox.(TimeseriesPrediction.principalvars(drmodel), TimeseriesPrediction.principalvars(pcaem.drmodel), atol=0.1))
+        @test MS.principalvars(drmodel) ≈ TimeseriesPrediction.principalvars(pcaem.drmodel) atol=0.5
 
     end
 end
