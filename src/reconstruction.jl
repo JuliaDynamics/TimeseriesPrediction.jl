@@ -91,9 +91,9 @@ timestep `t` and cartesian index `α`.
 ## Constructors
 The structure can be created directly by calling
 
-	SpatioTemporalEmbedding{T,Φ,BC,X}(τ,β,fsize)
+	SpatioTemporalEmbedding{T,Φ,X}(τ,β,bc,fsize)
 where `T` is the `eltype` of the timeseries, `Φ` the spatial dimension of the system,
-`BC` the boundary condition type and `X` the length of reconstructed vectors.
+`bc` the boundary condition type and `X` the length of reconstructed vectors.
 Arguments `τ` and `β` are Vectors of `Int` and `CartesianIndex` that contain
 all points to be included in the reconstruction in *relative* coordinates
 and `fsize` is the size of each state in the timeseries.
@@ -115,7 +115,7 @@ struct SpatioTemporalEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X}
 	whole::Region{Φ}
     boundary::BC
 
-	function SpatioTemporalEmbedding{T,Φ,BC,X}(τ,β,bc,fsize) where {T,Φ,BC,X}
+	function SpatioTemporalEmbedding{T,Φ,X}(τ,β,bc::BC,fsize) where {T,Φ,BC,X}
 		inner = inner_region(β, fsize)
 		whole = Region((ones(Int,Φ)...,), fsize)
 		return new{T,Φ,BC,X}(τ,β,inner,whole, bc)
@@ -139,7 +139,7 @@ function SpatioTemporalEmbedding(
 		βs[n] = CartesianIndex(α)
 		n +=1
 	end
-	return SpatioTemporalEmbedding{T,Φ,BC,X}(τs, βs, boundary, size(s[1]))
+	return SpatioTemporalEmbedding{T,Φ,X}(τs, βs, boundary, size(s[1]))
 end
 
 
