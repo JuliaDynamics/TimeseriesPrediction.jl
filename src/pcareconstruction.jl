@@ -19,8 +19,8 @@ Takes a [`SpatioTemporalEmbedding`](@ref) and computes PCA on the time series `s
 
 To set the output dimension to a certain value `X`, pass `pratio=1, maxoutdim=X`.
 """
-struct PCAEmbedding{T,Φ,BC,X,Y,EM<:AbstractSpatialEmbedding} <: AbstractSpatialEmbedding{T,Φ,BC,X}
-	stem::EM{T,Φ,BC,Y}
+struct PCAEmbedding{T,Φ,BC,X,Y} <: AbstractSpatialEmbedding{T,Φ,BC,X}
+	stem::SpatioTemporalEmbedding{T,Φ,BC,Y}
 	meanv::T
 	covmat::Matrix{T}
 	drmodel::PCA{T}
