@@ -6,12 +6,9 @@ include("system_defs.jl")
 
 @testset "Coupled Henon 1D" begin
     M = 100
-    ds = coupled_henon1D(M,rand(MersenneTwister(42), M,2))
     N_train = 2000
     p = 5
-    data = trajectory(ds,N_train+p)
-    U = [d[:,1] for d in data]
-    V = [d[:,2] for d in data]
+    U, V = coupled_henon1D(M,N_train+p, rand(MersenneTwister(42),M), rand(M))
     #Reconstruct this #
     utrain = U[1:N_train]
     vtrain = V[1:N_train]
@@ -44,12 +41,9 @@ end
     #Size
     X=5
     Y=5
-    ds = coupled_henon2D(X,Y, rand(MersenneTwister(42), X,Y,2))
     N_train = 1000
     p = 5
-    data = trajectory(ds,N_train+p)
-    U = [d[:,:,1] for d in data]
-    V = [d[:,:,2] for d in data]
+    U,V = coupled_henon2D(X,Y,N_train+p,rand(MersenneTwister(42), X,Y), rand(X,Y))
     #Reconstruct this #
     utrain = U[1:N_train]
     vtrain = V[1:N_train]

@@ -152,7 +152,7 @@ function (r::SpatioTemporalEmbedding{T,Φ,ConstantBoundary{T},X})(rvec,s,t,α) w
 		end
 	else
 		@inbounds for n=1:X
-			rvec[n] = α + r.β[n] in r.whole ? s[ t+r.τ[n] ][ α+r.β[n] ] : r.boundary.C
+			rvec[n] = α + r.β[n] in r.whole ? s[ t+r.τ[n] ][ α+r.β[n] ] : r.boundary.c
 		end
 	end
 	return nothing

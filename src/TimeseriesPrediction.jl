@@ -11,10 +11,8 @@ using Statistics, LinearAlgebra
 include("localmodeling.jl")
 include("reconstruction.jl")
 
-#include("pca/pca.jl")
 include("pcareconstruction.jl")
 
 include("temporalprediction.jl")
 include("crossprediction.jl")
-include("spatiotemporalsystem.jl")
 end
