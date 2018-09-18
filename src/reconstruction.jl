@@ -12,11 +12,13 @@ import DynamicalSystemsBase: reconstruct
 #####################################################################################
 """
     AbstractSpatialEmbedding <: AbstractEmbedding
-Super-type of spatiotemporal embedding methods.
-Use `subtypes(AbstractSpatialEmbedding)` for available methods.
+Super-type of spatiotemporal embedding methods. Valid subtypes:
+* `SpatioTemporalEmbedding`
+* `PCAEmbedding`
 """
 abstract type AbstractSpatialEmbedding{T,Φ,BC,X} <: AbstractEmbedding end
 const ASE = AbstractSpatialEmbedding
+
 """
     AbstractBoundaryCondition
 Super-type of boundary conditions for [`SpatioTemporalEmbedding`](@ref).
@@ -40,7 +42,7 @@ end
 Periodic boundary condition struct. Enforces periodic boundary conditions
 when passed to [`SpatioTemporalEmbedding`](@ref) in the reconstruction.
 """
-struct PeriodicBoundary    <: AbstractBoundaryCondition end
+struct PeriodicBoundary <: AbstractBoundaryCondition end
 
 
 """
@@ -81,20 +83,38 @@ function project_inside(α::CartesianIndex{Φ}, r::Region{Φ}) where Φ
 end
 
 """
-	 SpatioTemporalEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X} → `embedding`
-A spatio temporal delay coordinates structure to be used as a functor.
+	SpatioTemporalEmbedding{T,Φ,BC,X} → embedding
+A spatio temporal delay coordinates structure to be used as a functor. Applies
+to data of `Φ` spatial dimensions and gives an embedding of dimensionality `X`.
 
 	embedding(rvec, s, t, α)
-Operates inplace on `rvec` and reconstructs vector from spatial timeseries `s` at
-timestep `t` and cartesian index `α`. Note that there are no bounds checks for `t`.
+Operates inplace on `rvec` (of length `X`) and reconstructs vector from spatial
+timeseries `s` at timestep `t` and cartesian index `α`.
+Note that there are no bounds checks for `t`.
+
+It is assumed that `s` is a `Vector{<:AbstractArray{T,Φ}}`.
 
 ## Constructors
-The structure can be created directly by calling
 
-    SpatioTemporalEmbedding(s, D, τ, B, k, ::Type{<:AbstractBoundaryCondition})
-which takes as arguments the spatial timeseries `s` and reconstructs
-`B` spatial shells separated by `k` points around each point
-and repeats this for `D` past timesteps separated by `τ` each.
+    SpatioTemporalEmbedding(s, D, τ, B, k, bc)
+`s` is the spatial timeseries to be reconstructed (not copied).
+`B` is the number of spatial shells separated by `k` points around each point.
+`D` is the number of temporal neighbours (past timesteps), each separated by `τ::Int`.
+`bc` is the boundary condition (see [`AbstractBoundaryCondition`](@ref)).
+
+	SpatioTemporalEmbedding{T,X}(τ, β, bc, fsize)
+This advanced constructor allows full control over the spatio-temporal embedding.
+* `T` : data element type.
+* `Χ == length(τ) == length(β)` : dimensionality of resulting reconstructed space.
+* `τ::Vector{Int}` = Vector of temporal delays *for each entry* of the reconstructed space
+  (sorted in ascending order).
+* `β::Vector{CartesianIndex{Φ}}` = vector of *relative* indices of spatial delays
+  *for each entry* of the reconstructed space.
+* `fsize::NTuple{Φ, Int}` : Size of each state in the timeseries.
+
+An example of how this constructor can be used to make a "light cone" embedding
+is included in the
+[official documentation page](https://juliadynamics.github.io/DynamicalSystems.jl/latest/).
 """
 struct SpatioTemporalEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X}
   	τ::Vector{Int}
@@ -103,24 +123,19 @@ struct SpatioTemporalEmbedding{T,Φ,BC,X} <: AbstractSpatialEmbedding{T,Φ,BC,X}
 	whole::Region{Φ}
     boundary::BC
 
-	function SpatioTemporalEmbedding{T,Φ,X}(τ,β,bc::BC,fsize) where {T,Φ,BC,X}
+	function SpatioTemporalEmbedding{T,X}(
+			τ::Vector{Int}, β::Vector{CartesianIndex{Φ}}, bc::BC, fsize::NTuple{Φ, Int}
+			) where {T,Φ,BC,X}
+		if !(BC <: PeriodicBoundary) && typeof(bc.c) != T
+			throw(ArgumentError(
+			"Boundary value must be same element type as the timeseries data."))
+		end
 		inner = inner_region(β, fsize)
 		whole = Region((ones(Int,Φ)...,), fsize)
 		return new{T,Φ,BC,X}(τ,β,inner,whole, bc)
 	end
 end
 const STE = SpatioTemporalEmbedding
-#= Advanced direct constructor
-
-	SpatioTemporalEmbedding{T,Φ,X}(τ,β,bc,fsize)
-where `T` is the `eltype` of the timeseries, `Φ` the spatial dimension of the system,
-`bc` the boundary condition type and `X` the length of reconstructed vectors.
-Arguments `τ` and `β` are Vectors of `Int` and `CartesianIndex` that contain
-all points to be included in the reconstruction in *relative* coordinates
-and `fsize` is the size of each state in the timeseries.
-
-Note that this is a forward embedding and `τ` needs to be sorted in ascending order.
-The most recent values in the reconstruction are located at the end of each vector.=#
 
 function SpatioTemporalEmbedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
@@ -128,7 +143,6 @@ function SpatioTemporalEmbedding(
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
 	@assert issorted(τ) "Delays need to be sorted in ascending order"
     #"ConstantBoundary condition value C needs to be the same type as values in s"
-    @assert BC <: PeriodicBoundary || typeof(boundary.c) == T "typeof(boundary.c) == eltype(s[1])"
 	X = (D+1)*(2B+1)^Φ
 	τs = Vector{Int}(undef,X)
 	βs = Vector{CartesianIndex{Φ}}(undef,X)
@@ -138,7 +152,7 @@ function SpatioTemporalEmbedding(
 		βs[n] = CartesianIndex(α)
 		n +=1
 	end
-	return SpatioTemporalEmbedding{T,Φ,X}(τs, βs, boundary, size(s[1]))
+	return SpatioTemporalEmbedding{T,X}(τs, βs, boundary, size(s[1]))
 end
 
 
