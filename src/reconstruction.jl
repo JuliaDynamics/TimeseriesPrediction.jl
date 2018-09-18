@@ -86,7 +86,7 @@ A spatio temporal delay coordinates structure to be used as a functor.
 
 	embedding(rvec, s, t, α)
 Operates inplace on `rvec` and reconstructs vector from spatial timeseries `s` at
-timestep `t` and cartesian index `α`.
+timestep `t` and cartesian index `α`. Note that there are no bounds checks for `t`.
 
 ## Constructors
 The structure can be created directly by calling
