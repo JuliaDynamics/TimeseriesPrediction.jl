@@ -180,8 +180,17 @@ outdim(em::SpatioTemporalEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X
 
 
 
-function Base.summary(::IO, ::SpatioTemporalEmbedding{T,Φ,BC, X}) where {T,Φ,BC,X}
-	println("$(Φ)D Spatio-Temporal Delay Embedding with $X Entries")
+function Base.show(io::IO, em::SpatioTemporalEmbedding{T,Φ,BC, X}) where {T,Φ,BC,X}
+	print(io, "$(Φ)D Spatio-Temporal Delay Embedding with $X Entries")
+    if BC == PeriodicBoundary
+        println(io, " and PeriodicBoundary condition.")
+    else
+        println(io, " and ConstantBoundary condition with c = $(em.boundary.c).")
+    end
+    println(io, "The included neighboring points are (forward embedding):")
+    for (τ,β) in zip(em.τ,em.β)
+        println(io, "τ = $τ , β = $(β.I)")
+    end
 end
 
 
