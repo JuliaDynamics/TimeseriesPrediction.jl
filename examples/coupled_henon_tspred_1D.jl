@@ -2,33 +2,45 @@ using PyPlot
 using StaticArrays
 using TimeseriesPrediction
 
-function coupled_henon(M=100)
-    function henon(du, u, p, t)
-        du[1,1] = du[M,1] = 0.5
-        du[1,2] = du[M,2] = 0
+function coupled_henon1D(M,N, u0=rand(M), v0=rand(M))
+    function henon(U,V)
+        Un = copy(U)
+        Vn = copy(V)
+        Un[1] = Un[M] = 0.5
+        Vn[1] = Vn[M] = 0
         for m=2:M-1
-            du[m,1] = 1 - 1.45*(.5*u[m,1]+ .25*u[m-1,1] + .25u[m+1,1])^2 + 0.3*u[m,2]
-            du[m,2] = u[m,1]
+            Un[m] = 1 - 1.45*(.5*U[m]+ .25*U[m-1] + .25U[m+1])^2 + 0.3*V[m]
+            Vn[m] = U[m]
         end
-        return nothing
+        return Un, Vn
     end
-    return SpatioTemporalSystem(henon,rand(M,2), nothing; t0=0)
+
+    U = Vector{Vector{Float64}}(undef,N)
+    V = Vector{Vector{Float64}}(undef,N)
+    U[1] = u0
+    V[1] = v0
+    for n = 2:N
+        U[n],V[n] = henon(U[n-1],V[n-1])
+    end
+    return U,V
 end
 
 
 M=100
-ds = coupled_henon(M)
 N_train = 1000
 p = 20
-data = trajectory(ds,N_train+p)
-U = [d[:,1] for d in data]
-V = [d[:,2] for d in data]
+U,V = U, V = coupled_henon1D(M, N_train+p)
+
 #Reconstruct this #
 utrain = U[1:N_train]
 vtrain = V[1:N_train]
 utest  = U[N_train:N_train+p]
 vtest  = V[N_train:N_train+p]
 
+#Prediction
+D = 2; τ = 1; B = 1; k = 1;
+em = SpatioTemporalEmbedding(utrain,D,τ,B,k,ConstantBoundary(10.))
+s_pred = temporalprediction(utrain,em, p)
 
 begin
     figure()
@@ -41,9 +53,7 @@ begin
     title("1D Coupled Henon Map")
 
 
-    #Prediction
     ax2 = subplot(312, sharex = ax1, sharey = ax1)
-    s_pred = localmodel_stts(utrain,2,1,p,1,1; ntype=FixedMassNeighborhood(1))#; boundary=false)
     pcolormesh(s_pred)
     colorbar()
     setp(ax2[:get_xticklabels](), visible=false)
