@@ -1,4 +1,5 @@
 using MultivariateStats: PCA, pcacov
+import IterTools: takenth, product
 export PCAEmbedding
 
 """
@@ -16,7 +17,8 @@ Takes a [`SpatioTemporalEmbedding`](@ref) and computes PCA on the time series `s
 ## Keyword Arguments
  * `pratio = 0.99` : Ratio of variances that needs to be preserved in low-dim reconstruction
  * `maxoutdim = 25`: Upper limit for output dimension. May break `pratio` criterion
- * `every = 1` : Speed up computation by only using every nth point. (linear indexing in space and time)
+ * `every_t = 1` : Speed up computation by only using every nth point in time.
+ * `every_α = 1` : Speed up computation further by only using every nth point in space. (linear indexing)
 
 To set the output dimension to a certain value `X`, pass `pratio=1, maxoutdim=X`.
 """
@@ -34,18 +36,18 @@ function PCAEmbedding(
 		stem::SpatioTemporalEmbedding{T,Φ,BC,Y};
 		pratio   = 0.99,
 		maxoutdim= 25,
-		every::Int    = 1) where {T,Φ,BC,Y}
+		every_t::Int    = 1,
+		every_α::Int    = 1) where {T,Φ,BC,Y}
 	meanv = mean(mean.(s))
 	tsteps = (length(s) - get_τmax(stem))
 	usable_idxs = get_usable_idxs(stem)
 	num_pt = length(usable_idxs)
-	L      = tsteps*num_pt
+	subset = Iterators.product(takenth(usable_idxs, every_α), 1:every_t:tsteps)
+	L      = length(subset)
 
 	recv = zeros(T,Y)
 	covmat = zeros(T,Y,Y)
-	for n = 1:every:L
-		t = 1 + (n-1) ÷ num_pt
-		α = usable_idxs[n-(t-1)*num_pt]
+	for (α, t) ∈ subset
 		stem(recv, s,t,α)
 		recv  .-= meanv
 		#covmat .+= recv' .* recv / L
