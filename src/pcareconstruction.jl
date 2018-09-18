@@ -28,20 +28,6 @@ struct PCAEmbedding{T,Φ,BC,X,Y} <: AbstractSpatialEmbedding{T,Φ,BC,X}
 	tmp::Vector{T} #length Y
 end
 
-Base.show(io::IO, em::PCAEmbedding) = (show(io, em.stem); show(io, em.drmodel))
-
-compute_pca(covmat::Matrix{T}, pratio, maxoutdim) where T=
-	pcacov(covmat, T[]; maxoutdim=maxoutdim, pratio=pratio)
-
-get_τmax(em::PCAEmbedding) = get_τmax(em.stem)
-get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)
-
-get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,PeriodicBoundary,X}) where {T,Φ,X} =
-			CartesianIndices(em.whole)
-get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,ConstantBoundary{C},X}) where {T,Φ,C,X} =
-			CartesianIndices(em.inner)
-
-outdim(em::PCAEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X
 
 function PCAEmbedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
@@ -81,3 +67,20 @@ function (r::PCAEmbedding{T,Φ,BC,X,Y})(data, s, t, α) where {T,Φ,BC,X,Y}
 	r.tmp .-= r.meanv
 	mul!(data,transpose(r.drmodel.proj),r.tmp)
 end
+
+
+
+Base.show(io::IO, em::PCAEmbedding) = (show(io, em.stem); show(io, em.drmodel))
+
+compute_pca(covmat::Matrix{T}, pratio, maxoutdim) where T=
+	pcacov(covmat, T[]; maxoutdim=maxoutdim, pratio=pratio)
+
+get_τmax(em::PCAEmbedding) = get_τmax(em.stem)
+get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)
+
+get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,PeriodicBoundary,X}) where {T,Φ,X} =
+			CartesianIndices(em.whole)
+get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,ConstantBoundary{C},X}) where {T,Φ,C,X} =
+			CartesianIndices(em.inner)
+
+outdim(em::PCAEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X

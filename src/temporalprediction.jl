@@ -4,28 +4,7 @@ export KDTree
 export temporalprediction
 export PredictionParameters
 
-function working_ts(s,em)
-    L = length(s)
-    τmax = get_τmax(em)
-    return s[L-τmax : L]
-end
 
-function gen_queries(s,em)
-    L = length(s)
-    τmax = get_τmax(em)
-    s_slice = view( s, L-τmax:L)
-    return reconstruct(s_slice, em)
-end
-
-function convert_idx(idx, em)
-    τmax = get_τmax(em)
-    num_pt = get_num_pt(em)
-    t = 1 + (idx-1) ÷ num_pt + get_τmax(em)
-    α = 1 + (idx-1) % num_pt
-    return t,α
-end
-
-cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
 
 @with_kw_noshow struct PredictionParameters{T,Φ,BC,X, LM <: AbstractLocalModel}
     em::AbstractSpatialEmbedding{T,Φ,BC,X}
@@ -134,3 +113,27 @@ function temporalprediction(params, s,tsteps, R, tree; progress=true) where {T, 
     cut_off_beginning!(spred,em)
     return spred
 end
+
+
+function working_ts(s,em)
+    L = length(s)
+    τmax = get_τmax(em)
+    return s[L-τmax : L]
+end
+
+function gen_queries(s,em)
+    L = length(s)
+    τmax = get_τmax(em)
+    s_slice = view( s, L-τmax:L)
+    return reconstruct(s_slice, em)
+end
+
+function convert_idx(idx, em)
+    τmax = get_τmax(em)
+    num_pt = get_num_pt(em)
+    t = 1 + (idx-1) ÷ num_pt + get_τmax(em)
+    α = 1 + (idx-1) % num_pt
+    return t,α
+end
+
+cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
