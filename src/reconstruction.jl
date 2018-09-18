@@ -25,14 +25,14 @@ Use `subtypes(AbstractBoundaryCondition)` for available methods.
 abstract type AbstractBoundaryCondition end
 
 """
-	ConstantBoundary(C)
+	ConstantBoundary(c)
 Constant boundary condition type. Enforces constant boundary conditions
 when passed to [`SpatioTemporalEmbedding`](@ref)
 by filling missing out-of-bounds values in the reconstruction with
-parameter `C`.
+parameter `c`.
 """
 struct ConstantBoundary{T} <: AbstractBoundaryCondition
-    C::T
+    c::T
 end
 
 """
@@ -129,7 +129,7 @@ function SpatioTemporalEmbedding(
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
 	@assert issorted(τ) "Delays need to be sorted in ascending order"
     #"ConstantBoundary condition value C needs to be the same type as values in s"
-    @assert BC <: PeriodicBoundary || typeof(boundary.C) == T "typeof(boundary.C) == eltype(s[1])"
+    @assert BC <: PeriodicBoundary || typeof(boundary.c) == T "typeof(boundary.c) == eltype(s[1])"
 	X = (D+1)*(2B+1)^Φ
 	τs = Vector{Int}(undef,X)
 	βs = Vector{CartesianIndex{Φ}}(undef,X)
