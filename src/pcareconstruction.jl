@@ -1,4 +1,4 @@
-using MultivariateStats
+using MultivariateStats: PCA, pcacov
 export PCAEmbedding
 
 """

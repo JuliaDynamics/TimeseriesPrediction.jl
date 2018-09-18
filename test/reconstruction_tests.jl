@@ -67,7 +67,7 @@ println("Testing PCA Functions")
         drmodel = MS.fit(MultivariateStats.PCA,R)
         @test MS.outdim(drmodel) == MS.outdim(pcaem.drmodel)
         #Compare singular values
-        @test MS.principalvars(drmodel) ≈ TimeseriesPrediction.principalvars(pcaem.drmodel) atol=0.5
+        @test MS.principalvars(drmodel) ≈ MS.principalvars(pcaem.drmodel) atol=0.5
 
     end
 end
