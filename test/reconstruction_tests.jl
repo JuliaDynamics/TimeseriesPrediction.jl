@@ -65,7 +65,7 @@ println("Testing PCA Functions")
         @test norm(pcaem.covmat-covmat) < 1e-4
         #Compare Outdim
         drmodel = MS.fit(MultivariateStats.PCA,R)
-        @test MS.outdim(drmodel) == outdim(pcaem.drmodel)
+        @test MS.outdim(drmodel) == MS.outdim(pcaem.drmodel)
         #Compare singular values
         @test MS.principalvars(drmodel) ≈ TimeseriesPrediction.principalvars(pcaem.drmodel) atol=0.5
 

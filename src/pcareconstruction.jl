@@ -1,3 +1,4 @@
+using MultivariateStats
 export PCAEmbedding
 
 """
