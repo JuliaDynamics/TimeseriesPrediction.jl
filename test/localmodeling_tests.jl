@@ -5,6 +5,9 @@ using LinearAlgebra
 import Statistics:var
 println("\nTesting local models...")
 
+import Random
+Random.seed!(42)
+
 ds = Systems.roessler()
 data = trajectory(ds, 5000; dt=0.1)
 N_train = 45000

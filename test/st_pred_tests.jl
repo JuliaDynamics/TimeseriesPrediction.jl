@@ -1,14 +1,15 @@
 using TimeseriesPrediction
 using Test
-import Random: MersenneTwister
+import Random
 
+Random.seed!(42)
 include("system_defs.jl")
 
 @testset "Coupled Henon 1D" begin
     M = 100
     N_train = 2000
     p = 5
-    U, V = coupled_henon1D(M,N_train+p, rand(MersenneTwister(42),M), rand(M))
+    U, V = coupled_henon1D(M,N_train+p, rand(M), rand(M))
     #Reconstruct this #
     utrain = U[1:N_train]
     vtrain = V[1:N_train]
@@ -43,7 +44,7 @@ end
     Y=5
     N_train = 1000
     p = 5
-    U,V = coupled_henon2D(X,Y,N_train+p,rand(MersenneTwister(42), X,Y), rand(X,Y))
+    U,V = coupled_henon2D(X,Y,N_train+p,rand(X,Y), rand(X,Y))
     #Reconstruct this #
     utrain = U[1:N_train]
     vtrain = V[1:N_train]
