@@ -1,28 +1,48 @@
-function coupled_henon1D(M)
-    function henon(du, u, p, t)
-        du[1,1] = du[M,1] = 0.5
-        du[1,2] = du[M,2] = 0
+function coupled_henon1D(M,N, u0=rand(M), v0=rand(M))
+    function henon(U,V)
+        Un = copy(U)
+        Vn = copy(V)
+        Un[1] = Un[M] = 0.5
+        Vn[1] = Vn[M] = 0
         for m=2:M-1
-            du[m,1] = 1 - 1.45*(.5*u[m,1]+ .25*u[m-1,1] + .25u[m+1,1])^2 + 0.3*u[m,2]
-            du[m,2] = u[m,1]
+            Un[m] = 1 - 1.45*(.5*U[m]+ .25*U[m-1] + .25U[m+1])^2 + 0.3*V[m]
+            Vn[m] = U[m]
         end
-        return nothing
+        return Un, Vn
     end
-    return SpatioTemporalSystem(henon,rand(M,2), nothing; t0=0)
+
+    U = Vector{Vector{Float64}}(undef,N)
+    V = Vector{Vector{Float64}}(undef,N)
+    U[1] = u0
+    V[1] = v0
+    for n = 2:N
+        U[n],V[n] = henon(U[n-1],V[n-1])
+    end
+    return U,V
 end
 
-function coupled_henon2D(X,Y)
-    function henon(du, u, p, t)
-        du[1,:,1] = du[:,1,1] = du[X, :, 1] = du[:, Y, 1] = 0.5
-        du[1,:,2] = du[:,1,2] = du[X, :, 2] = du[:, Y ,2] = 0
+function coupled_henon2D(X,Y,N,u0=rand(X,Y), v0=rand(X,Y))
+    function henon(U,V)
+        Un = copy(U)
+        Vn = copy(V)
+        Un[1,:] = Un[:,1] = Un[X, :] = Un[:, Y] .= 0.5
+        Vn[1,:] = Vn[:,1] = Vn[X, :] = Vn[:, Y] .= 0
         for mx=2:X-1 , my=2:Y-1
-            du[mx,my,1] = 1 - 1.45*(.5*u[mx,my,1]+ .125*u[mx-1,my,1] +
-             .125u[mx+1,my,1]+ .125u[mx, my-1,1]+ .125u[mx,my+1,1])^2 + 0.3*u[mx,my,2]
-            du[mx,my,2] = u[mx,my,1]
+            Un[mx,my] = 1 - 1.45*(.5*U[mx,my]+ .125*U[mx-1,my] +
+             .125U[mx+1,my]+ .125U[mx, my-1]+ .125U[mx,my+1])^2 + 0.3*V[mx,my]
+            Vn[mx,my] = U[mx,my]
         end
-        return nothing
+        return Un, Vn
     end
-    return SpatioTemporalSystem(henon,rand(X,Y,2), nothing; t0=0)
+    U = Vector{Matrix{Float64}}(undef,N)
+    V = Vector{Matrix{Float64}}(undef,N)
+    U[1] = u0
+    V[1] = v0
+    for n = 2:N
+        U[n],V[n] = henon(U[n-1],V[n-1])
+    end
+    return U,V
+
 end
 
 
@@ -37,20 +57,20 @@ function barkley_const_boundary(T, Nx, Ny)
     V = Vector{Array{Float64,2}}()
 
     #Initial state that creates spirals
-    u[40:end,34] = 0.1
-    u[40:end,35] = 0.5
-    u[40:end,36] = 5
-    v[40:end,34] = 1
+    u[40:end,34] .= 0.1
+    u[40:end,35] .= 0.5
+    u[40:end,36] .= 5
+    v[40:end,34] .= 1
 
-    u[1:10,14] = 5
-    u[1:10,15] = 0.5
-    u[1:10,16] = 0.1
-    v[1:10,17] = 1
+    u[1:10,14] .= 5
+    u[1:10,15] .= 0.5
+    u[1:10,16] .= 0.1
+    v[1:10,17] .= 1
 
-    u[27:36,20] = 5
-    u[27:36,19] = 0.5
-    u[27:36,18] = 0.1
-    v[27:36,17] = 1
+    u[27:36,20] .= 5
+    u[27:36,19] .= 0.5
+    u[27:36,18] .= 0.1
+    v[27:36,17] .= 1
 
 
 
@@ -105,20 +125,20 @@ function barkley_periodic_boundary(T, Nx, Ny)
     V = Vector{Array{Float64,2}}()
 
     #Initial state that creates spirals
-    u[40:end,34] = 0.1
-    u[40:end,35] = 0.5
-    u[40:end,36] = 5
-    v[40:end,34] = 1
+    u[40:end,34] .= 0.1
+    u[40:end,35] .= 0.5
+    u[40:end,36] .= 5
+    v[40:end,34] .= 1
 
-    u[1:10,14] = 5
-    u[1:10,15] = 0.5
-    u[1:10,16] = 0.1
-    v[1:10,17] = 1
+    u[1:10,14] .= 5
+    u[1:10,15] .= 0.5
+    u[1:10,16] .= 0.1
+    v[1:10,17] .= 1
 
-    u[27:36,20] = 5
-    u[27:36,19] = 0.5
-    u[27:36,18] = 0.1
-    v[27:36,17] = 1
+    u[27:36,20] .= 5
+    u[27:36,19] .= 0.5
+    u[27:36,18] .= 0.1
+    v[27:36,17] .= 1
 
     h = 0.75 #/ sqrt(2)
     Δt = 0.1 #/ 2
@@ -172,29 +192,29 @@ function barkley_periodic_boundary_nonlin(T, Nx, Ny)
     V = Vector{Array{Float64,2}}()
 
     #Initial state that creates spirals
-    u[35:end,34] = 1
-    u[35:end,35] = 1
-    u[35:end,36] = 1
-    v[35:end,37] = 1
-    v[35:end,38] = 1
-    v[35:end,39] = 1
+    u[35:end,34] .= 1
+    u[35:end,35] .= 1
+    u[35:end,36] .= 1
+    v[35:end,37] .= 1
+    v[35:end,38] .= 1
+    v[35:end,39] .= 1
 
 
-    u[1:20,14] = 1
-    u[1:20,15] = 1
-    u[1:20,16] = 1
-    v[1:20,17] = 1
-    v[1:20,18] = 1
-    v[1:20,19] = 1
-    v[1:20,20] = 1
+    u[1:20,14] .= 1
+    u[1:20,15] .= 1
+    u[1:20,16] .= 1
+    v[1:20,17] .= 1
+    v[1:20,18] .= 1
+    v[1:20,19] .= 1
+    v[1:20,20] .= 1
 
 
-    u[27:36,20] = 1
-    u[27:36,19] = 1
-    u[27:36,18] = 1
-    v[27:36,17] = 1
-    v[27:36,16] = 1
-    v[27:36,15] = 1
+    u[27:36,20] .= 1
+    u[27:36,19] .= 1
+    u[27:36,18] .= 1
+    v[27:36,17] .= 1
+    v[27:36,16] .= 1
+    v[27:36,15] .= 1
 
     h = 0.75 #/ sqrt(2)
     Δt = 0.1 #/ 2

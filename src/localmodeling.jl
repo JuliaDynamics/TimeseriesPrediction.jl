@@ -1,4 +1,4 @@
-using NearestNeighbors, StaticArrays
+using NearestNeighbors, StaticArrays, Statistics
 using DynamicalSystemsBase
 
 export AbstractLocalModel
@@ -87,13 +87,13 @@ end
 AverageLocalModel() = AverageLocalModel(ω_unsafe)
 
 function (M::AverageLocalModel)(q,xnn,ynn,dists)
-    if length(xnn) > 1 && (dmax = maximum(dists)) > 0
+    if length(ynn) > 1 && (dmax = maximum(dists)) > 0
         y_pred = zeros(typeof(ynn[1]))
         Ω = zero(typeof(dmax))
         for (y,d) in zip(ynn,dists)
             ω2 = M.ω.(d, dmax)
             Ω += ω2
-            y_pred += ω2*y
+            y_pred = y_pred .+ ω2*y
         end
         y_pred /= Ω
         return y_pred
@@ -134,12 +134,11 @@ LinearLocalModel(ω, (σ) -> mcnames_reg(σ, s_min, s_max))
 
 function (M::LinearLocalModel)(
     q,
-    xnn::Vector{SVector{D,T}},
-    ynn::Vector{SVector{D,T}},
-    dists) where {D,T}
+    xnn::Vector{SVector{L,T}},
+    ynn::Vector{TT},
+    dists) where {L,T,TT}
 
     @assert length(ynn)>0 "No Nearest Neighbors given"
-    y_pred = zeros(size(ynn[1]))
     k= length(xnn)
     #Weight Function
     dmax = maximum(dists)
@@ -148,9 +147,9 @@ function (M::LinearLocalModel)(
     x_mean = mean(xnn)
     y_mean = mean(ynn)
     #Create X
-    X = zeros(k,D)
+    X = zeros(k,L)
     for i=1:k
-        X[i,1:end] = xnn[i] - x_mean
+        X[i,1:end] = xnn[i] .- x_mean
     end
     #Pseudo Inverse
     U,S,V = svd(W*X)
@@ -161,11 +160,11 @@ function (M::LinearLocalModel)(
     Xw_inv = V*Sp*U'
     #The following code is meant for 1D ynn values
     #Repeat for all components
-    for i=1:length(ynn[1])
+    y_pred = map(eachindex(ynn[1])) do i
         y = map(ynn->ynn[i], ynn)
         #Coefficient Vector
         ν = Xw_inv * W* y
-        y_pred[i] = y_mean[i] + (q-x_mean)'* ν
+        y_mean[i] + (q-x_mean)'* ν
     end
 
     return y_pred
@@ -274,12 +273,12 @@ function _localmodel_tsp(R::AbstractDataset{D,T},
                         stepsize::Int = 1) where {D,T}
 
 
-    s_pred = Vector{SVector{D, T}}(p+1)
+    s_pred = Vector{SVector{D, T}}(undef, p+1)
     s_pred[1] = q
     for n=2:p+1   #Iteratively estimate timeseries
         idxs,dists = neighborhood_and_distances(q,R, tree,ntype)
         xnn = R[idxs]
-        ynn = R[idxs+stepsize]
+        ynn = R[idxs.+stepsize]
         q = method(q, xnn, ynn, dists)
         s_pred[n] = q
     end
@@ -332,13 +331,13 @@ end
 
 function localmodel_tsp(
     s::AbstractVector, D::Int, τ::T, p::Int; kwargs... ) where {T}
-    localmodel_tsp(Reconstruction(s, D, τ), p; kwargs...)[:,D]
+    localmodel_tsp(reconstruct(s, D, τ), p; kwargs...)[:,D+1]
 end
 
 function localmodel_tsp(
     ss::AbstractDataset{B}, D::Int, τ::T, p::Int; kwargs...) where {B,T}
-    sind = SVector{B, Int}((D*B - i for i in B-1:-1:0)...)
-    localmodel_tsp(Reconstruction(ss, D, τ), p; kwargs...)[:,sind]
+    sind = SVector{B, Int}(((D+1)*B - i for i in B-1:-1:0)...)
+    localmodel_tsp(reconstruct(ss, D, τ), p; kwargs...)[:,sind]
 end
 
 
@@ -362,7 +361,7 @@ function MSE1(
                             #because there is nothing to compare the preciction to
         idxs,dists = neighborhood_and_distances(q, R, tree,ntype)
         xnn = R[idxs]
-        ynn = R[idxs+stepsize]
+        ynn = R[idxs.+stepsize]
         push!(y_pred,method(q,xnn,ynn, dists)[end])
     end
     return norm(y_test-y_pred)^2/length(y_test)

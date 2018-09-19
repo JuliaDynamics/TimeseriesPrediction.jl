@@ -1,8 +1,12 @@
-julia 0.7-beta
-DynamicalSystemsBase 0.8.2
-StaticArrays 0.5.0
-StatsBase 0.8.2
-NearestNeighbors 0.1.0
-Reexport
+julia 1.0
+DynamicalSystemsBase 1.0.0
 IterTools
+LinearAlgebra
 MultivariateStats
+NearestNeighbors 0.1.0
+Parameters
+Reexport
+StaticArrays 0.5.0
+Statistics
+StatsBase 0.8.2
+Random

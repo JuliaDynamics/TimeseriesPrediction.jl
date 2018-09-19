@@ -4,7 +4,7 @@ using TimeseriesPrediction
 # This Algorithm is taken from
 # http://www.scholarpedia.org/article/Barkley_model
 
-function barkley(T, Nx, Ny)
+function barkley_const_boundary(T, Nx, Ny)
     a = 0.75
     b = 0.02
     ε = 0.02
@@ -15,20 +15,20 @@ function barkley(T, Nx, Ny)
     V = Vector{Array{Float64,2}}()
 
     #Initial state that creates spirals
-    u[40:end,34] = 0.1
-    u[40:end,35] = 0.5
-    u[40:end,36] = 5
-    v[40:end,34] = 1
+    u[40:end,34] .= 0.1
+    u[40:end,35] .= 0.5
+    u[40:end,36] .= 5
+    v[40:end,34] .= 1
 
-    u[1:10,14] = 5
-    u[1:10,15] = 0.5
-    u[1:10,16] = 0.1
-    v[1:10,17] = 1
+    u[1:10,14] .= 5
+    u[1:10,15] .= 0.5
+    u[1:10,16] .= 0.1
+    v[1:10,17] .= 1
 
-    u[27:36,20] = 5
-    u[27:36,19] = 0.5
-    u[27:36,18] = 0.1
-    v[27:36,17] = 1
+    u[27:36,20] .= 5
+    u[27:36,19] .= 0.5
+    u[27:36,18] .= 0.1
+    v[27:36,17] .= 1
 
 
 
@@ -80,10 +80,10 @@ Nx = 50
 Ny = 50
 Tskip = 200
 Ttrain = 1000
-p = 200
+p = 20
 T = Tskip + Ttrain + p
 
-U,V = barkley(T, Nx, Ny)
+U,V = barkley_const_boundary(T, Nx, Ny)
 Vtrain = V[Tskip + 1:Tskip + Ttrain]
 Vtest  = V[Tskip + Ttrain :  T]
 
@@ -91,10 +91,10 @@ D = 2
 τ = 1
 B = 2
 k = 1
-c = 200
-w = (0,0)
-
-@time Vpred = localmodel_stts(Vtrain, D, τ, p, B, k; boundary=c, weighting=w)
+c = 200.
+em = SpatioTemporalEmbedding(Vtrain,D,τ,B,k,ConstantBoundary(c))
+pcaem = PCAEmbedding(Vtrain, em)
+@time Vpred = temporalprediction(Vtrain,pcaem,p)
 err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
 
 fname = "barkley_ts_Train=$(Ttrain)_p=$(p)_D=$(D)_τ=$(τ)_B=$(B)_k=$(k)"
