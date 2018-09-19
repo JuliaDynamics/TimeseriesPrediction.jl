@@ -6,10 +6,11 @@ export PredictionParameters
 
 
 
-@with_kw_noshow struct PredictionParameters{T,Φ,BC,X, LM <: AbstractLocalModel}
-    em::AbstractSpatialEmbedding{T,Φ,BC,X}
+@with_kw_noshow struct PredictionParameters{Φ,BC,X,
+        LM <: AbstractLocalModel, NT<:AbstractNeighborhood}
+    em::AbstractSpatialEmbedding{Φ,BC,X}
     method::LM = AverageLocalModel(ω_safe)
-    ntype::AbstractNeighborhood = FixedMassNeighborhood(3)
+    ntype::NT = FixedMassNeighborhood(3)
     treetype = KDTree
 end
 
@@ -52,12 +53,12 @@ depend strongly on the resulting embedding dimension.
 [1] : U. Parlitz & C. Merkwirth, [Phys. Rev. Lett. **84**, pp 1890 (2000)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890)
 """
 function temporalprediction(s,
-    em::AbstractSpatialEmbedding{T,Φ},
+    em::AbstractSpatialEmbedding,
     tsteps;
     method = AverageLocalModel(ω_safe),
     ntype = FixedMassNeighborhood(3),
     ttype=KDTree,
-    progress=true) where {T,Φ}
+    progress=true)
 
     params = PredictionParameters(em, method, ntype, ttype)
     return temporalprediction(params, s, tsteps; progress=progress)

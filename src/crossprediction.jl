@@ -54,7 +54,7 @@ depend strongly on the resulting embedding dimension.
 function crossprediction(train_in ::AbstractVector{<:AbstractArray{T, Φ}},
                         train_out::AbstractVector{<:AbstractArray{T, Φ}},
                         pred_in  ::AbstractVector{<:AbstractArray{T, Φ}},
-                        em::AbstractSpatialEmbedding{T,Φ};
+                        em::AbstractSpatialEmbedding{Φ};
                         ttype = KDTree,
                         method::AbstractLocalModel  = AverageLocalModel(ω_safe),
                         ntype::AbstractNeighborhood = FixedMassNeighborhood(3),

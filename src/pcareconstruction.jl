@@ -21,13 +21,13 @@ instance of [`SpatioTemporalEmbedding`](@ref) to `PCAEmbedding`.
   PCA-reconstruction.
 * `maxoutdim = 25`: Upper limit for output dimension. May break `pratio` criterion.
 * `every_t = 1` : Speed up computation by only using every n-th point in time.
-* `every_α = 1` : Speed up computation further by only using every nth point in space
+* `every_α = 1` : Speed up computation further by only using every n-th point in space
   (linear indexing).
 
 To set the output dimension to a certain value `X`, pass `pratio=1, maxoutdim=X`.
 """
-struct PCAEmbedding{T,Φ,BC,X,Y} <: AbstractSpatialEmbedding{T,Φ,BC,X}
-	stem::SpatioTemporalEmbedding{T,Φ,BC,Y}
+struct PCAEmbedding{T,Φ,BC,X,Y} <: AbstractSpatialEmbedding{Φ,BC,X}
+	stem::SpatioTemporalEmbedding{Φ,BC,Y}
 	meanv::T
 	covmat::Matrix{T}
 	drmodel::PCA{T}
@@ -37,7 +37,7 @@ end
 
 function PCAEmbedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
-		stem::SpatioTemporalEmbedding{T,Φ,BC,Y};
+		stem::SpatioTemporalEmbedding{Φ,BC,Y};
 		pratio   = 0.99,
 		maxoutdim= 25,
 		every_t::Int    = 1,
@@ -83,10 +83,5 @@ compute_pca(covmat::Matrix{T}, pratio, maxoutdim) where T=
 
 get_τmax(em::PCAEmbedding) = get_τmax(em.stem)
 get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)
-
-get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,PeriodicBoundary,X}) where {T,Φ,X} =
-			CartesianIndices(em.whole)
-get_usable_idxs(em::SpatioTemporalEmbedding{T,Φ,ConstantBoundary{C},X}) where {T,Φ,C,X} =
-			CartesianIndices(em.inner)
 
 outdim(em::PCAEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X
