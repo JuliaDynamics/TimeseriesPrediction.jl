@@ -14,7 +14,7 @@ println("Reconstruction Tests")
                 emb = SpatioTemporalEmbedding(s,D,τ,B,k,BC)
                 #Check Embedding Dimension X
                 X = (D+1)*(2B+1)^Φ
-                @test typeof(emb) <: SpatioTemporalEmbedding{Float64,Φ,ConstantBoundary{Float64},X}
+                @test typeof(emb) <: SpatioTemporalEmbedding{Φ,ConstantBoundary{Float64},X}
                 @test length(emb.τ) == X
                 @test length(emb.β) == X
 
