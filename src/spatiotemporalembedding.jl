@@ -126,7 +126,7 @@ struct SpatioTemporalEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
 			) where {Φ,BC,X}
         @assert issorted(τ) "Delays need to be sorted in ascending order"
 		#"ConstantBoundary condition value C needs to be the same type as values in s"
-		if (BC <: ConstantBoundary) && typeof(boundary.c) != T
+		if (BC <: ConstantBoundary) && typeof(bc).c) != T
 			throw(ArgumentError(
 			"Boundary value must be same element type as the timeseries data."))
 		end
