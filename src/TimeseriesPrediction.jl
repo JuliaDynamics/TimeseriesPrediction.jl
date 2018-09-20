@@ -10,7 +10,7 @@ using Statistics, LinearAlgebra
 
 include("localmodeling.jl")
 include("reconstruction.jl")
-
+include("lightconeembedding.jl")
 include("pcareconstruction.jl")
 
 include("temporalprediction.jl")
