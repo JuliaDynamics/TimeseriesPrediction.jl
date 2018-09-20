@@ -11,7 +11,7 @@ using Statistics, LinearAlgebra
 include("localmodeling.jl")
 
 include("spatiotemporalembedding.jl")
-include("pcarembedding.jl")
+include("pcaembedding.jl")
 include("reconstruct.jl")
 
 include("temporalprediction.jl")
