@@ -2,6 +2,7 @@ using Statistics
 using LinearAlgebra
 export AbstractSpatialEmbedding
 export SpatioTemporalEmbedding, STE
+export LightConeEmbedding
 export outdim
 export AbstractBoundaryCondition, PeriodicBoundary, ConstantBoundary
 

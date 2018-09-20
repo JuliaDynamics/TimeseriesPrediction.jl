@@ -44,6 +44,68 @@ println("Reconstruction Tests")
     end
 end
 
+@testset "LightConeEmbedding 1D" begin
+    Φ = 1
+    bc=ConstantBoundary(10.)
+    s = [rand(Float64,([10 for i=1:Φ]...,)) for i=1:10]
+    CI = CartesianIndex
+
+    em = LightConeEmbedding(s, 1, 1, 0, bc; offset = 0)
+    @test em.β == [CI(0)]
+
+    em = LightConeEmbedding(s, 1, 1, 1, bc; offset = 0)
+    @test em.β == CI.(-1:1)
+
+    em = LightConeEmbedding(s, 1, 1, 2, bc; offset = 0)
+    @test em.β == CI.(-2:2)
+
+    em = LightConeEmbedding(s, 1, 1, 1, bc; offset = 1)
+    @test em.β == CI.(-2:2)
+
+    em = LightConeEmbedding(s, 1, 1, 1, bc; offset = -1)
+    @test em.β == [CI(0)]
+
+    em = LightConeEmbedding(s, 2, 1, 1, bc; offset = 1)
+    @test em.β == vcat(CI.(-3:3), CI.(-2:2))
+
+    em = LightConeEmbedding(s, 2, 2, 1, bc; offset = 0)
+    @test em.β == vcat(CI.(-4:4), CI.(-2:2))
+
+    em = LightConeEmbedding(s, 2, 1, 2, bc; offset = 0)
+    @test em.β == vcat(CI.(-4:4), CI.(-2:2))
+
+end
+
+@testset "LightConeEmbedding 2D" begin
+    Φ = 2
+    bc=ConstantBoundary(10.)
+    s = [rand(Float64,([10 for i=1:Φ]...,)) for i=1:10]
+
+    CI = CartesianIndex
+    em = LightConeEmbedding(s, 1, 1, 0, bc; offset = 0)
+    @test em.β == [CI(0,0)]
+
+    em = LightConeEmbedding(s, 1, 1, 1, bc; offset = -1)
+    @test em.β == [CI(0,0)]
+
+    em = LightConeEmbedding(s, 1, 1, 1, bc; offset = 0)
+    @test CI(0,1) ∈ em.β
+    @test CI(0,0) ∈ em.β
+    @test CI(0,-1) ∈ em.β
+    @test CI(1,0) ∈ em.β
+    @test CI(-1,0) ∈ em.β
+        
+    em = LightConeEmbedding(s, 1, 1, 1.5, bc; offset = 0)
+    @test CI(0,1) ∈ em.β
+    @test CI(0,0) ∈ em.β
+    @test CI(0,-1) ∈ em.β
+    @test CI(1,0) ∈ em.β
+    @test CI(-1,0) ∈ em.β
+    @test CI(-1,-1) ∈ em.β
+    @test CI(-1,1) ∈ em.β
+    @test CI(1,1) ∈ em.β
+    @test CI(1,-1) ∈ em.β
+end
 
 include("system_defs.jl")
 
