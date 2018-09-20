@@ -125,6 +125,12 @@ struct SpatioTemporalEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
 	function SpatioTemporalEmbedding{X}(
 			τ::Vector{Int}, β::Vector{CartesianIndex{Φ}}, bc::BC, fsize::NTuple{Φ, Int}
 			) where {Φ,BC,X}
+        @assert issorted(τ) "Delays need to be sorted in ascending order"
+		#"ConstantBoundary condition value C needs to be the same type as values in s"
+		if (BC <: ConstantBoundary) && typeof(boundary.c) != T
+			throw(ArgumentError(
+			"Boundary value must be same element type as the timeseries data."))
+		end
 		inner = inner_region(β, fsize)
 		whole = Region((ones(Int,Φ)...,), fsize)
 		return new{Φ,BC,X}(τ,β,inner,whole, bc)
@@ -136,12 +142,6 @@ function SpatioTemporalEmbedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
 		D, τ, B, k, boundary::BC
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
-	@assert issorted(τ) "Delays need to be sorted in ascending order"
-    #"ConstantBoundary condition value C needs to be the same type as values in s"
-    if !(BC <: PeriodicBoundary) && typeof(boundary.c) != T
-        throw(ArgumentError(
-        "Boundary value must be same element type as the timeseries data."))
-    end
 	X = (D+1)*(2B+1)^Φ
 	τs = Vector{Int}(undef,X)
 	βs = Vector{CartesianIndex{Φ}}(undef,X)
