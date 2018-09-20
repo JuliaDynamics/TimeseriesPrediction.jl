@@ -9,9 +9,10 @@ using Reexport
 using Statistics, LinearAlgebra
 
 include("localmodeling.jl")
-include("reconstruction.jl")
-include("lightconeembedding.jl")
-include("pcareconstruction.jl")
+
+include("spatiotemporalembedding.jl")
+include("pcarembedding.jl")
+include("reconstruct.jl")
 
 include("temporalprediction.jl")
 include("crossprediction.jl")

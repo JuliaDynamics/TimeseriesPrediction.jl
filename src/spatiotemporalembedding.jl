@@ -5,10 +5,9 @@ export SpatioTemporalEmbedding, STE
 export outdim
 export AbstractBoundaryCondition, PeriodicBoundary, ConstantBoundary
 
-import DynamicalSystemsBase: reconstruct
 
 #####################################################################################
-#                 Spatio Temporal Delay Embedding Reconstruction                    #
+#                          Spatio Temporal Delay Embedding                          #
 #####################################################################################
 """
     AbstractSpatialEmbedding <: AbstractEmbedding
@@ -138,22 +137,6 @@ struct SpatioTemporalEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
 end
 const STE = SpatioTemporalEmbedding
 
-function SpatioTemporalEmbedding(
-		s::AbstractArray{<:AbstractArray{T,Φ}},
-		D, τ, B, k, boundary::BC
-		) where {T,Φ, BC<:AbstractBoundaryCondition}
-	X = (D+1)*(2B+1)^Φ
-	τs = Vector{Int}(undef,X)
-	βs = Vector{CartesianIndex{Φ}}(undef,X)
-	n = 1
-	for d=0:D, α = Iterators.product([-B*k:k:B*k for φ=1:Φ]...)
-		τs[n] = d*τ
-		βs[n] = CartesianIndex(α)
-		n +=1
-	end
-	return SpatioTemporalEmbedding{X}(τs, βs, boundary, size(s[1]))
-end
-
 
 
 #This function is not safe. If you call it directly with bad params - can fail
@@ -208,31 +191,78 @@ function Base.show(io::IO, em::SpatioTemporalEmbedding{Φ,BC, X}) where {Φ,BC,X
     end
 end
 
+#####################################################################################
+#                                   CONSTRUCTORS                                    #
+#####################################################################################
 
-"""
-	reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}}, em)
-Reconstruct the spatial timeseries `s` represented by a `Vector` of `AbstractArray`
-states using the embedding struct `em` of type [`AbstractSpatialEmbedding`](@ref).
-
-Returns the reconstruction in the form of a [`Dataset`](@ref) where each row is a
-reconstructed state and they are ordered first through linear indexing into each state
-and then incrementing in time.
-"""
-function reconstruct(s::AbstractArray{<:AbstractArray{T,Φ}},
-	em::AbstractSpatialEmbedding{Φ,BC,X}
-	) where {T<:Number,Φ,BC,X}
-	timesteps = (length(s) - get_τmax(em))
-	num_pt    = get_num_pt(em)
-	L         = timesteps*num_pt
-
-	pt_in_space = CartesianIndices(s[1])
-	lin_idxs    = LinearIndices(s[1])
-	data = Vector{SVector{X,T}}(undef,L)
-	recv = zeros(T,X)
-	@inbounds for t in 1:timesteps, α in pt_in_space
-		n = (t-1)*num_pt+lin_idxs[α]
-		em(recv,s,t,α)
-		data[n] = recv
+function SpatioTemporalEmbedding(
+		s::AbstractArray{<:AbstractArray{T,Φ}},
+		D, τ, B, k, boundary::BC
+		) where {T,Φ, BC<:AbstractBoundaryCondition}
+	X = (D+1)*(2B+1)^Φ
+	τs = Vector{Int}(undef,X)
+	βs = Vector{CartesianIndex{Φ}}(undef,X)
+	n = 1
+	for d=0:D, α = Iterators.product([-B*k:k:B*k for φ=1:Φ]...)
+		τs[n] = d*τ
+		βs[n] = CartesianIndex(α)
+		n +=1
 	end
-	return Dataset(data)
+	return SpatioTemporalEmbedding{X}(τs, βs, boundary, size(s[1]))
+end
+
+
+
+function indices_within(radius, dimension)
+    #Return indices β within hypersphere with radius
+    #Floor radius to nearest integer. Does not lose points
+    r = floor(Int,radius)
+    #Hypercube of indices
+    hypercube = CartesianIndices((repeat([-r:r], dimension)...,))
+    #Select subset of hc which is in Hypersphere
+
+    βs = [ β for β ∈ hypercube if norm(β.I) <= radius ]
+end
+
+"""
+    LightConeEmbedding(s, timesteps, stepsize, speed, boundary) → SpatioTemporalEmbedding
+Create a [`SpatioTemporalEmbedding`](@ref) struct that
+includes spatial and temporal neighbors of a point based on the notion of
+a _sphere of influence_.
+As an example, in a one-dimensional system with `timesteps=2`, `stepsize=2`, and `speed=1`
+the resulting embedding might look like:
+
+    __________o__________
+    _________xxx_________
+    _____________________
+    _______xxxxxxx_______
+where `o` is the point that is to be predicted.
+An optional keyword argument `offset` allows moving the origin of the
+cone along the time axis.
+Above example with `offset = 1` (left) and `offset = -1` (right) becomes
+
+    __________o__________    __________o__________
+    ________xxxxx________    __________x__________
+    _____________________    _____________________
+    ______xxxxxxxxx______    ________xxxxx________
+"""
+function LightConeEmbedding(
+    s::AbstractArray{<:AbstractArray{T,Φ}},
+    timesteps,
+    stepsize,
+    speed,
+    boundary::BC;
+    offset = 0
+    ) where {T,Φ, BC<:AbstractBoundaryCondition}
+    τs = Int[]
+    βs = CartesianIndex{Φ}[]
+    maxτ = stepsize*timesteps
+    for τ = stepsize*(timesteps:-1:1) # Backwards for forward embedding
+        radius = speed*τ + offset
+        β = indices_within(radius, Φ)
+        push!(βs, β...)
+        push!(τs, repeat([maxτ - τ], length(β))...)
+    end
+    X = length(τs)
+    return SpatioTemporalEmbedding{X}(τs, βs, boundary, size(s[1]))
 end
