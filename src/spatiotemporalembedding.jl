@@ -192,8 +192,49 @@ end
 #####################################################################################
 #                                   CONSTRUCTORS                                    #
 #####################################################################################
+"""
+    cubic_shell_embedding(s, D, τ, B, k, bc) → embedding
+Create a [`SpatioTemporalEmbedding`](@ref) instance that
+includes spatial neighbors in a hypercubic *shells*.
+The embedding is to be used with data from `s`.
 
-function SpatioTemporalEmbedding(
+## Description
+Points are participating in the embedding by forming hypercubic cells around
+the current point. The total shells formed are `B`. The points on the cells have
+spatial distance `k ≥ 1` (distance in indices, like a cityblock metric).
+`k = 1` means that all points of the shell participate.
+The points of the hypercubic grid can be separated
+by `k ≥ 1` points apart (i.e. dropping `k-1` in-between points).
+In short, in each spatial dimension of the system the cartesian
+offset indices are `-B*k : k : k*B`.
+
+`D` is the number of temporal steps in the past to be included in the embedding,
+where each step in the past has additional delay time `τ::Int`.
+`D=0` corresponds to using only the present. Notice that **all** time frames have the
+same spatial structure (all time frames use the same hypercube grid), in contrast
+to [`light_cone_embedding`](@ref).
+
+As an example, consider one of the `D` frames (all the same) of a system
+with 2 spatial dimensions (`□` = current point,
+(included *by definition* in the embedding), `n` = included
+points in the embedding coming from `n`-th shell,
+`.` = points not included in the embedding)
+
+```
+      B = 2,  k = 1        |        B = 1,  k = 2        |        B = 2,  k = 2
+                           |                             |
+.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  2  .  2  .  2  .  2  .  2
+.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
+.  .  2  2  2  2  2  .  .  |  .  .  1  .  1  .  1  .  .  |  2  .  1  .  1  .  1  .  2
+.  .  2  1  1  1  2  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
+.  .  2  1  □  1  2  .  .  |  .  .  1  .  □  .  1  .  .  |  2  .  1  .  □  .  1  .  2
+.  .  2  1  1  1  2  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
+.  .  2  2  2  2  2  .  .  |  .  .  1  .  1  .  1  .  .  |  2  .  1  .  1  .  1  .  2
+.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  2  .  2  .  2  .  2  .  2
+```
+"""
+function cubic_shell_embedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
 		D, τ, B, k, boundary::BC
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
@@ -201,6 +242,7 @@ function SpatioTemporalEmbedding(
 	     throw(ArgumentError(
 		"Boundary value must be same element type as the timeseries data."))
 	end
+    @assert k ≥ 1
 	X = (D+1)*(2B+1)^Φ
 	τs = Vector{Int}(undef,X)
 	βs = Vector{CartesianIndex{Φ}}(undef,X)
@@ -228,33 +270,37 @@ function indices_within_sphere(radius, dimension)
 end
 
 """
-    light_cone_embedding(s, D, τ, r₀, c, bc) → SpatioTemporalEmbedding
-Create a [`SpatioTemporalEmbedding`](@ref) struct that
+    light_cone_embedding(s, D, τ, r₀, c, bc) → embedding
+Create a [`SpatioTemporalEmbedding`](@ref) instance that
 includes spatial and temporal neighbors of a point based on the notion of
-a *light cone*. The embedding is to be used with data from `s`.
+a *light cone*.
+
+The embedding is to be used with data from `s`.
 
 ## Description
 Information does not travel instantly but with some finite speed `c ≥ 0.0`.
 This constructor creates a cone-like embedding including all points in
 space and time, whose value can influence a prediction based on the
-information speed `c`. `D` is the number of temporal steps in the past, where each
-step in the past has additional delay time `τ::Int`.
+information speed `c`. `D` is the number of temporal steps in the past to be
+included in the embedding, where each step in the past has additional delay time `τ::Int`.
 `D=0` corresponds to using only the present. `r₀` is the initial radius at the top of
 the cone, i.e. the radius of influence at the present. `bc` is the boundary condition.
 
 The radius of the light cone evolves as: `r = i*τ*c + r₀` for each step `i ∈ 0:D`.
 
 As an example, in a one-dimensional system with `D = 1, τ = 2, r₀ = 1`,
-the embedding looks like (`.` = current point, `o` point to be predicted using
-[`temporalprediction`](@ref), `x` = points included in the embedding)
+the embedding looks like (`□` = current point (included *by definition* in the embedding),
+`o` point to be predicted using
+[`temporalprediction`](@ref), `x` = points included in the embedding,
+`.` = points not included in the embedding)
 
 ```
 time  | c = 1.0               | c = 2.0               | c = 0.0
 
-n + 1 | __________o__________ | __________o__________ | __________o__________
-n     | _________x.x_________ | _________x.x_________ | _________x.x_________
-n - 1 | _____________________ | _____________________ | _____________________
-n - τ | _______xxxxxxx_______ | _____xxxxxxxxxx______ | _________xxx_________
+n + 1 | ..........o.......... | ..........o.......... | ..........o..........
+n     | .........x□x......... | .........x□x......... | .........x□x.........
+n - 1 | ..................... | ..................... | .....................
+n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 ```
 Besides this example, in the official documentation we `explain_light_cone` produces
 a plot of the light cone for 2 spatial dimensions (great for understanding!).
