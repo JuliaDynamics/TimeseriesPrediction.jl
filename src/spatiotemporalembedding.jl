@@ -2,7 +2,7 @@ using Statistics
 using LinearAlgebra
 export AbstractSpatialEmbedding
 export SpatioTemporalEmbedding, STE
-export LightConeEmbedding
+export light_cone_embedding
 export outdim
 export AbstractBoundaryCondition, PeriodicBoundary, ConstantBoundary
 
@@ -226,7 +226,7 @@ function indices_within(radius, dimension)
 end
 
 """
-    LightConeEmbedding(s, N, τ, r₀, c, bc) → SpatioTemporalEmbedding
+    light_cone_embedding(s, N, τ, r₀, c, bc) → SpatioTemporalEmbedding
 Create a [`SpatioTemporalEmbedding`](@ref) struct that
 includes spatial and temporal neighbors of a point based on the notion of
 a _sphere of influence_.
@@ -257,7 +257,7 @@ Above example with `r₀ = 2`, `c = 1` (left) and `r₀ = 1`, `c = 0` (right) be
     _____________________    _____________________
     ______xxxxxxxxx______    _________xxx_________
 """
-function LightConeEmbedding(
+function light_cone_embedding(
     s::AbstractArray{<:AbstractArray{T,Φ}},
     N,
     τ,
@@ -287,7 +287,7 @@ SpatioTemporalEmbedding(s, p::NamedTuple{(:D, :τ, :B, :k, :bc)}) =
     SpatioTemporalEmbedding(s, p.D, p.τ, p.B, p.k, p.bc)
 
 SpatioTemporalEmbedding(s, p::NamedTuple{(:N, :τ, :r₀, :c, :bc)}) =
-    LightConeEmbedding(s, p.N, p.τ, p.r₀, p.c, p.bc)
+    light_cone_embedding(s, p.N, p.τ, p.r₀, p.c, p.bc)
 
 Base.:(==)(em1::T, em2::T) where {T <: AbstractSpatialEmbedding} =
     all(( eval(:($em1.$name == $em2.$name)) for name ∈ fieldnames(T)))
