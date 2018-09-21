@@ -32,7 +32,7 @@ include("system_defs.jl")
     @testset "V LightCone" begin
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Vtest  = V[Tskip + Ttrain :  T]
-        em = SpatioTemporalEmbedding(Vtrain, (N=2,τ=1,r₀=1,c=0.5,bc=BC))
+        em = SpatioTemporalEmbedding(Vtrain, (D=1,τ=1,r₀=1,c=0.5,bc=BC))
         Vpred = temporalprediction(Vtrain,em,p)
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
