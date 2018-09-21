@@ -111,6 +111,7 @@ which allows full control over the spatio-temporal embedding.
   (sorted in ascending order).
 * `β::Vector{CartesianIndex{Φ}}` = vector of *relative* indices of spatial delays
   *for each entry* of the reconstructed space.
+* `bc::BC` : boundary condition.
 * `fsize::NTuple{Φ, Int}` : Size of each state in the timeseries.
 """
 struct SpatioTemporalEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
