@@ -17,7 +17,7 @@ include("system_defs.jl")
     vtest  = V[N_train:N_train+p]
 
     @testset "ALM D=$D, B=$B" for D=2:3, B=1:2
-        em = SpatioTemporalEmbedding(utrain,D,1,B,1,ConstantBoundary(10.))
+        em = cubic_shell_embedding(utrain,D,1,B,1,ConstantBoundary(10.))
         upred = temporalprediction(utrain,em, p)
 
         @test upred[1] == utrain[end]
@@ -27,7 +27,7 @@ include("system_defs.jl")
     end
     @testset "LLM D=$D, B=$B" for D=2:3, B=1:2
         method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.001, 1.)
-        em = SpatioTemporalEmbedding(utrain, D, 1, B,1, ConstantBoundary(10.))
+        em = cubic_shell_embedding(utrain, D, 1, B,1, ConstantBoundary(10.))
         upred = temporalprediction(utrain,em,p; method=method)
 
         @test upred[1] == utrain[end]
@@ -52,7 +52,7 @@ end
     vtest  = V[N_train:N_train+p]
 
     @testset "D=$D, B=$B" for D=2:3, B=1:2
-        em = SpatioTemporalEmbedding(utrain,D,1,B,1,ConstantBoundary(10.))
+        em = cubic_shell_embedding(utrain,D,1,B,1,ConstantBoundary(10.))
         upred = temporalprediction(utrain,em,p)
 
         @test upred[1] == utrain[end]
