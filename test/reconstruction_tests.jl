@@ -51,35 +51,34 @@ end
     s = [rand(Float64,([10 for i=1:Φ]...,)) for i=1:10]
     CI = CartesianIndex
 
-    em = light_cone_embedding(s, 1, 1, 0, 1, bc)
+    em = light_cone_embedding(s, 0, 1, 0, 1, bc)
     @test em.β == [CI(0)]
 
-    em = light_cone_embedding(s, 1, 1, 1, 1, bc)
+    em = light_cone_embedding(s, 0, 1, 1, 1, bc)
     @test em.β == CI.(-1:1)
 
-    em = light_cone_embedding(s, 1, 1, 2, 1, bc)
+    em = light_cone_embedding(s, 0, 1, 2, 1, bc)
     @test em.β == CI.(-2:2)
 
-    em = light_cone_embedding(s, 1, 1, 2, 2, bc)
+    em = light_cone_embedding(s, 0, 1, 2, 2, bc)
     @test em.β == CI.(-2:2)
 
-    em = light_cone_embedding(s, 1, 1, 0, 1, bc)
+    em = light_cone_embedding(s, 0, 1, 0, 1, bc)
     @test em.β == [CI(0)]
 
-    em = light_cone_embedding(s, 2, 1, 2, 1, bc)
+    em = light_cone_embedding(s, 1, 1, 2, 1, bc)
     @test em.β == vcat(CI.(-3:3), CI.(-2:2))
 
+    em = light_cone_embedding(s, 1, 2, 2, 1, bc)
+    @test em.β == vcat(CI.(-4:4), CI.(-2:2))
+
+    em = light_cone_embedding(s, 1, 1, 2, 2, bc)
+    @test em.β == vcat(CI.(-4:4), CI.(-2:2))
+
     em = light_cone_embedding(s, 2, 2, 2, 1, bc)
-    @test em.β == vcat(CI.(-4:4), CI.(-2:2))
-
-    em = light_cone_embedding(s, 2, 1, 2, 2, bc)
-    @test em.β == vcat(CI.(-4:4), CI.(-2:2))
-
-    em = light_cone_embedding(s, 3, 2, 2, 1, bc)
     @test em.β == vcat(CI.(-6:6), CI.(-4:4), CI.(-2:2))
 
-    @test light_cone_embedding(s, 3, 2, 2, 1, bc) == STE(s,(N=3, τ=2, r₀=2, c=1, bc=bc))
-    @test light_cone_embedding(s, 3, 2, 2, 1, bc) == light_cone_embedding(s, 3, 2, 2, 1, bc)
+    @test light_cone_embedding(s, 2, 2, 2, 1, bc) == STE(s,(D=2, τ=2, r₀=2, c=1, bc=bc))
 end
 
 @testset "light_cone_embedding 2D" begin
@@ -88,20 +87,20 @@ end
     s = [rand(Float64,([10 for i=1:Φ]...,)) for i=1:10]
 
     CI = CartesianIndex
-    em = light_cone_embedding(s, 1, 1, 0, 0, bc)
+    em = light_cone_embedding(s, 0, 1, 0, 0, bc)
     @test em.β == [CI(0,0)]
 
-    em = light_cone_embedding(s, 1, 1, 0, 1, bc)
+    em = light_cone_embedding(s, 0, 1, 0, 1, bc)
     @test em.β == [CI(0,0)]
 
-    em = light_cone_embedding(s, 1, 20, 1, 10, bc)
+    em = light_cone_embedding(s, 0, 20, 1, 10, bc)
     @test CI(0,1) ∈ em.β
     @test CI(0,0) ∈ em.β
     @test CI(0,-1) ∈ em.β
     @test CI(1,0) ∈ em.β
     @test CI(-1,0) ∈ em.β
 
-    em = light_cone_embedding(s, 1, 5, 1.5, 17, bc)
+    em = light_cone_embedding(s, 0, 5, 1.5, 17, bc)
     @test CI(0,1) ∈ em.β
     @test CI(0,0) ∈ em.β
     @test CI(0,-1) ∈ em.β
