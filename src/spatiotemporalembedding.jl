@@ -230,20 +230,30 @@ end
 Create a [`SpatioTemporalEmbedding`](@ref) struct that
 includes spatial and temporal neighbors of a point based on the notion of
 a _sphere of influence_.
+
+## Description
+Information does not travel instantly but with some finite speed `c`.
+This constructor creates a cone-like embedding including all points
+whose value can influence a prediction based on the information speed `c`.
+Parameter `N` is the number of different timesteps to include and `τ` the temporal distance
+between the timesteps.
+`r₀` is the initial radius at the top of the cone
+and `bc` is the boundary condition.
+
 As an example, in a one-dimensional system with `N=2` timesteps, `τ=2`,
 `r₀ = 1` initial radius, and speed `c=1`
 the resulting embedding might look like:
 
     __________o__________
-    _________xxx_________
+    _________x.x_________
     _____________________
     _______xxxxxxx_______
-where `o` is the point that is to be predicted.
+where we are at `.` and `o` is the point that is to be predicted.
 The argument `r₀=1` allows changing the radius at the topmost timestep.
 Above example with `r₀ = 2`, `c = 1` (left) and `r₀ = 1`, `c = 0` (right) becomes
 
     __________o__________    __________o__________
-    ________xxxxx________    _________xxx_________
+    ________xx.xx________    _________x.x_________
     _____________________    _____________________
     ______xxxxxxxxx______    _________xxx_________
 """
