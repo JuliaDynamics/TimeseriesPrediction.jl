@@ -5,7 +5,6 @@ LinearAlgebra
 MultivariateStats
 NearestNeighbors 0.1.0
 Parameters
-Reexport
 StaticArrays 0.5.0
 Statistics
 StatsBase 0.8.2

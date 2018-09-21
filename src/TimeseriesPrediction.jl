@@ -3,9 +3,7 @@ Prediction of timeseries using methods of nonlinear dynamics and timeseries anal
 """
 module TimeseriesPrediction
 
-using Reexport
-@reexport using DynamicalSystemsBase
-
+using DynamicalSystemsBase
 using Statistics, LinearAlgebra
 
 include("localmodeling.jl")
