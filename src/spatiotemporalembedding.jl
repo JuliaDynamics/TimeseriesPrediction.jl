@@ -226,11 +226,12 @@ function indices_within(radius, dimension)
 end
 
 """
-    LightConeEmbedding(s, timesteps, stepsize, speed, boundary) → SpatioTemporalEmbedding
+    LightConeEmbedding(s, N, τ, r₀, c, bc) → SpatioTemporalEmbedding
 Create a [`SpatioTemporalEmbedding`](@ref) struct that
 includes spatial and temporal neighbors of a point based on the notion of
 a _sphere of influence_.
-As an example, in a one-dimensional system with `timesteps=2`, `stepsize=2`, and `speed=1`
+As an example, in a one-dimensional system with `N=2` timesteps, `τ=2`,
+`r₀ = 1` initial radius, and speed `c=1`
 the resulting embedding might look like:
 
     __________o__________
@@ -238,36 +239,35 @@ the resulting embedding might look like:
     _____________________
     _______xxxxxxx_______
 where `o` is the point that is to be predicted.
-An optional keyword argument `offset` allows moving the origin of the
-cone along the time axis.
-Above example with `offset = 1` (left) and `offset = -1` (right) becomes
+The argument `r₀=1` allows changing the radius at the topmost timestep.
+Above example with `r₀ = 2`, `c = 1` (left) and `r₀ = 1`, `c = 0` (right) becomes
 
     __________o__________    __________o__________
-    ________xxxxx________    __________x__________
+    ________xxxxx________    _________xxx_________
     _____________________    _____________________
-    ______xxxxxxxxx______    ________xxxxx________
+    ______xxxxxxxxx______    _________xxx_________
 """
 function LightConeEmbedding(
     s::AbstractArray{<:AbstractArray{T,Φ}},
-    timesteps,
-    stepsize,
-    speed,
-    boundary::BC;
-    offset = 0
+    N,
+    τ,
+    r₀,
+    c,
+    bc::BC
     ) where {T,Φ, BC<:AbstractBoundaryCondition}
-    if (BC <: ConstantBoundary) && typeof(boundary.c) != T
+    if (BC <: ConstantBoundary) && typeof(bc.c) != T
         throw(ArgumentError(
         "Boundary value must be same element type as the timeseries data."))
     end
     τs = Int[]
     βs = CartesianIndex{Φ}[]
-    maxτ = stepsize*timesteps
-    for τ = stepsize*(timesteps:-1:1) # Backwards for forward embedding
-        radius = speed*τ + offset
+    maxτ = τ*(N-1)
+    for delay = τ*(N-1:-1:0) # Backwards for forward embedding
+        radius = c*delay + r₀
         β = indices_within(radius, Φ)
         push!(βs, β...)
-        push!(τs, repeat([maxτ - τ], length(β))...)
+        push!(τs, repeat([maxτ - delay], length(β))...)
     end
     X = length(τs)
-    return SpatioTemporalEmbedding{X}(τs, βs, boundary, size(s[1]))
+    return SpatioTemporalEmbedding{X}(τs, βs, bc, size(s[1]))
 end
