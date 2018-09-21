@@ -271,3 +271,6 @@ function LightConeEmbedding(
     X = length(τs)
     return SpatioTemporalEmbedding{X}(τs, βs, bc, size(s[1]))
 end
+
+Base.:(==)(em1::T, em2::T) where {T <: AbstractSpatialEmbedding} =
+    all(( eval(:($em1.$name == $em2.$name)) for name ∈ fieldnames(T)))
