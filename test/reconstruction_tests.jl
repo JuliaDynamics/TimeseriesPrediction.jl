@@ -12,6 +12,7 @@ println("Reconstruction Tests")
                 #Ugly way of creating Φ dim array
                 s = [rand(Float64,([10 for i=1:Φ]...,)) for i=1:10]
                 emb = SpatioTemporalEmbedding(s,D,τ,B,k,BC)
+                @test emb ==  SpatioTemporalEmbedding(s,(D=D,τ=τ,B=B,k=k,bc=BC))
                 #Check Embedding Dimension X
                 X = (D+1)*(2B+1)^Φ
                 @test typeof(emb) <: SpatioTemporalEmbedding{Φ,ConstantBoundary{Float64},X}
@@ -76,6 +77,9 @@ end
 
     em = LightConeEmbedding(s, 3, 2, 2, 1, bc)
     @test em.β == vcat(CI.(-6:6), CI.(-4:4), CI.(-2:2))
+
+    @test LightConeEmbedding(s, 3, 2, 2, 1, bc) == STE(s,(N=3, τ=2, r₀=2, c=1, bc=bc))
+    @test LightConeEmbedding(s, 3, 2, 2, 1, bc) == LightConeEmbedding(s, 3, 2, 2, 1, bc)
 end
 
 @testset "LightConeEmbedding 2D" begin

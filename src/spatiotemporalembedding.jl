@@ -272,5 +272,12 @@ function LightConeEmbedding(
     return SpatioTemporalEmbedding{X}(τs, βs, bc, size(s[1]))
 end
 
+
+SpatioTemporalEmbedding(s, p::NamedTuple{(:D, :τ, :B, :k, :bc)}) =
+    SpatioTemporalEmbedding(s, p.D, p.τ, p.B, p.k, p.bc)
+
+SpatioTemporalEmbedding(s, p::NamedTuple{(:N, :τ, :r₀, :c, :bc)}) =
+    LightConeEmbedding(s, p.N, p.τ, p.r₀, p.c, p.bc)
+
 Base.:(==)(em1::T, em2::T) where {T <: AbstractSpatialEmbedding} =
     all(( eval(:($em1.$name == $em2.$name)) for name ∈ fieldnames(T)))
