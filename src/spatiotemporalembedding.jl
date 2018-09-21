@@ -208,14 +208,12 @@ offset indices are `-B*k : k : k*B`.
 
 `D` is the number of temporal steps in the past to be included in the embedding,
 where each step in the past has additional delay time `τ::Int`.
-`D=0` corresponds to using only the present. Notice that **all** time frames have the
-same spatial structure (all time frames use the same hypercube grid), in contrast
-to [`light_cone_embedding`](@ref).
+`D=0` corresponds to using only the present. Notice that **all** embedded
+time frames have the same spatial structure, in contrast to [`light_cone_embedding`](@ref).
 
-As an example, consider one of the `D` frames (all the same) of a system
-with 2 spatial dimensions (`□` = current point,
-(included *by definition* in the embedding), `n` = included
-points in the embedding coming from `n`-th shell,
+As an example, consider one of the `D` embedded frames (all are the same) of a system
+with 2 spatial dimensions (`□` = current point, (included *by definition* in the
+embedding), `n` = included points in the embedding coming from `n`-th shell,
 `.` = points not included in the embedding)
 
 ```
