@@ -192,7 +192,7 @@ end
 """
     cubic_shell_embedding(s, D, τ, B, k, bc) → embedding
 Create a [`SpatioTemporalEmbedding`](@ref) instance that
-includes spatial neighbors in a hypercubic *shells*.
+includes spatial neighbors in hypercubic *shells*.
 The embedding is to be used with data from `s`.
 
 ## Description
