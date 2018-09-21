@@ -197,8 +197,8 @@ includes spatial neighbors in hypercubic *shells*.
 The embedding is to be used with data from `s`.
 
 ## Description
-Points are participating in the embedding by forming hypercubic cells around
-the current point. The total shells formed are `B`. The points on the cells have
+Points are participating in the embedding by forming hypercubic shells around
+the current point. The total shells formed are `B`. The points on the shells have
 spatial distance `k ≥ 1` (distance in indices, like a cityblock metric).
 `k = 1` means that all points of the shell participate.
 The points of the hypercubic grid can be separated
