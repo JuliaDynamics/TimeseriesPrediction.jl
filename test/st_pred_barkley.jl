@@ -29,6 +29,17 @@ include("system_defs.jl")
             @test maximum(err[i]) < 0.1
         end
     end
+    @testset "V LightCone" begin
+        Vtrain = V[Tskip + 1:Tskip + Ttrain]
+        Vtest  = V[Tskip + Ttrain :  T]
+        em = SpatioTemporalEmbedding(Vtrain, (N=2,τ=1,r₀=1,c=0.5,bc=BC))
+        Vpred = temporalprediction(Vtrain,em,p)
+        @test Vpred[1] == Vtrain[end]
+        err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
+        for i in 1:p
+            @test maximum(err[i]) < 0.1
+        end
+    end
     @testset "U, D=2, B=1" begin
         D=2; B=1
         Utrain = U[Tskip + 1:Tskip + Ttrain]
