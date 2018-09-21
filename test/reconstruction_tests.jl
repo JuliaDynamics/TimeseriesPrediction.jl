@@ -5,13 +5,13 @@ import MultivariateStats
 const MS = MultivariateStats
 
 println("Reconstruction Tests")
-@testset "SpatioTemporalEmbedding" begin
+@testset "cubic_shell_embedding" begin
     for D=[0,4], τ ∈ [1,20], B=[1,3], k=[1,3], Φ=1:4
         BC=ConstantBoundary(10.)
         @testset "D=$D, τ=$τ, B=$B, k=$k, Φ=$Φ" begin
                 #Ugly way of creating Φ dim array
                 s = [rand(Float64,([10 for i=1:Φ]...,)) for i=1:10]
-                emb = SpatioTemporalEmbedding(s,D,τ,B,k,BC)
+                emb = cubic_shell_embedding(s,D,τ,B,k,BC)
                 @test emb ==  SpatioTemporalEmbedding(s,(D=D,τ=τ,B=B,k=k,bc=BC))
                 #Check Embedding Dimension X
                 X = (D+1)*(2B+1)^Φ
@@ -32,7 +32,7 @@ println("Reconstruction Tests")
     @testset "Order of rec. points" begin
         D=1; τ=1; B=1; k=1; c=10; BC=ConstantBoundary(c); Φ=2
         data = [reshape(1+i:9+i, 3,3) for i∈[0,9]]
-        emb = SpatioTemporalEmbedding(data, D,τ,B,k,BC)
+        emb = cubic_shell_embedding(data, D,τ,B,k,BC)
         t = 1
         α = CartesianIndex(2,2)
         rvec = zeros(18);
@@ -121,7 +121,7 @@ println("Testing PCA Functions")
     V = V[200:end]
     let D=5, τ=1, B=1,k=1
         BC = PeriodicBoundary()
-        em = SpatioTemporalEmbedding(U,D,τ,B,k,BC)
+        em = cubic_shell_embedding(U,D,τ,B,k,BC)
         RR = reconstruct(U, em)
         meanv = mean(mean.(U))
         R = reshape(reinterpret(Float64, RR.data), (size(RR)[2], size(RR)[1]))

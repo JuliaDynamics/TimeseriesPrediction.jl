@@ -2,10 +2,11 @@ using Statistics
 using LinearAlgebra
 export AbstractSpatialEmbedding
 export SpatioTemporalEmbedding, STE
-export light_cone_embedding
 export outdim
 export AbstractBoundaryCondition, PeriodicBoundary, ConstantBoundary
 export indices_within_sphere
+export light_cone_embedding, cubic_shell_embedding
+
 
 
 #####################################################################################
@@ -332,7 +333,7 @@ end
 
 
 SpatioTemporalEmbedding(s, p::NamedTuple{(:D, :τ, :B, :k, :bc)}) =
-    SpatioTemporalEmbedding(s, p.D, p.τ, p.B, p.k, p.bc)
+    cubic_shell_embedding(s, p.D, p.τ, p.B, p.k, p.bc)
 
 SpatioTemporalEmbedding(s, p::NamedTuple{(:D, :τ, :r₀, :c, :bc)}) =
     light_cone_embedding(s, p.D, p.τ, p.r₀, p.c, p.bc)

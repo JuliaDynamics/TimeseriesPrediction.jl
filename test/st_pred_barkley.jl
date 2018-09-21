@@ -21,7 +21,7 @@ include("system_defs.jl")
     @testset "V, D=$D, B=$B" for D=2, B=1
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Vtest  = V[Tskip + Ttrain :  T]
-        em = SpatioTemporalEmbedding(Vtrain,D,τ,B,k,BC)
+        em = cubic_shell_embedding(Vtrain,D,τ,B,k,BC)
         Vpred = temporalprediction(Vtrain,em,p)
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
@@ -44,7 +44,7 @@ include("system_defs.jl")
         D=2; B=1
         Utrain = U[Tskip + 1:Tskip + Ttrain]
         Utest  = U[Tskip + Ttrain :  T]
-        em = SpatioTemporalEmbedding(Utrain,D,τ,B,k,BC)
+        em = cubic_shell_embedding(Utrain,D,τ,B,k,BC)
         Upred = temporalprediction(Utrain,em,p)
         @test Upred[1] == Utrain[end]
         err = [abs.(Utest[i]-Upred[i]) for i=1:p+1]
@@ -58,7 +58,7 @@ include("system_defs.jl")
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Utest  = U[Tskip + Ttrain - (D-1)τ + 1:  T]
         Vtest  = V[Tskip + Ttrain - (D-1)τ + 1:  T]
-        em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
+        em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
         Upred = crossprediction(Vtrain,Utrain,Vtest, em)
         err = [abs.(Utest[1+(D-1)τ:end][i]-Upred[i]) for i=1:p-1]
         for i in 1:length(err)
@@ -82,7 +82,7 @@ end
         U,V = barkley_periodic_boundary(T, Nx, Ny)
         Vtrain = V[Tskip + 1:Tskip + Ttrain]
         Vtest  = V[Tskip + Ttrain :  T]
-        em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
+        em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
         Vpred = temporalprediction(Vtrain, em, p)
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
@@ -98,7 +98,7 @@ end
             U,V = barkley_periodic_boundary_nonlin(T, Nx, Ny)
             Vtrain = V[Tskip + 1:Tskip + Ttrain]
             Vtest  = V[Tskip + Ttrain :  T]
-            em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
+            em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
             Vpred = temporalprediction(Vtrain, em, p)
             @test Vpred[1] == Vtrain[end]
             err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
@@ -113,7 +113,7 @@ end
             U,V = barkley_periodic_boundary_nonlin(T, Nx, Ny)
             Vtrain = V[Tskip + 1:Tskip + Ttrain]
             Vtest  = V[Tskip + Ttrain :  T]
-            em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
+            em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
             Vpred = temporalprediction(Vtrain, em, p)
             @test Vpred[1] == Vtrain[end]
             err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
