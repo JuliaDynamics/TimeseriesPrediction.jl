@@ -97,25 +97,21 @@ Note that there are no bounds checks for `t`.
 It is assumed that `s` is a `Vector{<:AbstractArray{T,Φ}}`.
 
 ## Constructors
+There are some convenience constructors that return intuitive embeddings here:
+* [`cubic_shell_embedding`](@ref)
+* [`light_cone_embedding`](@ref)
 
-    SpatioTemporalEmbedding(s, D, τ, B, k, bc)
-`s` is the spatial timeseries to be reconstructed (not copied).
-`B` is the number of spatial shells separated by `k` points around each point.
-`D` is the number of temporal neighbours (past timesteps), each separated by `τ::Int`.
-`bc` is the boundary condition (see [`AbstractBoundaryCondition`](@ref)).
+The "main" constructor is
 
 	SpatioTemporalEmbedding{X}(τ, β, bc, fsize)
-This advanced constructor allows full control over the spatio-temporal embedding.
+
+which allows full control over the spatio-temporal embedding.
 * `Χ == length(τ) == length(β)` : dimensionality of resulting reconstructed space.
 * `τ::Vector{Int}` = Vector of temporal delays *for each entry* of the reconstructed space
   (sorted in ascending order).
 * `β::Vector{CartesianIndex{Φ}}` = vector of *relative* indices of spatial delays
   *for each entry* of the reconstructed space.
 * `fsize::NTuple{Φ, Int}` : Size of each state in the timeseries.
-
-An example of how this constructor can be used to make a "light cone" embedding
-is included in the
-[official documentation page](https://juliadynamics.github.io/DynamicalSystems.jl/latest/).
 """
 struct SpatioTemporalEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
   	τ::Vector{Int}
