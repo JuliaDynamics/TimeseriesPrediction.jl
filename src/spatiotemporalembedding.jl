@@ -5,6 +5,7 @@ export SpatioTemporalEmbedding, STE
 export light_cone_embedding
 export outdim
 export AbstractBoundaryCondition, PeriodicBoundary, ConstantBoundary
+export indices_within_sphere
 
 
 #####################################################################################
@@ -213,53 +214,54 @@ function SpatioTemporalEmbedding(
 end
 
 
-
-function indices_within(radius, dimension)
-    #Return indices β within hypersphere with radius
-    #Floor radius to nearest integer. Does not lose points
+"""
+    indices_within_sphere(r, Φ) → β
+Return all cartesian indices within a hypersphere or radius `r` and dimension `Φ`.
+"""
+function indices_within_sphere(radius, dimension)
+    #Floor radius to nearest integer. Does not lose points!
     r = floor(Int,radius)
     #Hypercube of indices
     hypercube = CartesianIndices((repeat([-r:r], dimension)...,))
     #Select subset of hc which is in Hypersphere
-
     βs = [ β for β ∈ hypercube if norm(β.I) <= radius ]
 end
 
 """
-    light_cone_embedding(s, N, τ, r₀, c, bc) → SpatioTemporalEmbedding
+    light_cone_embedding(s, D, τ, r₀, c, bc) → SpatioTemporalEmbedding
 Create a [`SpatioTemporalEmbedding`](@ref) struct that
 includes spatial and temporal neighbors of a point based on the notion of
-a _sphere of influence_.
+a *light cone*. The embedding is to be used with data from `s`.
 
 ## Description
-Information does not travel instantly but with some finite speed `c`.
-This constructor creates a cone-like embedding including all points
-whose value can influence a prediction based on the information speed `c`.
-Parameter `N` is the number of different timesteps to include and `τ` the temporal distance
-between the timesteps.
-`r₀` is the initial radius at the top of the cone
-and `bc` is the boundary condition.
+Information does not travel instantly but with some finite speed `c ≥ 0.0`.
+This constructor creates a cone-like embedding including all points in
+space and time, whose value can influence a prediction based on the
+information speed `c`. `D` is the number of temporal steps in the past, where each
+step in the past has additional delay time `τ::Int`.
+`D=0` corresponds to using only the present. `r₀` is the initial radius at the top of
+the cone, i.e. the radius of influence at the present. `bc` is the boundary condition.
 
-As an example, in a one-dimensional system with `N=2` timesteps, `τ=2`,
-`r₀ = 1` initial radius, and speed `c=1`
-the resulting embedding might look like:
+The radius of the light cone evolves as: `r = i*τ*c + r₀` for each step `i ∈ 0:D`.
 
-    __________o__________
-    _________x.x_________
-    _____________________
-    _______xxxxxxx_______
-where we are at `.` and `o` is the point that is to be predicted.
-The argument `r₀=1` allows changing the radius at the topmost timestep.
-Above example with `r₀ = 2`, `c = 1` (left) and `r₀ = 1`, `c = 0` (right) becomes
+As an example, in a one-dimensional system with `D = 1, τ = 2, r₀ = 1`,
+the embedding looks like (`.` = current point, `o` point to be predicted using
+[`temporalprediction`](@ref), `x` = points included in the embedding)
 
-    __________o__________    __________o__________
-    ________xx.xx________    _________x.x_________
-    _____________________    _____________________
-    ______xxxxxxxxx______    _________xxx_________
+```
+time  | c = 1.0               | c = 2.0               | c = 0.0
+
+n + 1 | __________o__________ | __________o__________ | __________o__________
+n     | _________x.x_________ | _________x.x_________ | _________x.x_________
+n - 1 | _____________________ | _____________________ | _____________________
+n - τ | _______xxxxxxx_______ | _____xxxxxxxxxx______ | _________xxx_________
+```
+Besides this example, the function [`explain_light_cone`](@ref) produces
+a plot of the light cone for 2 spatial dimensions, which greatly helps in understanding.
 """
 function light_cone_embedding(
     s::AbstractArray{<:AbstractArray{T,Φ}},
-    N,
+    D,
     τ,
     r₀,
     c,
@@ -271,10 +273,10 @@ function light_cone_embedding(
     end
     τs = Int[]
     βs = CartesianIndex{Φ}[]
-    maxτ = τ*(N-1)
-    for delay = τ*(N-1:-1:0) # Backwards for forward embedding
+    maxτ = τ*D
+    for delay = τ*(D:-1:0) # Backwards for forward embedding
         radius = c*delay + r₀
-        β = indices_within(radius, Φ)
+        β = indices_within_sphere(radius, Φ)
         push!(βs, β...)
         push!(τs, repeat([maxτ - delay], length(β))...)
     end
