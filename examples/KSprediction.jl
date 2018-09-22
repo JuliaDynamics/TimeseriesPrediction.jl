@@ -81,7 +81,7 @@ k = 1
 ntype = FixedMassNeighborhood(4)
 method = AverageLocalModel()
 
-em = SpatioTemporalEmbedding(utrain, D,τ,B,k,PeriodicBoundary())
+em = cubic_shell_embedding(utrain, D,τ,B,k,PeriodicBoundary())
 pcaem= PCAEmbedding(utrain,em)
 @time upred = temporalprediction(utrain,pcaem, Ntest;ntype=ntype, method=method)
 

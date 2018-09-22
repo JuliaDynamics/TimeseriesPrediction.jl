@@ -90,7 +90,7 @@ Utest  = U[Tskip + Ttrain - D*τ + 1:  T]
 Vtest  = V[Tskip + Ttrain - D*τ + 1:  T]
 
 
-em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,bc)
+em = cubic_shell_embedding(Vtrain, D,τ,B,k,bc)
 pcaem = PCAEmbedding(Vtrain, em)
 Upred = crossprediction(Vtrain,Utrain,Vtest, pcaem)
 err = [abs.(Utest[1+D*τ:end][i]-Upred[i]) for i=1:Ttest]

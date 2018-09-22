@@ -64,8 +64,6 @@ function barkley_const_boundary(T, Nx, Ny)
             Σ[i,j,r] = 0
         end
         r,s = s,r
-        #V[:,:,m] .= v
-        #U[:,:,m] .= u
         push!(U,copy(u))
         push!(V,copy(v))
     end
@@ -92,7 +90,7 @@ D = 2
 B = 2
 k = 1
 c = 200.
-em = SpatioTemporalEmbedding(Vtrain,D,τ,B,k,ConstantBoundary(c))
+em = cubic_shell_embedding(Vtrain,D,τ,B,k,ConstantBoundary(c))
 pcaem = PCAEmbedding(Vtrain, em)
 @time Vpred = temporalprediction(Vtrain,pcaem,p)
 err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]

@@ -105,7 +105,7 @@ Vtest  = V[Tskip + Ttrain  - (D-1)τ + 1:  T]
 Vtrain = V[Tskip + 1:Tskip + Ttrain]
 Vtest  = V[Tskip + Ttrain :  T]
 
-em = SpatioTemporalEmbedding(Vtrain, D,τ,B,k,BC)
+em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
 Vpred = temporalprediction(Vtrain, em, Ttest)
 
 err = [abs.(Vtest[i]-Vpred[i]) for i=1:Ttest+1]
