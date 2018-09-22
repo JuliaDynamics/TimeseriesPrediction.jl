@@ -296,10 +296,9 @@ object of the same type as `s`, which can be either a timeseries (vector) or an
 always contains the final point of `s` as starting point. This means that the
 returned data has length of `p + 1`.
 
-If given `(s, D, τ)`, then a [`Reconstruction`](@ref) is performed on `s`
-with dimension `D` and delay `τ`. If given only `s` then no [`Reconstruction`](@ref)
-is done. Keep in mind that the intented behavior of the algorithm is to work with
-a reconstruction, and not "raw" data.
+If given `(s, D, τ)`, it first calls [`reconstruct`](@ref) on `s`
+with dimension `D` and delay `τ`. If given only `s` then no reconstruction
+is done.
 
 ## Keyword Arguments
   * `method = AverageLocalModel(ω_unsafe)` : Subtype of [`AbstractLocalModel`](@ref).
