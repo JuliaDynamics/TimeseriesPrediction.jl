@@ -47,10 +47,11 @@ end
 
 
 function barkley_const_boundary(T, Nx, Ny)
+    @assert Nx ≥ 40
     a = 0.75
     b = 0.02
     ε = 0.02
-
+    
     u = zeros(Nx, Ny)
     v = zeros(Nx, Ny)
     U = Vector{Array{Float64,2}}()
