@@ -17,10 +17,10 @@ The spatio temporal delay embedding process is defined by `em`.
 See [`AbstractSpatialEmbedding`](@ref) for available methods and interfaces.
 
 ## Keyword Arguments
-  * `ttype = KDTree` : Type/Constructor of tree structure. So far only tested with `KDTree`.
-  * `method = AverageLocalModel(ω_safe)` : Subtype of [`AbstractLocalModel`](@ref).
-  * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
-  * `printprogress = true` : To print progress done.
+* `ttype = KDTree` : Type/Constructor of tree structure. So far only tested with `KDTree`.
+* `method = AverageLocalModel(ω_safe)` : Subtype of [`AbstractLocalModel`](@ref).
+* `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
+* `printprogress = true` : To print progress done.
 
 ## Description
 The reconstructed state of `source_train[t][i,j,...]` is associated with the output
