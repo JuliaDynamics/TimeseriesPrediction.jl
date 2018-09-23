@@ -11,13 +11,10 @@ is part of the library [DynamicalSystems.jl](https://juliadynamics.github.io/Dyn
 All exported names have detailed documentation strings!
 
 ## Spatio-Temporal Timeseries Example
-Running the file `examples/barkley_tspred.jl` takes a couple of minutes, but
-produces:
-
 ![Barkley prediction](https://i.imgur.com/KjnaWIA.gif)
 
-The example first simulates the Barkley model.
-Then, after a simulation of `1000` time steps,
-it makes a temporal prediction of one of the two fields (`v`) for `200` time steps.
+The example performs a temporal prediction of the Barkley model.
+A simulation of `1000` time steps is given to `temporalprediction`, using the field `v`.
+The function attemps to predict for `200` time steps.
 The animated figure shows the true evolution of the model, the prediction
 and the error of the prediction.
