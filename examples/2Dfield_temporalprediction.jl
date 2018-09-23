@@ -1,16 +1,14 @@
-#=
-This example predicts the temporal evolution of a field U,
-which has to be represented as vectors of matrices.
-Where the field comes from does not matter, but to make the example
-runnable we load one of the test systems of TimeseriesPrediction.
+# This example predicts the temporal evolution of a field U,
+# which has to be represented as vectors of matrices.
+# Where the field comes from does not matter, but to make the example
+# runnable we load one of the test systems of TimeseriesPrediction.
+#
+# This example uses light cone embedding and a nonlinear Barkley model.
+#
+# Importantly, the results are compared with the "real" evolution of the
+# system.
 
-This example uses light cone embedding and a nonlinear Barkley model.
-
-Importantly, the results are compared with the "real" evolution of the
-system.
-=#
-
-# %% Simulate a test System OR provide U, V
+# ### Simulate a test system
 using PyPlot
 using TimeseriesPrediction
 
@@ -27,7 +25,7 @@ T = Tskip + Ttrain + Ttest
 
 U, V = barkley_periodic_boundary_nonlin(T, Nx, Ny)
 
-# %% Temporal prediction of field U
+# ### Temporal prediction of field U
 D = 2
 τ = 1
 r₀ = 1
@@ -40,11 +38,13 @@ test  = U[Tskip + Ttrain : T]
 em = light_cone_embedding(pool, D,τ,r₀,c,bc)
 pcaem = PCAEmbedding(pool, em) # PCA speeds things up!
 
-@time pred = temporalprediction(pool, em, Ttest)
+@time pred = temporalprediction(pool, em, Ttest; progress = false)
 
 err = [abs.(test[i]-pred[i]) for i=1:Ttest+1]
 
-# %% Plot prediction
+println("Maximum error: ", maximum(maximum(e) for e in err))
+
+# ### Plot prediction
 
 # Deduce field maximum values
 vmax = max(maximum(maximum(s) for s in test),
@@ -52,7 +52,7 @@ vmax = max(maximum(maximum(s) for s in test),
 vmin = min(minimum(minimum(s) for s in test),
            minimum(minimum(s) for s in pred))
 
-
+# plot plot plot
 for i in [1, length(err)÷2, length(err)]
 
     fig = figure(figsize=(10,3))

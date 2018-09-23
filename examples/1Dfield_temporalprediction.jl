@@ -1,18 +1,17 @@
-#=
-This example predicts the temporal evolution of a field
-consisting U, along with a time vector T,
-which has to be represented as vectors of vectors.
-Where the field comes from does not matter, but to make the example
-runnable we load one of the test systems of TimeseriesPrediction.
+# This example predicts the temporal evolution of a one-dimensional field
+# U, along with a time vector T,
+# which has to be represented as vectors of vectors.
+# Where the field comes from does not matter, but to make the example
+# runnable we load one of the test systems of `TimeseriesPrediction`.
+#
+# In this example we use the solution of Kuramoto Sivashinsky equation.
+#
+# Importantly, the results are compared with the "real" evolution of the
+# system.
+#
+# In the plots, the x axis is space and y axis is time.
 
-In this example we use the solution of Kuramoto Sivashinsky equation.
-
-Importantly, the results are compared with the "real" evolution of the
-system.
-
-In the plots, the x axis is space and y axis is time.
-=#
-#%%
+# ### Produce field U (Kuramoto Sivashinsky)
 using PyPlot
 using TimeseriesPrediction
 
@@ -26,7 +25,7 @@ N = Ntrain + p
 
 U, T = KuramotoSivashinsky(64, 22, N÷4, 0.25)
 
-# %% Temporal prediction of field U
+# ### Temporal prediction of field U
 Q = length(U[1]) # spatial length
 pool = U[1:Ntrain]
 test = U[Ntrain:N]
@@ -41,29 +40,30 @@ method = AverageLocalModel()
 em = cubic_shell_embedding(pool, D,τ,B,k,PeriodicBoundary())
 pcaem= PCAEmbedding(pool,em)
 
-@time pred = temporalprediction(pool,pcaem, p;ntype=ntype, method=method)
+@time pred = temporalprediction(pool,pcaem, p;ntype=ntype, method=method, progress = false)
 
 err = [abs.(test[i]-pred[i]) for i=1:p+1]
+println("Maximum error: ", maximum(maximum(e) for e in err))
 
 
-# %% Plot prediction
+# ### Plot the result
 
-# Deduce field maximum values
+# Deduce field extremal values
 vmax = max(maximum(maximum(s) for s in test),
            maximum(maximum(s) for s in pred))
 vmin = min(minimum(minimum(s) for s in test),
            minimum(minimum(s) for s in pred))
 
-
-fig = figure(figsize=(8,8))
-ax1 = subplot2grid((3,1), (0,0))
-ax2 = subplot2grid((3,1), (1,0))
-ax3 = subplot2grid((3,1), (2,0))
-
-#Original
+# Transform data for imshow
 ptest = cat(test..., dims = 2)
 ppred = cat(pred..., dims = 2)
 perr = cat(err..., dims = 2)
+
+# plot plot plot
+fig = figure(figsize=(8,8))
+ax1 = subplot2grid((3,1), (0,0))
+ax2 = subplot2grid((3,1), (1,0))
+ax3 = subplot2grid((3,1), (2,0));
 
 im1 = ax1[:imshow](ppred, cmap="viridis", vmin = vmin, vmax = vmax,
 aspect = "auto", extent = (T[Ntrain], T[N], 1, Q))

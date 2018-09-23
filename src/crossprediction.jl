@@ -20,7 +20,7 @@ See [`AbstractSpatialEmbedding`](@ref) for available methods and interfaces.
 * `ttype = KDTree` : Type/Constructor of tree structure. So far only tested with `KDTree`.
 * `method = AverageLocalModel(ω_safe)` : Subtype of [`AbstractLocalModel`](@ref).
 * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
-* `printprogress = true` : To print progress done.
+* `progress = true` : To print progress done.
 
 ## Description
 The reconstructed state of `source_train[t][i,j,...]` is associated with the output
@@ -61,7 +61,7 @@ function crossprediction(train_in ::AbstractVector{<:AbstractArray{T, Φ}},
                         progress=true
                         ) where {T, Φ}
     params = PredictionParameters(em, method, ntype, ttype)
-    crossprediction(params, train_in, train_out, pred_in; progress=true)
+    crossprediction(params, train_in, train_out, pred_in; progress=progress)
 end
 
 function crossprediction(params, train_in, train_out, pred_in; progress=true)

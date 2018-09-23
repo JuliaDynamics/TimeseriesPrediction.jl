@@ -34,7 +34,7 @@ For available methods and interfaces see [`AbstractSpatialEmbedding`](@ref).
   * `ttype = KDTree` : Type/Constructor of tree structure. So far only tested with `KDTree`.
   * `method = AverageLocalModel(ω_safe)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
-  * `printprogress = true` : To print progress done.
+  * `progress = true` : To print progress done.
 
 ## Description
 This method works similarly to [`localmodel_tsp`](@ref), by expanding the concept

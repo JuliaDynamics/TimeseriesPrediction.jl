@@ -1,16 +1,14 @@
-#=
-This example cross-predicts a field U from a field V.
-Both fields have to be represented as vectors of matrices.
-Where the fields come from does not matter, but to make the example
-runnable we load one of the test systems of TimeseriesPrediction.
+# This example cross-predicts a field U from a field V.
+# Both fields have to be represented as vectors of matrices.
+# Where the fields come from does not matter, but to make the example
+# runnable we load one of the test systems of TimeseriesPrediction.
+#
+# This example uses cubic shell embedding and a linear Barkley model.
+#
+# Importantly, the results are compared with the "real" evolution of the
+# system.
 
-This example uses cubic shell embedding and a linear Barkley model.
-
-Importantly, the results are compared with the "real" evolution of the
-system.
-=#
-
-# %% Simulate a test System OR provide U, V
+# ### Simulate a test system
 using PyPlot
 using TimeseriesPrediction
 
@@ -27,7 +25,7 @@ T = Tskip +Ttrain + Ttest
 
 U, V = barkley_const_boundary(T, Nx, Ny)
 
-# %% Cross predict field U from field V
+# ### Cross predict field U from field V
 D = 2
 τ = 1
 B = 2
@@ -42,13 +40,16 @@ target_test  = U[Tskip + Ttrain  - D*τ + 1:  T]
 em = cubic_shell_embedding(source_train, D,τ,B,k,bc)
 pcaem = PCAEmbedding(source_train, em) # PCA speeds things up!
 
-@time target_pred = crossprediction(source_train, target_train, source_pred, em)
+@time target_pred = crossprediction(source_train, target_train, source_pred, em;
+progress = false)
 
 err = [abs.(target_test[i]-target_pred[i]) for i=1:Ttest]
 
-# %% Plot prediction
+println("Maximum error: ", maximum(maximum(e) for e in err))
 
-# Deduce field maximum values
+# ### Plot prediction
+
+# Deduce field extremal values
 source_max = maximum(maximum(s) for s in source_pred)
 target_max = max(maximum(maximum(s) for s in target_test),
                  maximum(maximum(s) for s in target_pred))
@@ -56,7 +57,7 @@ source_min = minimum(minimum(s) for s in source_pred)
 target_min = min(minimum(minimum(s) for s in target_test),
                  minimum(minimum(s) for s in target_pred))
 
-
+# Plot various predicted frames (only the last one shown here)
 for i in [1, length(err)÷2, length(err)]
 
     fig = figure(figsize=(10,10))
