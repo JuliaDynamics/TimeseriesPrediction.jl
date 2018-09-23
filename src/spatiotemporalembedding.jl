@@ -298,8 +298,9 @@ n     | .........x□x......... | .........x□x......... | .........x□x......
 n - 1 | ..................... | ..................... | .....................
 n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 ```
-Besides this example, in the official documentation we `explain_light_cone` produces
-a plot of the light cone for 2 spatial dimensions (great for understanding!).
+Besides this example, in the official documentation we show a function `explain_light_cone`
+which produces a plot of the light cone for 2 spatial dimensions
+(great for understanding!).
 """
 function light_cone_embedding(
     s::AbstractArray{<:AbstractArray{T,Φ}},

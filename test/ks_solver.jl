@@ -1,11 +1,6 @@
-using TimeseriesPrediction
-using PyPlot
-using FFTW
-using Statistics
+using FFTW, Statistics
 
-cd(@__DIR__);
-
-function KS(Q, N, tmax, h; M=16, tr=1000)
+function KuramotoSivashinsky(Q, N, tmax, h; M=16, tr=1000)
     #@assert N/λ % 1 == 0 "N/λ % 1 != 0"
     nmax = round(Int,tmax/h)
     x = N*(1:Q) / Q
@@ -62,63 +57,4 @@ function KS(Q, N, tmax, h; M=16, tr=1000)
         end
     end
     return uu,tt
-end
-
-
-
-Ntrain = 10000
-Ntest = 100
-N = Ntrain + Ntest
-
-u, = KS(64,22, N÷4, 0.25)
-utrain = u[1:Ntrain]
-utest  = u[Ntrain:N]
-
-D = 10
-τ = 1
-B = 10
-k = 1
-ntype = FixedMassNeighborhood(4)
-method = AverageLocalModel()
-
-em = cubic_shell_embedding(utrain, D,τ,B,k,PeriodicBoundary())
-pcaem= PCAEmbedding(utrain,em)
-@time upred = temporalprediction(utrain,pcaem, Ntest;ntype=ntype, method=method)
-
-fname = "KS$(Ntest)_tr$(Ntrain)_D$(D)_τ$(τ)_B$(B)_k$(k)"
-function meshgr(x,y)
-    X = repeat(1.:x, 1, y)
-    Y = (repeat(1.:y, 1, x)')[:,:]
-    return X,Y
-end
-begin
-    X,Y = meshgr(length(utest[1]),length(utest))
-    Y .*= 0.25 * 0.1
-    figure()
-    ax1 = subplot(311)
-    #Original
-    pcolormesh(X,Y,hcat(utest...))
-    colorbar()
-    # Make x-tick labels invisible
-    setp(ax1[:get_xticklabels](), visible=false)
-    title("1D Kuramoto Sivashinsky")
-
-
-    #Prediction
-    ax2 = subplot(312, sharex = ax1, sharey = ax1)
-    pcolormesh(X,Y,hcat(upred...))
-    colorbar()
-    setp(ax2[:get_xticklabels](), visible=false)
-    title("Prediction ( Training States $Ntrain)")
-    ylabel("Λ t")
-
-    #Error
-    ax3 = subplot(313, sharex = ax1, sharey = ax1)
-    ε = [abs.(utest[i]-upred[i]) for i=1:Ntest+1]
-    pcolormesh(X,Y,hcat(ε...), cmap="inferno")
-    colorbar()
-    title("Absolute Error")
-    xlabel("m")
-    tight_layout()
-    #savefig(fname *".png")
 end
