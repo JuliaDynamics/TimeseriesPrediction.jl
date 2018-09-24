@@ -16,14 +16,11 @@ testdir = dirname(dirname(pathof(TimeseriesPrediction)))*"/test"
 @assert isdir(testdir)
 include(testdir*"/system_defs.jl")
 
-Nx = 50
-Ny = 50
-Tskip = 100
 Ttrain = 600
 Ttest = 10
 T = Tskip + Ttrain + Ttest
 
-U, V = barkley_periodic_boundary_nonlin(T, Nx, Ny)
+U, V = barkley(T; tskip=100, size=(50,50))
 
 # ### Temporal prediction of field U
 D = 2
@@ -32,11 +29,11 @@ r₀ = 1
 c = 1
 bc = PeriodicBoundary()
 
-pool = U[Tskip + 1 : Tskip + Ttrain]
-test  = U[Tskip + Ttrain : T]
+pool = U[1 : Ttrain]
+test  = U[ Ttrain : T]
 
 em = light_cone_embedding(pool, D,τ,r₀,c,bc)
-pcaem = PCAEmbedding(pool, em) # PCA speeds things up!
+pcaem = PCAEmbedding(pool, em; maxoutdim=5) # PCA speeds things up!
 
 @time pred = temporalprediction(pool, em, Ttest; progress = false)
 

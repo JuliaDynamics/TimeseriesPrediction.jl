@@ -16,29 +16,26 @@ testdir = dirname(dirname(pathof(TimeseriesPrediction)))*"/test"
 @assert isdir(testdir)
 include(testdir*"/system_defs.jl")
 
-Nx = 50
-Ny = 50
-Tskip = 100
 Ttrain = 500
 Ttest = 10
-T = Tskip +Ttrain + Ttest
+T = Ttrain + Ttest
 
-U, V = barkley_const_boundary(T, Nx, Ny)
+U, V = barkley(T;tskip=100, size=(50,50))
 
 # ### Cross predict field U from field V
-D = 2
+D = 5
 τ = 1
-B = 2
+B = 1
 k = 1
 bc = ConstantBoundary(20.0)
 
-source_train = V[Tskip + 1:Tskip + Ttrain]
-target_train = U[Tskip + 1:Tskip + Ttrain]
-source_pred  = V[Tskip + Ttrain  - D*τ + 1:  T]
-target_test  = U[Tskip + Ttrain  - D*τ + 1:  T]
+source_train = V[1: Ttrain]
+target_train = U[1: Ttrain]
+source_pred  = V[Ttrain  - D*τ + 1:  T]
+target_test  = U[Ttrain        + 1:  T]
 
 em = cubic_shell_embedding(source_train, D,τ,B,k,bc)
-pcaem = PCAEmbedding(source_train, em) # PCA speeds things up!
+pcaem = PCAEmbedding(source_train, em; maxoutdim=5) # PCA speeds things up!
 
 @time target_pred = crossprediction(source_train, target_train, source_pred, em;
 progress = false)
