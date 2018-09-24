@@ -1,9 +1,10 @@
 using TimeseriesPrediction
 import Statistics: mean
 using Test
-import Random: srand
 
-Random.srand(42)
+import Random
+Random.seed!(42)
+
 include("system_defs.jl")
 
 @testset "Barkley Const Boundary" begin
@@ -32,6 +33,7 @@ include("system_defs.jl")
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
         for i in 1:p
             @test maximum(err[i]) < 0.2
+            @test minimum(err[i]) < 0.1
         end
     end
     @testset "V LightCone" begin
@@ -42,10 +44,13 @@ include("system_defs.jl")
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
         for i in 1:p
             @test maximum(err[i]) < 0.2
+            @test minimum(err[i]) < 0.1
         end
     end
     @testset "U, D=2, B=1" begin
-        D=2; B=1; τ=4
+        D=3; B=1; τ=4
+        #high embedding dim, so predict fewer points to save time
+        p = 10
         Utest  = U[Ttrain :  T]
         em = cubic_shell_embedding(Utrain,D,τ,B,k,BC)
         Upred = temporalprediction(Utrain,em,p)
@@ -53,10 +58,12 @@ include("system_defs.jl")
         err = [abs.(Utest[i]-Upred[i]) for i=1:p+1]
         for i in 1:p
             @test maximum(err[i]) < 0.2
+            @test minimum(err[i]) < 0.1
         end
     end
     @testset "crosspred V → U" begin
-        D = 3; B = 1
+        D = 4; B = 1
+        p=10
         Utest  = U[Ttrain + 1:  T]
         Vtest  = V[Ttrain  - D*τ+ 1:  T]
         em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
@@ -64,6 +71,7 @@ include("system_defs.jl")
         err = [abs.(Utest[i]-Upred[i]) for i=1:p-1]
         for i in 1:length(err)
             @test maximum(err[i]) < 0.2
+            @test minimum(err[i]) < 0.1
             @test mean(err[i]) < 0.1
         end
     end
@@ -83,6 +91,21 @@ end
     τ = 1
     k = 1
     BC = PeriodicBoundary()
+
+    @testset "crosspred V → U" begin
+        D = 3; B = 1
+        Utest  = U[Ttrain + 1:  T]
+        Vtest  = V[Ttrain  - D*τ+ 1:  T]
+        em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
+        Upred = crossprediction(Vtrain,Utrain,Vtest, em)
+        err = [abs.(Utest[i]-Upred[i]) for i=1:p-1]
+        for i in 1:length(err)
+            @test maximum(err[i]) < 0.2
+            @test mean(err[i]) < 0.1
+            @test minimum(err[i]) < 0.1
+        end
+    end
+
     @testset "Periodic, D=$D, B=$B" for D=10, B=1
         Vtest  = V[Ttrain :  T]
         em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
@@ -92,6 +115,7 @@ end
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
         for i in 1:p
             @test maximum(err[i]) < 0.1
+            @test minimum(err[i]) < 0.1
         end
     end
 
@@ -106,6 +130,7 @@ end
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
         for i in 1:p
             @test maximum(err[i]) < 0.2
+            @test minimum(err[i]) < 0.1
         end
     end
 end

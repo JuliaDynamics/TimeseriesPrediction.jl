@@ -73,43 +73,39 @@ function barkley(T;
         end
     end
 
-    if periodic == true  #Periodic Boundary Condition
-        for m=1:T+tskip
-            for j=1:Ny, i=1:Nx
-                uth = (v[i,j] + b)/a
-                v[i,j] = v[i,j] + Δt*(u[i,j]^3 - v[i,j])
-                u[i,j] = F(u[i,j], uth) + D * Δt/h^2 *Σ[i,j,r]
-                Σ[i,j,s] -= 4u[i,j]
-                Σ[  mod(i-1-1,Nx)+1,j,s] += u[i,j]
-                Σ[  mod(i+1-1,Nx)+1,j,s] += u[i,j]
-                Σ[i,mod(j-1-1,Ny)+1,  s] += u[i,j]
-                Σ[i,mod(j+1-1,Ny)+1,  s] += u[i,j]
-                Σ[i,j,r] = 0
-            end
-            r,s = s,r
-            if m > tskip
-                push!(U,copy(u))
-                push!(V,copy(v))
-            end
+    function periodic_step()
+        for j=1:Ny, i=1:Nx
+            uth = (v[i,j] + b)/a
+            v[i,j] = v[i,j] + Δt*(u[i,j]^3 - v[i,j])
+            u[i,j] = F(u[i,j], uth) + D * Δt/h^2 *Σ[i,j,r]
+            Σ[i,j,s] -= 4u[i,j]
+            Σ[  mod(i-1-1,Nx)+1,j,s] += u[i,j]
+            Σ[  mod(i+1-1,Nx)+1,j,s] += u[i,j]
+            Σ[i,mod(j-1-1,Ny)+1,  s] += u[i,j]
+            Σ[i,mod(j+1-1,Ny)+1,  s] += u[i,j]
+            Σ[i,j,r] = 0
         end
-    else    # Constant boundaries
-        for m=1:T+tskip
-            for i=1:Nx, j=1:Ny
-                uth = (v[i,j] + b)/a
-                v[i,j] = v[i,j] + Δt*(u[i,j] - v[i,j])
-                u[i,j] = F(u[i,j], uth) + Δt/h^2 *Σ[i,j,r]
-                Σ[i,j,s] -= 4u[i,j]
-                i > 1  && (Σ[i-1,j,s] += u[i,j])
-                i < Nx && (Σ[i+1,j,s] += u[i,j])
-                j > 1  && (Σ[i,j-1,s] += u[i,j])
-                j < Ny && (Σ[i,j+1,s] += u[i,j])
-                Σ[i,j,r] = 0
-            end
-            r,s = s,r
-            if m > tskip
-                push!(U,copy(u))
-                push!(V,copy(v))
-            end
+    end
+    function constant_step()
+        for i=1:Nx, j=1:Ny
+            uth = (v[i,j] + b)/a
+            v[i,j] = v[i,j] + Δt*(u[i,j] - v[i,j])
+            u[i,j] = F(u[i,j], uth) + Δt/h^2 *Σ[i,j,r]
+            Σ[i,j,s] -= 4u[i,j]
+            i > 1  && (Σ[i-1,j,s] += u[i,j])
+            i < Nx && (Σ[i+1,j,s] += u[i,j])
+            j > 1  && (Σ[i,j-1,s] += u[i,j])
+            j < Ny && (Σ[i,j+1,s] += u[i,j])
+            Σ[i,j,r] = 0
+        end
+    end
+
+    for m=1:T+tskip
+        periodic ? periodic_step() : constant_step()
+        r,s = s,r
+        if m > tskip
+            push!(U,copy(u))
+            push!(V,copy(v))
         end
     end
     return U,V
