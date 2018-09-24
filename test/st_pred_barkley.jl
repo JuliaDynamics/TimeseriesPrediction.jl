@@ -1,49 +1,52 @@
 using TimeseriesPrediction
 import Statistics: mean
 using Test
+import Random: srand
 
+Random.srand(42)
 include("system_defs.jl")
 
 @testset "Barkley Const Boundary" begin
-    Nx = 50
-    Ny = 50
-    Tskip = 200
-    Ttrain = 350
+    kwargs = ( tskip = 200,
+               size = (50,50),
+               periodic= false,
+               params =(a=0.75, b=0.02, ε=0.02, D=1, h=0.75, Δt=0.1))
+    Ttrain = 400
     p = 20
-    T = Tskip + Ttrain + p
-    U, V = barkley_const_boundary(T, Nx, Ny)
+    T = Ttrain + p
+    U, V = barkley(T; kwargs... )
+    Vtrain = V[1:Ttrain]
+    Utrain = U[1:Ttrain]
 
 
     τ = 1
     k = 1
     BC = ConstantBoundary(20.)
 
-    @testset "V, D=$D, B=$B" for D=2, B=1
-        Vtrain = V[Tskip + 1:Tskip + Ttrain]
-        Vtest  = V[Tskip + Ttrain :  T]
+    @testset "V, D=$D, B=$B" for D=10, B=1
+        Vtest  = V[Ttrain :  T]
         em = cubic_shell_embedding(Vtrain,D,τ,B,k,BC)
+        em = PCAEmbedding(Vtrain, em)
         Vpred = temporalprediction(Vtrain,em,p)
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
         for i in 1:p
-            @test maximum(err[i]) < 0.1
+            @test maximum(err[i]) < 0.2
         end
     end
     @testset "V LightCone" begin
-        Vtrain = V[Tskip + 1:Tskip + Ttrain]
-        Vtest  = V[Tskip + Ttrain :  T]
+        Vtest  = V[Ttrain :  T]
         em = SpatioTemporalEmbedding(Vtrain, (D=1,τ=1,r₀=1,c=0.5,bc=BC))
         Vpred = temporalprediction(Vtrain,em,p)
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
         for i in 1:p
-            @test maximum(err[i]) < 0.1
+            @test maximum(err[i]) < 0.2
         end
     end
     @testset "U, D=2, B=1" begin
-        D=2; B=1
-        Utrain = U[Tskip + 1:Tskip + Ttrain]
-        Utest  = U[Tskip + Ttrain :  T]
+        D=2; B=1; τ=4
+        Utest  = U[Ttrain :  T]
         em = cubic_shell_embedding(Utrain,D,τ,B,k,BC)
         Upred = temporalprediction(Utrain,em,p)
         @test Upred[1] == Utrain[end]
@@ -53,36 +56,37 @@ include("system_defs.jl")
         end
     end
     @testset "crosspred V → U" begin
-        D = 2; B = 2
-        Utrain = U[Tskip + 1:Tskip + Ttrain]
-        Vtrain = V[Tskip + 1:Tskip + Ttrain]
-        Utest  = U[Tskip + Ttrain - (D-1)τ + 1:  T]
-        Vtest  = V[Tskip + Ttrain - (D-1)τ + 1:  T]
+        D = 3; B = 1
+        Utest  = U[Ttrain + 1:  T]
+        Vtest  = V[Ttrain  - D*τ+ 1:  T]
         em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
         Upred = crossprediction(Vtrain,Utrain,Vtest, em)
-        err = [abs.(Utest[1+(D-1)τ:end][i]-Upred[i]) for i=1:p-1]
+        err = [abs.(Utest[i]-Upred[i]) for i=1:p-1]
         for i in 1:length(err)
-            #@test maximum(err[i]) < 0.2 #difficult errors have peaks especially with
-            #short training
+            @test maximum(err[i]) < 0.2
             @test mean(err[i]) < 0.1
         end
     end
 end
+
 @testset "Periodic Barkley" begin
-    Nx = 50
-    Ny = 50
-    Tskip = 200
+    kwargs = ( tskip = 200,
+               size = (50,50),
+               periodic= true,
+               params =(a=0.75, b=0.02, ε=0.02, D=1, h=0.75, Δt=0.1))
     Ttrain = 400
     p = 20
-    T = Tskip + Ttrain + p
+    T = Ttrain + p
+    U, V = barkley(T; kwargs... )
+    Vtrain = V[1:Ttrain]
+    Utrain = U[1:Ttrain]
     τ = 1
     k = 1
     BC = PeriodicBoundary()
-    @testset "Periodic, D=$D, B=$B" for D=2:3, B=1
-        U,V = barkley_periodic_boundary(T, Nx, Ny)
-        Vtrain = V[Tskip + 1:Tskip + Ttrain]
-        Vtest  = V[Tskip + Ttrain :  T]
+    @testset "Periodic, D=$D, B=$B" for D=10, B=1
+        Vtest  = V[Ttrain :  T]
         em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
+        em = PCAEmbedding(Vtrain, em)
         Vpred = temporalprediction(Vtrain, em, p)
         @test Vpred[1] == Vtrain[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
@@ -91,35 +95,17 @@ end
         end
     end
 
-    if Sys.iswindows() && Sys.WORD_SIZE == 32
-        @testset "Periodic diff. inital, D=$D, B=$B" for D=2, B=1
-            Ttrain = 500
-            T = Tskip + Ttrain + p
-            U,V = barkley_periodic_boundary_nonlin(T, Nx, Ny)
-            Vtrain = V[Tskip + 1:Tskip + Ttrain]
-            Vtest  = V[Tskip + Ttrain :  T]
-            em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
-            Vpred = temporalprediction(Vtrain, em, p)
-            @test Vpred[1] == Vtrain[end]
-            err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
-            for i in 1:p
-                @test maximum(err[i]) < 0.3
-            end
-        end
-    else
-        @testset "Periodic diff. inital, D=$D, B=$B" for D=2, B=2
-            Ttrain = 500
-            T = Tskip + Ttrain + p
-            U,V = barkley_periodic_boundary_nonlin(T, Nx, Ny)
-            Vtrain = V[Tskip + 1:Tskip + Ttrain]
-            Vtest  = V[Tskip + Ttrain :  T]
-            em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
-            Vpred = temporalprediction(Vtrain, em, p)
-            @test Vpred[1] == Vtrain[end]
-            err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
-            for i in 1:p
-                @test maximum(err[i]) < 0.1
-            end
+    @testset "Periodic diff. inital, D=$D, B=$B" for D=10, B=1
+        U, V = barkley(T; kwargs... )
+        Vtrain = V[1:Ttrain]
+        Vtest  = V[Ttrain :  T]
+        em = cubic_shell_embedding(Vtrain, D,τ,B,k,BC)
+        em = PCAEmbedding(Vtrain, em)
+        Vpred = temporalprediction(Vtrain, em, p)
+        @test Vpred[1] == Vtrain[end]
+        err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
+        for i in 1:p
+            @test maximum(err[i]) < 0.2
         end
     end
 end
