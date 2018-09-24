@@ -11,7 +11,7 @@ include("system_defs.jl")
     kwargs = ( tskip = 200,
                size = (50,50),
                periodic= false,
-               params =(a=0.75, b=0.02, ε=0.02, D=1, h=0.75, Δt=0.1))
+               a=0.75, b=0.02, ε=0.02, D=1, h=0.75, Δt=0.1)
     Ttrain = 400
     p = 20
     T = Ttrain + p
@@ -81,7 +81,7 @@ end
     kwargs = ( tskip = 200,
                size = (50,50),
                periodic= true,
-               params =(a=0.75, b=0.02, ε=0.02, D=1, h=0.75, Δt=0.1))
+               a=0.75, b=0.02, ε=0.02, D=1, h=0.75, Δt=0.1)
     Ttrain = 400
     p = 20
     T = Ttrain + p

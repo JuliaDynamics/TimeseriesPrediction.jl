@@ -49,8 +49,7 @@ function barkley(T;
                 tskip=0,
                 periodic=true,
                 size=(50,50),
-                params = (a=0.75, b=0.06, ε=0.08, D=1/50, h=0.1, Δt=0.1))
-    a, b, ε, D, h, Δt = params
+                a=0.75, b=0.06, ε=0.08, D=1/50, h=0.1, Δt=0.1)
     Nx, Ny = size
     @assert Nx ≥ 40
     @assert Ny ≥ 40
