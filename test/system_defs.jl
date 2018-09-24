@@ -45,6 +45,16 @@ function coupled_henon2D(X,Y,N,u0=rand(X,Y), v0=rand(X,Y))
 
 end
 
+"""
+```
+barkley(T;
+        tskip=0,
+        periodic=true,
+        size=(50,50),
+        a=0.75, b=0.06, ε=0.08, D=1/50, h=0.1, Δt=0.1)
+```
+Simulate the Barkley model (nonlinear `u^3` term).
+"""
 function barkley(T;
                 tskip=0,
                 periodic=true,

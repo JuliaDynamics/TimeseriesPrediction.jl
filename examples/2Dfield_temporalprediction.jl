@@ -21,6 +21,7 @@ Ttest = 10
 T = Tskip + Ttrain + Ttest
 
 U, V = barkley(T; tskip=100, size=(50,50))
+summary(U)
 
 # ### Temporal prediction of field U
 D = 2
@@ -64,7 +65,6 @@ for i in [1, length(err)÷2, length(err)]
         ax[:get_xaxis]()[:set_ticks]([])
         ax[:get_yaxis]()[:set_ticks]([])
         colorbar(im, ax = ax, fraction=0.046, pad=0.04)#, format="%.1f")
-        # ax[:minorticks_off]()
     end
     ax1[:set_title]("Prediction")
     ax2[:set_title]("Real evolution")
@@ -73,3 +73,5 @@ for i in [1, length(err)÷2, length(err)]
     tight_layout(w_pad=0.6, h_pad=0.00001)
     subplots_adjust(top=0.75)
 end
+#md savefig("barkley_tempo.png"); nothing # hide
+#md # ![barkley_tempo](barkley_tempo.png)
