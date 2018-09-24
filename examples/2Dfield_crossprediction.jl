@@ -27,7 +27,7 @@ D = 5
 τ = 1
 B = 1
 k = 1
-bc = ConstantBoundary(20.0)
+bc = PeriodicBoundary()
 
 source_train = V[1: Ttrain]
 target_train = U[1: Ttrain]
