@@ -116,9 +116,7 @@ include("system_defs.jl")
 
 println("Testing PCA Functions")
 @testset "PCAEmbedding" begin
-    U,V = barkley_periodic_boundary_nonlin(600,50,50)
-    U = U[200:end]
-    V = V[200:end]
+    U,V = barkley(400;tskip=200)
     let D=5, τ=1, B=1,k=1
         BC = PeriodicBoundary()
         em = cubic_shell_embedding(U,D,τ,B,k,BC)
