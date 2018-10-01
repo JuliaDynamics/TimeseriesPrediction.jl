@@ -18,7 +18,7 @@ include(testdir*"/system_defs.jl")
 
 Ttrain = 600
 Ttest = 10
-T = Tskip + Ttrain + Ttest
+T = Ttrain + Ttest
 
 U, V = barkley(T; tskip=100, size=(50,50))
 summary(U)
