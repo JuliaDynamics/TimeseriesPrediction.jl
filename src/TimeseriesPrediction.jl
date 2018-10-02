@@ -5,7 +5,7 @@ module TimeseriesPrediction
 
 using Reexport
 @reexport using DynamicalSystemsBase
-
+@reexport using MultivariateStats
 using Statistics, LinearAlgebra
 
 include("localmodeling.jl")

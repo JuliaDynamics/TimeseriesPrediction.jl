@@ -1,4 +1,3 @@
-using MultivariateStats: PCA, pcacov
 import IterTools: takenth, product
 export PCAEmbedding
 
