@@ -58,13 +58,13 @@ function temporalprediction(s,
     method = AverageLocalModel(ω_safe),
     ntype = FixedMassNeighborhood(3),
     ttype=KDTree,
-    progress=true)
+    kwargs...)
 
     params = PredictionParameters(em, method, ntype, ttype)
-    return temporalprediction(params, s, tsteps; progress=progress)
+    return temporalprediction(params, s, tsteps; kwargs...)
 end
 
-function temporalprediction(params, s, tsteps; progress=true)
+function temporalprediction(params, s, tsteps; progress=true, kwargs...)
     progress && println("Reconstructing")
     R = reconstruct(s,params.em)
 
@@ -74,20 +74,23 @@ function temporalprediction(params, s, tsteps; progress=true)
     M = get_num_pt(params.em)
 
     tree = params.treetype(R[1:L-M])
-    temporalprediction(params, s, tsteps, R, tree; progress=progress)
+    temporalprediction(params, s, tsteps, R, tree; progress=progress, kwargs...)
 end
 
 
 
-function temporalprediction(params, s,tsteps, R, tree; progress=true) where {T, Φ, BC, X}
+function temporalprediction(params, s,tsteps, R, tree;
+        initial_ts=s, #optional start for prediction
+        progress=true) where {T, Φ, BC, X}
     em = params.em
     @assert outdim(em) == size(R,2)
+    @assert length(initial_ts) > get_τmax(em)
     num_pt = get_num_pt(em)
     #New state that will be predicted, allocate once and reuse
     state = similar(s[1])
 
-    #End of timeseries to work with
-    spred = working_ts(s,em)
+    #Prepare starting point of prediction timeseries
+    spred = working_ts(initial_ts, params.em)
 
     for n=1:tsteps
         progress && println("Working on Frame $(n)/$(tsteps)")
@@ -112,7 +115,7 @@ function temporalprediction(params, s,tsteps, R, tree; progress=true) where {T, 
         push!(spred,copy(state))
     end
 
-    cut_off_beginning!(spred,em)
+    cut_off_beginning!(spred,tsteps)
     return spred
 end
 
@@ -138,4 +141,4 @@ function convert_idx(idx, em)
     return t,α
 end
 
-cut_off_beginning!(s,em) = deleteat!(s, 1:get_τmax(em))
+cut_off_beginning!(s,tsteps) = (N=length(s); deleteat!(s, 1:N-tsteps-1))
