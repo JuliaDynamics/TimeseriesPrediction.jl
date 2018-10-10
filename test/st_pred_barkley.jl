@@ -15,7 +15,7 @@ include("system_defs.jl")
     Ttrain = 400
     p = 20
     T = Ttrain + p
-    U, V = barkley(T; kwargs... )
+    U, V = barkley(T+100; kwargs... )
     Vtrain = V[1:Ttrain]
     Utrain = U[1:Ttrain]
 
@@ -30,6 +30,19 @@ include("system_defs.jl")
         em = PCAEmbedding(Vtrain, em)
         Vpred = temporalprediction(Vtrain,em,p)
         @test Vpred[1] == Vtrain[end]
+        err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
+        for i in 1:p
+            @test maximum(err[i]) < 0.2
+            @test minimum(err[i]) < 0.1
+        end
+    end
+    @testset "temp. pred. with offset start" for D=10, B=1
+        Vtest  = V[Ttrain+100:T+100]
+        Vstart = V[Ttrain+100-11:Ttrain+100]
+        em = cubic_shell_embedding(Vtrain,D,τ,B,k,BC)
+        em = PCAEmbedding(Vtrain, em)
+        Vpred = temporalprediction(Vtrain,em,p; initial_ts=Vstart)
+        @test Vpred[1] == Vstart[end]
         err = [abs.(Vtest[i]-Vpred[i]) for i=1:p+1]
         for i in 1:p
             @test maximum(err[i]) < 0.2
