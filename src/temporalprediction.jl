@@ -34,7 +34,8 @@ For available methods and interfaces see [`AbstractSpatialEmbedding`](@ref).
   * `ttype = KDTree` : Type/Constructor of tree structure. So far only tested with `KDTree`.
   * `method = AverageLocalModel(ω_safe)` : Subtype of [`AbstractLocalModel`](@ref).
   * `ntype = FixedMassNeighborhood(3)` : Subtype of [`AbstractNeighborhood`](@ref).
-  * `initial_ts = U` : Initial state for predictions plus past states for embedding. Defaults to the training set `U`.
+  * `initial_ts = U` : Initial states for prediction (same type as `U`). 
+    Must have at least as many states as the maximum delay time used. Defaults to the training set `U`.
   * `progress = true` : To print progress done.
 
 ## Description
