@@ -167,6 +167,7 @@ end
             @test maximum(err[i]) < 0.2
             @test minimum(err[i]) < 0.1
         end
+        @test Float32 == eltype(Vpred[1])
     end
     @testset "Cross Prediction" begin
         D = 10; B = 0
@@ -181,6 +182,7 @@ end
             @test minimum(err[i]) < 0.1
             @test mean(err[i]) < 0.1
         end
+        @test Float32 == eltype(Vpred[1])
     end
 end
 
