@@ -9,7 +9,7 @@ include("system_defs.jl")
     M = 100
     N_train = 2000
     p = 5
-    U, V = coupled_henon1D(M,N_train+p, rand(M), rand(M))
+    U, V = coupled_henon1D(M,N_train+p+100, rand(M), rand(M))
     #Reconstruct this #
     utrain = U[1:N_train]
     vtrain = V[1:N_train]
@@ -21,6 +21,17 @@ include("system_defs.jl")
         upred = temporalprediction(utrain,em, p)
 
         @test upred[1] == utrain[end]
+        @test sum(abs.(utest[2]-upred[2]))/M/p < 0.05
+        ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]
+        @test sum(ε)/M / p < 0.15
+    end
+    @testset "1D Henon with offset start of pred" for D=3, B=2
+        em = cubic_shell_embedding(utrain,D,1,B,1,ConstantBoundary(10.))
+        ustart = U[N_train+100-4:N_train+100]
+        utest = U[N_train+100:N_train+p+100]
+        upred = temporalprediction(utrain,em, p; initial_ts=ustart)
+
+        @test upred[1] == ustart[end]
         @test sum(abs.(utest[2]-upred[2]))/M/p < 0.05
         ε = [sum(abs.(utest[i]-upred[i])) for i=1:p+1]
         @test sum(ε)/M / p < 0.15
