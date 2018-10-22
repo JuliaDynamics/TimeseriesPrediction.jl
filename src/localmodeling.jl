@@ -3,7 +3,7 @@ using DynamicalSystemsBase
 
 export AbstractLocalModel
 export AverageLocalModel,LinearLocalModel
-export localmodel_tsp
+export localmodel_tsp, localmodel_cp
 export MSEp
 
 """
@@ -340,6 +340,64 @@ function localmodel_tsp(
 end
 
 
+
+
+
+#####################################################################################
+#                                  Cross Prediction                                   #
+#####################################################################################
+
+
+function localmodel_cp(R::AbstractDataset{D,T},
+                       target_train,
+                       source_pred::AbstractDataset{D,T},
+                       tree::KDTree;
+                       method::AbstractLocalModel = AverageLocalModel(),
+                       ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
+                       y_idx_shift::Int=0) where {D,T}
+
+    N = length(source_pred)
+    target_pred = typeof(target_train)(undef, N)
+    for n=1:N   #Iteratively estimate timeseries
+        q = source_pred[n]
+        idxs,dists = neighborhood_and_distances(q,R, tree,ntype)
+        xnn = R[idxs]
+        ynn = target_train[idxs .+ y_idx_shift]
+        target_pred[n] = method(q, xnn, ynn, dists)[1]
+    end
+    return target_pred
+end
+
+
+function localmodel_cp(
+    source_train::AbstractDataset{B},
+    target_train,
+    source_pred::AbstractDataset{B};kwargs...) where B
+    B > 1 || throw(ArgumentError("Dataset Dimension needs to be >1! ",
+    "Alternatively pass embedding parameters."))
+    return localmodel_cp(source_train, target_train, source_pred,KDTree(source_train); kwargs... )
+end
+
+function localmodel_cp(
+    source_train,
+    target_train,
+    source_pred,
+     D::Int, τ::Int; kwargs... )
+    localmodel_cp(reconstruct(source_train, D, τ),
+                    target_train,
+                    reconstruct(source_pred, D, τ);
+                    y_idx_shift=D*τ, kwargs...)
+end
+function localmodel_cp(
+    source_train,
+    target_train,
+    source_pred,
+     D::Int, τ::T; kwargs... ) where {T}
+    localmodel_cp(reconstruct(source_train, D, τ),
+                    target_train,
+                    reconstruct(source_pred, D, τ);
+                    y_idx_shift=maximum(τ), kwargs...)
+end
 
 #####################################################################################
 #                                  Error Measures                                   #

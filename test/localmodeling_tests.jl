@@ -148,3 +148,137 @@ end
     s_pred = localmodel_tsp(s,2,1,p; method=method, ntype=ntype)
     @test norm(s_pred -s_real)/var(s)/p < 0.2
 end
+
+
+#####################################################################################
+#                                  Cross Prediction                                   #
+#####################################################################################
+
+ds = Systems.roessler()
+data = trajectory(ds, 5000; dt=0.1)
+N_train = 45000
+N_test = 1000
+source_train = data[1:N_train, 1]
+target_train = data[1:N_train, 2]
+source_pred = data[N_train+1:N_train+N_test, 1]
+target_test = data[N_train+1:N_train+N_test, 2]
+
+
+@testset "ALM localmodel_cp" begin
+    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
+        method = AverageLocalModel()
+        ntype = FixedMassNeighborhood(2)
+        target_pred = localmodel_cp(    source_train,
+                                        target_train,
+                                        source_pred, D, τ;
+                                        method=method, ntype=ntype)
+        @test length(target_pred) == N_test - D*τ
+        @test norm(target_test[1+D*τ:end] .- target_pred)/N_test < 5e-3
+
+        #Repeat with reconstruction given
+        R      = reconstruct(source_train, D, τ)
+        R_pred = reconstruct(source_pred, D, τ)
+        target_pred = localmodel_cp(
+                        R, target_train, R_pred;
+                        method=method, ntype=ntype, y_idx_shift=D*τ)
+        @test length(target_pred) == N_test - D*τ
+        @test norm(target_test[1+D*τ:end] .- target_pred)/N_test < 5e-3
+    end
+end
+
+@testset "LinearLocalModel Ridge Reg" begin
+    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
+        method = LinearLocalModel()
+        ntype = FixedMassNeighborhood(3)
+        target_pred = localmodel_cp(    source_train,
+                                        target_train,
+                                        source_pred, D, τ;
+                                        method=method,
+                                        ntype=ntype)
+        @test length(target_pred) == N_test - D*τ
+        @test norm(target_test[1+D*τ:end] .- target_pred)/N_test < 5e-3
+
+        #Repeat with reconstruction given
+        R      = reconstruct(source_train, D, τ)
+        R_pred = reconstruct(source_pred, D, τ)
+        target_pred = localmodel_cp(
+                        R, target_train, R_pred;
+                        method=method, ntype=ntype, y_idx_shift=D*τ)
+        @test length(target_pred) == N_test - D*τ
+        @test norm(target_test[1+D*τ:end] .- target_pred)/N_test < 5e-3
+    end
+end
+@testset "LinearLocalModel McNames Reg" begin
+    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ ∈ [14,15]
+        p = 50
+        method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.1,1.)
+        ntype = FixedMassNeighborhood(3)
+        stepsize = 1
+        target_pred = localmodel_cp(    source_train,
+                                        target_train,
+                                        source_pred, D, τ;
+                                        method=method,
+                                        ntype=ntype)
+        @test length(target_pred) == N_test - D*τ
+        @test norm(target_test[1+D*τ:end] .- target_pred)/N_test < 5e-3
+
+        #Repeat with reconstruction given
+        R      = reconstruct(source_train, D, τ)
+        R_pred = reconstruct(source_pred, D, τ)
+        target_pred = localmodel_cp(
+                        R, target_train, R_pred;
+                        method=method, ntype=ntype, y_idx_shift=D*τ)
+        @test length(target_pred) == N_test - D*τ
+        @test norm(target_test[1+D*τ:end] .- target_pred)/N_test < 5e-3
+    end
+end
+
+@testset "FixedSizeNeighborhood" begin
+    @testset "D=$D and τ=$τ" for D ∈ [4], τ ∈ [14,15]
+        method = AverageLocalModel()
+        ntype = FixedSizeNeighborhood(0.5)
+        target_pred = localmodel_cp(    source_train,
+                                        target_train,
+                                        source_pred, D, τ;
+                                        method=method,
+                                        ntype=ntype)
+        @test length(target_pred) == N_test - D*τ
+        @test norm(target_test[1+D*τ:end] .- target_pred)/N_test < 5e-3
+    end
+end
+
+@testset "Multivariate Input predict" begin
+    sm_train = data[1:N_train,SVector(1,2)]
+    sm_pred = data[1+N_train:N_train+N_test,SVector(1,2)]
+    @testset "D=$D and τ=$τ" for D ∈ [3,4], τ=15
+        source_train = reconstruct(sm_train,D,τ)
+        source_pred = reconstruct(sm_pred,D,τ)
+        method = AverageLocalModel()
+        ntype = FixedMassNeighborhood(2)
+        target_pred = localmodel_cp(    source_train,
+                                        target_train,
+                                        source_pred;
+                                        method=method,
+                                        ntype=ntype,
+                                        y_idx_shift=D*τ)
+        @test length(target_pred) == N_test - D*τ
+        @test norm(target_test[1+D*τ:end] .- target_pred)/N_test < 5e-3
+    end
+    @testset "D=3 and multi τ" begin
+        D = 3;
+        τ=[15 15; 30 29; 45 45]#[14 15; 29 30; 45 47]
+        source_train = reconstruct(sm_train,D,τ)
+        source_pred = reconstruct(sm_pred,D,τ)
+        method = AverageLocalModel()
+        ntype = FixedMassNeighborhood(2)
+        #svind = SVector{2, Int}(7,8)
+        target_pred = localmodel_cp(    source_train,
+                                        target_train,
+                                        source_pred;
+                                        method=method,
+                                        ntype=ntype,
+                                        y_idx_shift=maximum(τ))
+        @test length(target_pred) == N_test - maximum(τ)
+        @test norm(target_test[1+maximum(τ):end] .- target_pred)/N_test < 5e-3
+    end
+end
