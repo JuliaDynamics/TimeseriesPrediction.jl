@@ -50,7 +50,7 @@ end
 barkley(T;
         tskip=0,
         periodic=true,
-        size=(50,50),
+        ssize=(50,50),
         a=0.75, b=0.06, ε=0.08, D=1/50, h=0.1, Δt=0.1)
 ```
 Simulate the Barkley model (nonlinear `u^3` term).
@@ -58,9 +58,11 @@ Simulate the Barkley model (nonlinear `u^3` term).
 function barkley(T;
                 tskip=0,
                 periodic=true,
-                size=(50,50),
-                a=0.75, b=0.06, ε=0.08, D=1/50, h=0.1, Δt=0.1)
-    Nx, Ny = size
+                ssize=(50,50),
+                a=0.75, b=0.06, ε=0.08, D=1/50, h=0.1, Δt=0.1,
+                init = rand(10,10))
+
+    Nx, Ny = ssize
     @assert Nx ≥ 40
     @assert Ny ≥ 40
     U = Vector{Array{Float64,2}}()
@@ -68,8 +70,10 @@ function barkley(T;
 
     u = zeros(Nx,Ny)
     v = zeros(Nx,Ny)
-    init = rand(10,10)
-    v .= u .= repeat(init, inner=(Nx÷10,Ny÷10))
+
+    αα, ββ = size(init)
+
+    v .= u .= repeat(init, inner=(Nx÷αα,Ny÷ββ))
     v .= v.>0.2
     Σ = zeros(Nx, Ny, 2)
     r,s = 1,2

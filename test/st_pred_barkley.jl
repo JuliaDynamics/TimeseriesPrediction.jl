@@ -9,7 +9,7 @@ include("system_defs.jl")
 
 @testset "Barkley Const Boundary" begin
     kwargs = ( tskip = 200,
-               size = (50,50),
+               ssize = (50,50),
                periodic= false,
                a=0.75, b=0.02, ε=0.02, D=1, h=0.75, Δt=0.1)
     Ttrain = 400
@@ -92,7 +92,7 @@ end
 
 @testset "Periodic Barkley" begin
     kwargs = ( tskip = 200,
-               size = (50,50),
+               ssize = (50,50),
                periodic= true,
                a=0.75, b=0.02, ε=0.02, D=1, h=0.75, Δt=0.1)
     Ttrain = 400
@@ -151,7 +151,7 @@ end
 
 @testset "Half-Precision Tests" begin
     kwargs = ( tskip = 200,
-               size = (50,50),
+               ssize = (50,50),
                periodic= false,
                a=0.75, b=0.02, ε=0.02, D=1, h=0.75, Δt=0.1)
     Ttrain = 400
@@ -202,7 +202,7 @@ end
 # Complex Numbers are not compatible with KDTrees
 # @testset "Complex Number Test" begin
 #     kwargs = ( tskip = 200,
-#                size = (50,50),
+#                ssize = (50,50),
 #                periodic= false,
 #                a=0.75, b=0.02, ε=0.02, D=1, h=0.75, Δt=0.1)
 #     Ttrain = 400
