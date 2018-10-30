@@ -20,7 +20,7 @@ Ttrain = 500
 Ttest = 10
 T = Ttrain + Ttest
 
-U, V = barkley(T;tskip=100, size=(50,50), periodic = false)
+U, V = barkley(T;tskip=100, size=(50,50))
 summary(U)
 
 # ### Cross predict field U from field V
