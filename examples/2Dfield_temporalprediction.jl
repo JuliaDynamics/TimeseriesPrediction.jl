@@ -16,8 +16,8 @@ testdir = dirname(dirname(pathof(TimeseriesPrediction)))*"/test"
 @assert isdir(testdir)
 include(testdir*"/system_defs.jl")
 
-Ttrain = 600
-Ttest = 10
+Ttrain = 300
+Ttest = 5
 T = Ttrain + Ttest
 
 init = [ 0.6241    0.589685  0.668221   0.194882    0.687645
