@@ -347,7 +347,34 @@ end
 #                                  Cross Prediction                                   #
 #####################################################################################
 
+"""
+    localmodel_cp(source_pool, target_pool, source_pred,  D, τ; kwargs...)
 
+Perform a cross prediction from  _source_ to _target_,
+using local weighted modeling [1]. `source_pred` is the input for the prediction
+and `source_pool` and `target_pool` are used as pooling/training data for the predictions.
+The function always returns an object of the same type as `target_pool`,
+which can be either a timeseries (vector) or an `AbstractDataset` (trajectory).
+
+## Keyword Arguments
+  * `method = AverageLocalModel(ω_unsafe)` : Subtype of [`AbstractLocalModel`](@ref).
+  * `ntype = FixedMassNeighborhood(2)` : Subtype of [`AbstractNeighborhood`](@ref).
+  * `stepsize = 1` : Prediction step size.
+
+Instead of passing `D` & `τ` for reconstruction one may also give
+existing [`Dataset`](@ref)s as `source_pool` and `source_pred`.
+In this case an additional keyword argument `y_idx_shift::Int=0` may be necessary
+to account for the index shift introduced in the reconstruction process.
+
+## Description
+Given a query point, the function finds its neighbors using neighborhood `ntype`.
+Then, the neighbors `xnn` and their images `ynn` are used to make a prediction for
+the image of the query point, using the provided `method`.
+
+## References
+[1] : D. Engster & U. Parlitz, *Handbook of Time Series Analysis* Ch. 1,
+VCH-Wiley (2006)
+"""
 function localmodel_cp(R::AbstractDataset{D,T},
                        target_train,
                        source_pred::AbstractDataset{D,T},
