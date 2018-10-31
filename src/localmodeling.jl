@@ -3,7 +3,7 @@ using DynamicalSystemsBase
 
 export AbstractLocalModel
 export AverageLocalModel,LinearLocalModel
-export localmodel_tsp
+export localmodel_tsp, localmodel_cp
 export MSEp
 
 """
@@ -340,6 +340,91 @@ function localmodel_tsp(
 end
 
 
+
+
+
+#####################################################################################
+#                                  Cross Prediction                                   #
+#####################################################################################
+
+"""
+    localmodel_cp(source_pool, target_pool, source_pred,  D, τ; kwargs...)
+
+Perform a cross prediction from  _source_ to _target_,
+using local weighted modeling [1]. `source_pred` is the input for the prediction
+and `source_pool` and `target_pool` are used as pooling/training data for the predictions.
+The function always returns an object of the same type as `target_pool`,
+which can be either a timeseries (vector) or an `AbstractDataset` (trajectory).
+
+## Keyword Arguments
+  * `method = AverageLocalModel(ω_unsafe)` : Subtype of [`AbstractLocalModel`](@ref).
+  * `ntype = FixedMassNeighborhood(2)` : Subtype of [`AbstractNeighborhood`](@ref).
+  * `stepsize = 1` : Prediction step size.
+
+Instead of passing `D` & `τ` for reconstruction one may also give
+existing [`Dataset`](@ref)s as `source_pool` and `source_pred`.
+In this case an additional keyword argument `y_idx_shift::Int=0` may be necessary
+to account for the index shift introduced in the reconstruction process.
+
+## Description
+Given a query point, the function finds its neighbors using neighborhood `ntype`.
+Then, the neighbors `xnn` and their images `ynn` are used to make a prediction for
+the image of the query point, using the provided `method`.
+
+## References
+[1] : D. Engster & U. Parlitz, *Handbook of Time Series Analysis* Ch. 1,
+VCH-Wiley (2006)
+"""
+function localmodel_cp(R::AbstractDataset{D,T},
+                       target_train,
+                       source_pred::AbstractDataset{D,T},
+                       tree::KDTree;
+                       method::AbstractLocalModel = AverageLocalModel(),
+                       ntype::AbstractNeighborhood  = FixedMassNeighborhood(2),
+                       y_idx_shift::Int=0) where {D,T}
+
+    N = length(source_pred)
+    target_pred = typeof(target_train)(undef, N)
+    for n=1:N   #Iteratively estimate timeseries
+        q = source_pred[n]
+        idxs,dists = neighborhood_and_distances(q,R, tree,ntype)
+        xnn = R[idxs]
+        ynn = target_train[idxs .+ y_idx_shift]
+        target_pred[n] = method(q, xnn, ynn, dists)[1]
+    end
+    return target_pred
+end
+
+
+function localmodel_cp(
+    source_train::AbstractDataset{B},
+    target_train,
+    source_pred::AbstractDataset{B};kwargs...) where B
+    B > 1 || throw(ArgumentError("Dataset Dimension needs to be >1! ",
+    "Alternatively pass embedding parameters."))
+    return localmodel_cp(source_train, target_train, source_pred,KDTree(source_train); kwargs... )
+end
+
+function localmodel_cp(
+    source_train,
+    target_train,
+    source_pred,
+     D::Int, τ::Int; kwargs... )
+    localmodel_cp(reconstruct(source_train, D, τ),
+                    target_train,
+                    reconstruct(source_pred, D, τ);
+                    y_idx_shift=D*τ, kwargs...)
+end
+function localmodel_cp(
+    source_train,
+    target_train,
+    source_pred,
+     D::Int, τ::T; kwargs... ) where {T}
+    localmodel_cp(reconstruct(source_train, D, τ),
+                    target_train,
+                    reconstruct(source_pred, D, τ);
+                    y_idx_shift=maximum(τ), kwargs...)
+end
 
 #####################################################################################
 #                                  Error Measures                                   #
