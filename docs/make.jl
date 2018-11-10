@@ -1,4 +1,4 @@
-using DynamicalSystems, TimeseriesPrediction, ChaosTools, DynamicalSystemsBase
+using TimeseriesPrediction, DelayEmbeddings
 using Documenter, PyPlot, Literate, DocumenterMarkdown
 
 PyPlot.ioff()
