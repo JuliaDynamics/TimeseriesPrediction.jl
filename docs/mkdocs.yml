@@ -1,0 +1,39 @@
+site_name:           DynamicalSystems.jl
+repo_url:            https://github.com/JuliaDynamics/DynamicalSystems.jl
+site_description:    A Julia software library for the exploration of chaos and nonlinear dynamics.
+site_author:         George Datseris
+
+theme:
+  name: 'material'
+  palette:
+    primary: 'deep purple'
+    accent: 'teal'
+extra:
+  social:
+    - type: 'github'
+      link: 'https://github.com/JuliaDynamics/DynamicalSystems.jl'
+
+markdown_extensions:
+  - admonition
+  - pymdownx.arithmatex
+  - pymdownx.details
+  - mdx_math
+  - codehilite
+  - extra
+  - tables
+  - fenced_code
+
+extra_css:
+  - assets\Documenter.css
+
+extra_javascript:
+  - assets\mathjaxhelper.js
+  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
+
+docs_dir: 'build'
+
+pages:
+- Introduction: tsintro.md
+- Local Modeling & Timeseries Prediction: localmodels.md
+- Spatio-Temporal Prediction: spatiotemporal.md
+- Spatio-Temporal Examples: stexamples.md
