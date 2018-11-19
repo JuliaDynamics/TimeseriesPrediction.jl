@@ -19,7 +19,7 @@ function replace_includes(str)
     return str
 end
 # Literate it:
-Literate.markdown("src/tsprediction/stexamples.jl", "src/tsprediction/";
+Literate.markdown("src/stexamples.jl", "src/";
                   name = "stexamples", preprocess = replace_includes)
 # Literate.notebook("src/tsprediction/stexamples.jl", "src/tsprediction/";
 #                   name = "stexamples", preprocess = replace_includes)
@@ -34,7 +34,7 @@ if !Sys.iswindows()
     deploydocs(
         deps   = Deps.pip("mkdocs==0.17.5", "mkdocs-material==2.9.4",
         "python-markdown-math", "pygments", "pymdown-extensions"),
-        repo   = "github.com/JuliaDynamics/DynamicalSystems.jl.git",
+        repo   = "github.com/JuliaDynamics/TimeseriesPrediction.jl.git",
         target = "site",
         make = () -> run(`mkdocs build`)
     )

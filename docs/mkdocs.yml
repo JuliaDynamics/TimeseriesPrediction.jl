@@ -1,7 +1,7 @@
-site_name:           DynamicalSystems.jl
-repo_url:            https://github.com/JuliaDynamics/DynamicalSystems.jl
-site_description:    A Julia software library for the exploration of chaos and nonlinear dynamics.
-site_author:         George Datseris
+site_name:           TimeseriesPrediction
+repo_url:            https://github.com/JuliaDynamics/TimeseriesPrediction.jl
+site_description:    Predicting timeseries using methods from nonlinear dynamics.
+site_author:         Jonas Isensee & George Datseris
 
 theme:
   name: 'material'
@@ -11,7 +11,7 @@ theme:
 extra:
   social:
     - type: 'github'
-      link: 'https://github.com/JuliaDynamics/DynamicalSystems.jl'
+      link: 'https://github.com/JuliaDynamics/TimeseriesPrediction.jl'
 
 markdown_extensions:
   - admonition
@@ -33,7 +33,7 @@ extra_javascript:
 docs_dir: 'build'
 
 pages:
-- Introduction: tsintro.md
+- Introduction: index.md
 - Local Modeling & Timeseries Prediction: localmodels.md
 - Spatio-Temporal Prediction: spatiotemporal.md
 - Spatio-Temporal Examples: stexamples.md

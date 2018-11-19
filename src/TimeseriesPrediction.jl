@@ -4,7 +4,7 @@ Prediction of timeseries using methods of nonlinear dynamics and timeseries anal
 module TimeseriesPrediction
 
 using Reexport
-@reexport using DynamicalSystemsBase
+@reexport using DelayEmbeddings
 
 using Statistics, LinearAlgebra
 

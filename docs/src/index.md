@@ -5,7 +5,7 @@ Predicting timeseries of chaotic systems can be a very difficult task. Most meth
 ## Local Modelling
 
 Local modelling predicts timeseries using a delay embedded state space reconstruction.
-It finds the nearest neighbors of a query point within this reconstructed space and applies a local model to make a prediction. "Local" model refers to the fact that the images (future points) of the [`neighborhood`](@ref) of a point are the only component used to make a prediction.
+It finds the nearest neighbors of a query point within this reconstructed space and applies a local model to make a prediction. "Local" model refers to the fact that the images (future points) of the neighborhood of a point are the only component used to make a prediction.
 
 In contrast to typical neural networks applications, there is no training happening in this approach. A given timeseries dataset constitutes a pool of points one uses to make predictions from.
 
@@ -14,8 +14,8 @@ In contrast to typical neural networks applications, there is no training happen
 ## Available Functionality
 
 ### Local Models
-`TimeseriesPrediction` has two local models (usable in any prediction scheme)
-and uses the [`neighborhood`](@ref) types from `DynamicalSystemsBase`. See [`AbstractLocalModel`](@ref) for more details.
+`TimeseriesPrediction` has two local models (usable in any prediction scheme).
+See [`AbstractLocalModel`](@ref) for more details.
 
 ### Timeseries Prediction
 [`localmodel_tsp`](@ref) predicts the future of one or many (univariate) timeseries. The details are in the [timeseries prediction page](localmodels).

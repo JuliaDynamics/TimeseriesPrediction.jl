@@ -1,7 +1,7 @@
 using Statistics
 using LinearAlgebra
 export AbstractSpatialEmbedding
-export SpatioTemporalEmbedding, STE
+export SpatioTemporalEmbedding
 export outdim
 export AbstractBoundaryCondition, PeriodicBoundary, ConstantBoundary
 export indices_within_sphere

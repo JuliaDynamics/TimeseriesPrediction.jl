@@ -1,5 +1,6 @@
 using NearestNeighbors, StaticArrays, Statistics
-using DynamicalSystemsBase
+using DelayEmbeddings
+using DelayEmbeddings: AbstractDataset
 
 export AbstractLocalModel
 export AverageLocalModel,LinearLocalModel
@@ -286,7 +287,7 @@ function _localmodel_tsp(R::AbstractDataset{D,T},
 end
 
 """
-    localmodel_tsp(s, D::Int, τ, p::Int; method, ntype, stepsize)
+    localmodel_tsp(s, γ::Int, τ, p::Int; method, ntype, stepsize)
     localmodel_tsp(s, p::Int; method, ntype, stepsize)
 
 Perform a timeseries prediction for `p` points,
@@ -296,13 +297,13 @@ object of the same type as `s`, which can be either a timeseries (vector) or an
 always contains the final point of `s` as starting point. This means that the
 returned data has length of `p + 1`.
 
-If given `(s, D, τ)`, it first calls [`reconstruct`](@ref) on `s`
-with dimension `D` and delay `τ`. If given only `s` then no reconstruction
-is done.
+If given `(s, γ, τ)`, it first calls `reconstruct` (from `DelayEmbeddings`) on `s`
+with `(γ, τ)`. If given only `s` then no reconstruction is done.
 
 ## Keyword Arguments
   * `method = AverageLocalModel(ω_unsafe)` : Subtype of [`AbstractLocalModel`](@ref).
-  * `ntype = FixedMassNeighborhood(2)` : Subtype of [`AbstractNeighborhood`](@ref).
+  * `ntype = FixedMassNeighborhood(2)` : Subtype of `AbstractNeighborhood` (from
+    `DelayEmbeddings`).
   * `stepsize = 1` : Prediction step size.
 
 ## Description
@@ -358,11 +359,12 @@ which can be either a timeseries (vector) or an `AbstractDataset` (trajectory).
 
 ## Keyword Arguments
   * `method = AverageLocalModel(ω_unsafe)` : Subtype of [`AbstractLocalModel`](@ref).
-  * `ntype = FixedMassNeighborhood(2)` : Subtype of [`AbstractNeighborhood`](@ref).
+  * `ntype = FixedMassNeighborhood(2)` : Subtype of `AbstractNeighborhood` (from
+    `DelayEmbeddings`).
   * `stepsize = 1` : Prediction step size.
 
 Instead of passing `D` & `τ` for reconstruction one may also give
-existing [`Dataset`](@ref)s as `source_pool` and `source_pred`.
+existing `Dataset`s as `source_pool` and `source_pred`.
 In this case an additional keyword argument `y_idx_shift::Int=0` may be necessary
 to account for the index shift introduced in the reconstruction process.
 

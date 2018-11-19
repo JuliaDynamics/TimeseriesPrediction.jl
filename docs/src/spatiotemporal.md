@@ -10,6 +10,7 @@ spatiotemporal timeseries.
 ## Spatio-Temporal Embeddings
 some info here.
 ```@docs
+TimeseriesPrediction.reconstruct
 AbstractSpatialEmbedding
 SpatioTemporalEmbedding
 cubic_shell_embedding

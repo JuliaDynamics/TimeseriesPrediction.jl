@@ -1,7 +1,7 @@
 # Local Modeling
 
 !!! tip "Reconstruction parameters"
-    Don't forget that **DynamicalSystems.jl** also has functions for estimating good parameters for delay embedding: [`estimate_delay`](@ref) and [`estimate_dimension`](@ref).
+    Don't forget that [**DynamicalSystems.jl**](https://juliadynamics.github.io/DynamicalSystems.jl/latest/) also has functions for estimating good parameters for delay embedding: `estimate_delay` and `estimate_dimension`.
 
 ## Local Model Prediction
 ```@docs
@@ -11,7 +11,8 @@ AbstractLocalModel
 ## Single Timeseries Example
 We will predict the future of a (relatively simple) timeseries:
 ```@example tspred
-using TimeseriesPrediction # Re-exports DynamicalSystemsBase
+using TimeseriesPrediction # re-exports DelayEmbeddings
+using DynamicalSystemsBase # to access some systems
 
 ds = Systems.roessler(0.1ones(3))
 dt = 0.1
@@ -143,6 +144,3 @@ predicted version. As training set it used part of the attractor shown in gray o
 <video controls="controls">
 <source src="https://github.com/JuliaDynamics/JuliaDynamicsDocumentation.jl/blob/master/animations/tspred/tspred_animation_zRossler.mp4?raw=true" type="video/mp4">
 </video>
-
-You can find the script that produced this animation in
-`DynamicalSystems/coolanimations/roessler_Z_tspred.jl`.
