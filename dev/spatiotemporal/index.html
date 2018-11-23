@@ -1,0 +1,731 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="Predicting timeseries using methods from nonlinear dynamics.">
+      
+      
+      
+        <meta name="author" content="Jonas Isensee & George Datseris">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-0.17.5, mkdocs-material-2.9.4">
+    
+    
+      
+        <title>Spatio-Temporal Prediction - TimeseriesPrediction</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
+      
+        <link rel="stylesheet" href="../assets/stylesheets/application-palette.22915126.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#7e57c2">
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+    
+    
+      <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+      
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+      <link rel="stylesheet" href="../assets\Documenter.css">
+    
+    
+  </head>
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="deep-purple" data-md-color-accent="teal">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="__github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#spatiotemporal-timeseries-prediction" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="TimeseriesPrediction" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            
+              <span class="md-header-nav__topic">
+                TimeseriesPrediction
+              </span>
+              <span class="md-header-nav__topic">
+                Spatio-Temporal Prediction
+              </span>
+            
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          
+            <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+          
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/JuliaDynamics/TimeseriesPrediction.jl/" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#__github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="TimeseriesPrediction" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    TimeseriesPrediction
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/JuliaDynamics/TimeseriesPrediction.jl/" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#__github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Introduction" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../localmodels/" title="Local Modeling & Timeseries Prediction" class="md-nav__link">
+      Local Modeling & Timeseries Prediction
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Spatio-Temporal Prediction
+      </label>
+    
+    <a href="./" title="Spatio-Temporal Prediction" class="md-nav__link md-nav__link--active">
+      Spatio-Temporal Prediction
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spatio-temporal-embeddings" title="Spatio-Temporal Embeddings" class="md-nav__link">
+    Spatio-Temporal Embeddings
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prediction-functions" title="Prediction functions" class="md-nav__link">
+    Prediction functions
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../stexamples/" title="Spatio-Temporal Examples" class="md-nav__link">
+      Spatio-Temporal Examples
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spatio-temporal-embeddings" title="Spatio-Temporal Embeddings" class="md-nav__link">
+    Spatio-Temporal Embeddings
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prediction-functions" title="Prediction functions" class="md-nav__link">
+    Prediction functions
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/JuliaDynamics/TimeseriesPrediction.jl/edit/master/docs/spatiotemporal.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <p><a id='Spatiotemporal-Timeseries-Prediction-1'></a></p>
+<h1 id="spatiotemporal-timeseries-prediction">Spatiotemporal Timeseries Prediction</h1>
+<p>An application and extension of <a href="../tsprediction/localmodels">local modeling</a> to spatiotemporal timeseries.</p>
+<div class="admonition tip">
+<p class="admonition-title">Examples</p>
+<p>Several example scripts can be found in <code>TimeseriesPrediction/examples</code>. These examples are run in the <a href="../stexamples/">examples</a> page.</p>
+</div>
+<p><a id='Spatio-Temporal-Embeddings-1'></a></p>
+<h2 id="spatio-temporal-embeddings">Spatio-Temporal Embeddings</h2>
+<p>some info here.</p>
+<p><a id='DelayEmbeddings.reconstruct' href='#DelayEmbeddings.reconstruct'>#</a>
+<strong><code>DelayEmbeddings.reconstruct</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>reconstruct(s::AbstractArray{&lt;:AbstractArray{T,Φ}}, em)
+</pre></div>
+
+
+<p>Reconstruct the spatial timeseries <code>s</code> represented by a <code>Vector</code> of <code>AbstractArray</code> states using the embedding struct <code>em</code> of type <a href="./#TimeseriesPrediction.AbstractSpatialEmbedding"><code>AbstractSpatialEmbedding</code></a>.</p>
+<p>Returns the reconstruction in the form of a <code>Dataset</code> (from <code>DelayEmbeddings</code>) where each row is a reconstructed state and they are ordered first through linear indexing into each state and then incrementing in time.</p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/reconstruct.jl#L6-L14' class='documenter-source'>source</a><br></p>
+<p><a id='TimeseriesPrediction.AbstractSpatialEmbedding' href='#TimeseriesPrediction.AbstractSpatialEmbedding'>#</a>
+<strong><code>TimeseriesPrediction.AbstractSpatialEmbedding</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>AbstractSpatialEmbedding &lt;: AbstractEmbedding
+</pre></div>
+
+
+<p>Super-type of spatiotemporal embedding methods. Valid subtypes:</p>
+<ul>
+<li><code>SpatioTemporalEmbedding</code></li>
+<li><code>PCAEmbedding</code></li>
+</ul>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L15-L20' class='documenter-source'>source</a><br></p>
+<p><a id='TimeseriesPrediction.SpatioTemporalEmbedding' href='#TimeseriesPrediction.SpatioTemporalEmbedding'>#</a>
+<strong><code>TimeseriesPrediction.SpatioTemporalEmbedding</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>SpatioTemporalEmbedding{T,Φ,BC,X} → embedding
+</pre></div>
+
+
+<p>A spatio temporal delay coordinates structure to be used as a functor. Applies to data of <code>Φ</code> spatial dimensions and gives an embedding of dimensionality <code>X</code>.</p>
+<div class="codehilite"><pre><span></span>embedding(rvec, s, t, α)
+</pre></div>
+
+
+<p>Operates inplace on <code>rvec</code> (of length <code>X</code>) and reconstructs vector from spatial timeseries <code>s</code> at timestep <code>t</code> and cartesian index <code>α</code>. Note that there are no bounds checks for <code>t</code>.</p>
+<p>It is assumed that <code>s</code> is a <code>Vector{&lt;:AbstractArray{T,Φ}}</code>.</p>
+<p><strong>Constructors</strong></p>
+<p>There are some convenience constructors that return intuitive embeddings here:</p>
+<ul>
+<li><a href="./#TimeseriesPrediction.cubic_shell_embedding"><code>cubic_shell_embedding</code></a></li>
+<li><a href="./#TimeseriesPrediction.light_cone_embedding"><code>light_cone_embedding</code></a></li>
+</ul>
+<p>The "main" constructor is</p>
+<div class="codehilite"><pre><span></span>SpatioTemporalEmbedding{X}(τ, β, bc, fsize)
+</pre></div>
+
+
+<p>which allows full control over the spatio-temporal embedding.</p>
+<ul>
+<li><code>Χ == length(τ) == length(β)</code> : dimensionality of resulting reconstructed space.</li>
+<li><code>τ::Vector{Int}</code> = Vector of temporal delays <em>for each entry</em> of the reconstructed space (sorted in ascending order).</li>
+<li><code>β::Vector{CartesianIndex{Φ}}</code> = vector of <em>relative</em> indices of spatial delays <em>for each entry</em> of the reconstructed space.</li>
+<li><code>bc::BC</code> : boundary condition.</li>
+<li><code>fsize::NTuple{Φ, Int}</code> : Size of each state in the timeseries.</li>
+</ul>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L87-L116' class='documenter-source'>source</a><br></p>
+<p><a id='TimeseriesPrediction.cubic_shell_embedding' href='#TimeseriesPrediction.cubic_shell_embedding'>#</a>
+<strong><code>TimeseriesPrediction.cubic_shell_embedding</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>cubic_shell_embedding(s, D, τ, B, k, bc) → embedding
+</pre></div>
+
+
+<p>Create a <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> instance that includes spatial neighbors in hypercubic <em>shells</em>. The embedding is to be used with data from <code>s</code>.</p>
+<p><strong>Description</strong></p>
+<p>Points are participating in the embedding by forming hypercubic shells around the current point. The total shells formed are <code>B</code>. The points on the shells have spatial distance <code>k ≥ 1</code> (distance in indices, like a cityblock metric). <code>k = 1</code> means that all points of the shell participate. The points of the hypercubic grid can be separated by <code>k ≥ 1</code> points apart (i.e. dropping <code>k-1</code> in-between points). In short, in each spatial dimension of the system the cartesian offset indices are <code>-B*k : k : k*B</code>.</p>
+<p><code>D</code> is the number of temporal steps in the past to be included in the embedding, where each step in the past has additional delay time <code>τ::Int</code>. <code>D=0</code> corresponds to using only the present. Notice that <strong>all</strong> embedded time frames have the same spatial structure, in contrast to <a href="./#TimeseriesPrediction.light_cone_embedding"><code>light_cone_embedding</code></a>.</p>
+<p>As an example, consider one of the <code>D</code> embedded frames (all are the same) of a system with 2 spatial dimensions (<code>□</code> = current point, (included <em>by definition</em> in the embedding), <code>n</code> = included points in the embedding coming from <code>n</code>-th shell, <code>.</code> = points not included in the embedding)</p>
+<div class="codehilite"><pre><span></span>      B = 2,  k = 1        |        B = 1,  k = 2        |        B = 2,  k = 2
+                           |                             |
+.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  2  .  2  .  2  .  2  .  2
+.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
+.  .  2  2  2  2  2  .  .  |  .  .  1  .  1  .  1  .  .  |  2  .  1  .  1  .  1  .  2
+.  .  2  1  1  1  2  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
+.  .  2  1  □  1  2  .  .  |  .  .  1  .  □  .  1  .  .  |  2  .  1  .  □  .  1  .  2
+.  .  2  1  1  1  2  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
+.  .  2  2  2  2  2  .  .  |  .  .  1  .  1  .  1  .  .  |  2  .  1  .  1  .  1  .  2
+.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  2  .  2  .  2  .  2  .  2
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L193-L232' class='documenter-source'>source</a><br></p>
+<p><a id='TimeseriesPrediction.light_cone_embedding' href='#TimeseriesPrediction.light_cone_embedding'>#</a>
+<strong><code>TimeseriesPrediction.light_cone_embedding</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>light_cone_embedding(s, D, τ, r₀, c, bc) → embedding
+</pre></div>
+
+
+<p>Create a <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> instance that includes spatial and temporal neighbors of a point based on the notion of a <em>light cone</em>.</p>
+<p>The embedding is to be used with data from <code>s</code>.</p>
+<p><strong>Description</strong></p>
+<p>Information does not travel instantly but with some finite speed <code>c ≥ 0.0</code>. This constructor creates a cone-like embedding including all points in space and time, whose value can influence a prediction based on the information speed <code>c</code>. <code>D</code> is the number of temporal steps in the past to be included in the embedding, where each step in the past has additional delay time <code>τ::Int</code>. <code>D=0</code> corresponds to using only the present. <code>r₀</code> is the initial radius at the top of the cone, i.e. the radius of influence at the present. <code>bc</code> is the boundary condition.</p>
+<p>The radius of the light cone evolves as: <code>r = i*τ*c + r₀</code> for each step <code>i ∈ 0:D</code>.</p>
+<p>As an example, in a one-dimensional system with <code>D = 1, τ = 2, r₀ = 1</code>, the embedding looks like (<code>□</code> = current point (included <em>by definition</em> in the embedding), <code>o</code> point to be predicted using <a href="./#TimeseriesPrediction.temporalprediction"><code>temporalprediction</code></a>, <code>x</code> = points included in the embedding, <code>.</code> = points not included in the embedding)</p>
+<div class="codehilite"><pre><span></span>time  | c = 1.0               | c = 2.0               | c = 0.0
+
+n + 1 | ..........o.......... | ..........o.......... | ..........o..........
+n     | .........x□x......... | .........x□x......... | .........x□x.........
+n - 1 | ..................... | ..................... | .....................
+n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
+</pre></div>
+
+
+<p>Besides this example, in the official documentation we show a function <code>explain_light_cone</code> which produces a plot of the light cone for 2 spatial dimensions (great for understanding!).</p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L268-L304' class='documenter-source'>source</a><br></p>
+<p><a id='TimeseriesPrediction.PCAEmbedding' href='#TimeseriesPrediction.PCAEmbedding'>#</a>
+<strong><code>TimeseriesPrediction.PCAEmbedding</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span><span class="nt">PCAEmbedding</span><span class="o">(</span><span class="nt">s</span><span class="o">,</span> <span class="nt">em</span><span class="p">::</span><span class="nd">SpatioTemporalEmbedding</span><span class="o">;</span> <span class="nt">kwargs</span><span class="o">...)</span> <span class="err">→</span> <span class="nt">embedding</span>
+</pre></div>
+
+
+<p>A spatio temporal delay coordinates structure with Principal Component Analysis as a means of dimension reduction, <code>embedding</code> can be used as a functor:</p>
+<div class="codehilite"><pre><span></span><span class="n">embedding</span><span class="p">(</span><span class="n">rvec</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">α</span><span class="p">)</span>
+</pre></div>
+
+
+<p>which operates inplace on <code>rvec</code> and reconstructs vector from spatial time series <code>s</code> at timestep <code>t</code> and cartesian index <code>α</code>.</p>
+<p>To instantiate this <code>embedding</code>, give the data to be reconstructed <code>s</code> as well as an instance of <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> to <code>PCAEmbedding</code>.</p>
+<p><strong>Keyword Arguments</strong></p>
+<ul>
+<li><code>pratio = 0.99</code> : Ratio of variances that needs to be preserved in low-dimensional PCA-reconstruction.</li>
+<li><code>maxoutdim = 25</code>: Upper limit for output dimension. May break <code>pratio</code> criterion.</li>
+<li><code>every_t = 1</code> : Speed up computation by only using every n-th point in time.</li>
+<li><code>every_α = 1</code> : Speed up computation further by only using every n-th point in space (linear indexing).</li>
+</ul>
+<p>To set the output dimension to a certain value <code>X</code>, pass <code>pratio=1, maxoutdim=X</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/pcaembedding.jl#L5-L28' class='documenter-source'>source</a><br></p>
+<p>Here is a function that visualizes how the <code>light_cone_embedding</code> works in 2 spatial dimensions:</p>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">PyPlot</span><span class="p">,</span> <span class="n">TimeseriesPrediction</span>
+<span class="k">using</span> <span class="n">LinearAlgebra</span><span class="o">:</span> <span class="n">norm</span>
+
+<span class="k">function</span> <span class="n">explain_light_cone</span><span class="p">(;</span><span class="n">D</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">τ</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">r0</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">maxr</span> <span class="o">=</span> <span class="n">D</span><span class="o">*</span><span class="n">τ</span><span class="o">*</span><span class="n">c</span> <span class="o">+</span> <span class="n">r0</span>
+
+    <span class="n">figure</span><span class="p">()</span>
+    <span class="n">xticks</span><span class="p">(</span><span class="o">-</span><span class="n">maxr</span><span class="o">:</span><span class="n">maxr</span><span class="p">)</span>
+    <span class="n">yticks</span><span class="p">(</span><span class="o">-</span><span class="n">maxr</span><span class="o">:</span><span class="n">maxr</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="n">D</span><span class="o">:-</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="n">τ</span><span class="o">*</span><span class="n">c</span> <span class="o">+</span> <span class="n">r0</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">TimeseriesPrediction</span><span class="o">.</span><span class="n">indices_within_sphere</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">maximum</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="kt">Tuple</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="kp">in</span> <span class="n">points</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">r</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">r</span><span class="o">*</span><span class="n">cos</span><span class="o">.</span><span class="p">(</span><span class="n">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="mi">2</span><span class="nb">π</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">100</span><span class="p">))</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">r</span><span class="o">*</span><span class="n">sin</span><span class="o">.</span><span class="p">(</span><span class="n">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="mi">2</span><span class="nb">π</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">100</span><span class="p">))</span>
+            <span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;C</span><span class="si">$i</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">end</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">xy</span> <span class="o">-&gt;</span> <span class="n">xy</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">xy</span> <span class="o">-&gt;</span> <span class="n">xy</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">points</span><span class="p">)</span>
+        <span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="s">&quot;C</span><span class="si">$i</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">zorder</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;within </span><span class="se">\$</span><span class="s">r = r_0 + </span><span class="si">$i</span><span class="s"> </span><span class="se">\\</span><span class="s">tau c</span><span class="se">\$</span><span class="s">&quot;</span><span class="p">)</span>
+
+    <span class="k">end</span>
+    <span class="n">title</span><span class="p">(</span><span class="s">&quot;D = </span><span class="si">$D</span><span class="s">, τ = </span><span class="si">$τ</span><span class="s">, r₀ = </span><span class="si">$r0</span><span class="s">, c = </span><span class="si">$c</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="n">PyPlot</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">zorder</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">legend</span><span class="p">(</span><span class="n">loc</span> <span class="o">=</span> <span class="s">&quot;upper right&quot;</span><span class="p">)</span>
+    <span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">PyPlot</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="n">tight_layout</span><span class="p">()</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<hr />
+<p>Boundary conditions</p>
+<p><a id='TimeseriesPrediction.ConstantBoundary' href='#TimeseriesPrediction.ConstantBoundary'>#</a>
+<strong><code>TimeseriesPrediction.ConstantBoundary</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>ConstantBoundary(c) &lt;: AbstractBoundaryCondition
+</pre></div>
+
+
+<p>Constant boundary condition type. Enforces constant boundary conditions when passed to <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> by filling missing out-of-bounds values in the reconstruction with parameter <code>c</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L31-L37' class='documenter-source'>source</a><br></p>
+<p><a id='TimeseriesPrediction.PeriodicBoundary' href='#TimeseriesPrediction.PeriodicBoundary'>#</a>
+<strong><code>TimeseriesPrediction.PeriodicBoundary</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>PeriodicBoundary &lt;: AbstractBoundaryCondition
+</pre></div>
+
+
+<p>Periodic boundary condition struct. Enforces periodic boundary conditions when passed to <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> in the reconstruction.</p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L42-L46' class='documenter-source'>source</a><br></p>
+<p><a id='Prediction-functions-1'></a></p>
+<h2 id="prediction-functions">Prediction functions</h2>
+<p><a id='TimeseriesPrediction.temporalprediction' href='#TimeseriesPrediction.temporalprediction'>#</a>
+<strong><code>TimeseriesPrediction.temporalprediction</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span><span class="nt">temporalprediction</span><span class="o">(</span><span class="nt">U</span><span class="o">,</span> <span class="nt">em</span><span class="p">::</span><span class="nd">AbstractSpatialEmbedding</span><span class="o">,</span> <span class="nt">tsteps</span><span class="o">;</span> <span class="nt">kwargs</span><span class="o">...)</span>
+</pre></div>
+
+
+<p>Perform a spatio-temporal time series prediction for <code>tsteps</code> iterations, using local weighted modeling [1] give a time series of the form <code>U::AbstractVector{&lt;:AbstractArray{T, Φ}}</code>.</p>
+<p>The returned data always contains the final state of <code>U</code> as starting point (total returned length is <code>tsteps+1</code>). The reconstruction process is defined by <code>em</code>. For available methods and interfaces see <a href="./#TimeseriesPrediction.AbstractSpatialEmbedding"><code>AbstractSpatialEmbedding</code></a>.</p>
+<p><strong>Keyword Arguments</strong></p>
+<ul>
+<li><code>ttype = KDTree</code> : Type/Constructor of tree structure. So far only tested with <code>KDTree</code>.</li>
+<li><code>method = AverageLocalModel(ω_safe)</code> : Subtype of <a href="../localmodels/#TimeseriesPrediction.AbstractLocalModel"><code>AbstractLocalModel</code></a>.</li>
+<li><code>ntype = FixedMassNeighborhood(3)</code> : Subtype of <code>AbstractNeighborhood</code>.</li>
+<li><code>initial_ts = U</code> : Initial states for prediction (same type as <code>U</code>). Must have at least as many states as the maximum delay time used. Defaults to the training set <code>U</code>.</li>
+<li><code>progress = true</code> : To print progress done.</li>
+</ul>
+<p><strong>Description</strong></p>
+<p>This method works similarly to <a href="../localmodels/#TimeseriesPrediction.localmodel_tsp"><code>localmodel_tsp</code></a>, by expanding the concept of delay embedding to spatially extended systems. Instead of reconstructing complete states of the system, local states are used. See <a href="./#TimeseriesPrediction.AbstractSpatialEmbedding"><code>AbstractSpatialEmbedding</code></a> for details on the embedding. Predictions are then performed frame by frame and point py point. Once all values for a new frame are found, the frame is added to the end of the timeseries and used to generate new prediction queries for the next time step.</p>
+<p><strong>Performance Notes</strong></p>
+<p>Be careful when choosing embedding parameters as memory usage and computation time depend strongly on the resulting embedding dimension.</p>
+<p><strong>References</strong></p>
+<p>[1] : U. Parlitz &amp; C. Merkwirth, <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890">Phys. Rev. Lett. <strong>84</strong>, pp 1890 (2000)</a></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/temporalprediction.jl#L22-L56' class='documenter-source'>source</a><br></p>
+<p><a id='TimeseriesPrediction.crossprediction' href='#TimeseriesPrediction.crossprediction'>#</a>
+<strong><code>TimeseriesPrediction.crossprediction</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span><span class="nt">crossprediction</span><span class="o">(</span><span class="nt">source_train</span><span class="o">,</span> <span class="nt">target_train</span><span class="o">,</span> <span class="nt">source_pred</span><span class="o">,</span>
+                <span class="nt">em</span><span class="p">::</span><span class="nd">AbstractSpatialEmbedding</span><span class="o">;</span> <span class="nt">kwargs</span><span class="o">...)</span>
+</pre></div>
+
+
+<p>Perform a spatio-temporal timeseries cross-prediction for <code>target</code> from <code>source</code>, using local weighted modeling [1]. This can be used for example when there are coupled spatial fields and one is used to predict the other. It is assumed that <code>source_train</code>, <code>target_train</code>, <code>source_pred</code> are all of the same type, <code>AbstractVector{&lt;:AbstractArray{T, Φ}}</code>.</p>
+<p>The spatio temporal delay embedding process is defined by <code>em</code>. See <a href="./#TimeseriesPrediction.AbstractSpatialEmbedding"><code>AbstractSpatialEmbedding</code></a> for available methods and interfaces.</p>
+<p><strong>Keyword Arguments</strong></p>
+<ul>
+<li><code>ttype = KDTree</code> : Type/Constructor of tree structure. So far only tested with <code>KDTree</code>.</li>
+<li><code>method = AverageLocalModel(ω_safe)</code> : Subtype of <a href="../localmodels/#TimeseriesPrediction.AbstractLocalModel"><code>AbstractLocalModel</code></a>.</li>
+<li><code>ntype = FixedMassNeighborhood(3)</code> : Subtype of <code>AbstractNeighborhood</code>.</li>
+<li><code>progress = true</code> : To print progress done.</li>
+</ul>
+<p><strong>Description</strong></p>
+<p>The reconstructed state of <code>source_train[t][i,j,...]</code> is associated with the output value <code>target_train[t][i,j,...]</code>. This establishes a "connection" between <code>target</code> and <code>source</code>. Taking a reconstructed state of <code>source_pred</code> as query point, the function finds its neighbors in the reconstructed space of <code>source_train</code> using neighborhood <code>ntype</code>. Then, the neighbor <em>indices</em> are used to make a prediction for the corresponding value of the <code>target</code>, using the established "connection" between fields.</p>
+<p><strong>Additional Interfaces</strong></p>
+<p>To save computation time in the case of repeated predictions with the same training set and embedding parameters we provide an additional interface that allows the user to provide an existing reconstruction and tree structure.</p>
+<div class="codehilite"><pre><span></span><span class="n">R</span> <span class="o">=</span> <span class="n">reconstruct</span><span class="p">(</span><span class="n">train_in</span><span class="p">,</span> <span class="n">em</span><span class="p">)</span>
+<span class="n">tree</span> <span class="o">=</span> <span class="n">ttype</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">PredictionParams</span><span class="p">(</span><span class="n">em</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">ntype</span><span class="p">,</span> <span class="n">ttype</span><span class="p">)</span>
+<span class="n">sol</span> <span class="o">=</span> <span class="n">crossprediction</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">train_out</span><span class="p">,</span> <span class="n">pred_in</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">tree</span><span class="p">;</span> <span class="n">progress</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span>
+</pre></div>
+
+
+<p>where <code>params</code> is an internal container with all relevant parameters.</p>
+<p><strong>Performance Notes</strong></p>
+<p>Be careful when choosing embedding parameters as memory usage and computation time depend strongly on the resulting embedding dimension.</p>
+<p><strong>References</strong></p>
+<p>[1] : U. Parlitz &amp; C. Merkwirth, <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890">Phys. Rev. Lett. <strong>84</strong>, pp 1890 (2000)</a></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/crossprediction.jl#L7-L53' class='documenter-source'>source</a><br></p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../localmodels/" title="Local Modeling & Timeseries Prediction" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Local Modeling & Timeseries Prediction
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../stexamples/" title="Spatio-Temporal Examples" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Spatio-Temporal Examples
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+        
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/JuliaDynamics/TimeseriesPrediction.jl" class="md-footer-social__link fa fa-github"></a>
+    
+  </div>
+
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.30f6b8b1.js"></script>
+      
+      <script>app.initialize({version:"0.17.5",url:{base:".."}})</script>
+      
+        <script src="../assets\mathjaxhelper.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+    
+      
+    
+  </body>
+</html>
