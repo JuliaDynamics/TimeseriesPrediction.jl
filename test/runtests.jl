@@ -1,5 +1,7 @@
 using TimeseriesPrediction
 
+using DynamicalSystemsBase
+
 ti = time()
 
 include("localmodeling_tests.jl")
