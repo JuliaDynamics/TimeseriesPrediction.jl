@@ -2,6 +2,8 @@ using TimeseriesPrediction
 
 using DynamicalSystemsBase
 
+const STE = SpatioTemporalEmbedding
+
 ti = time()
 
 include("localmodeling_tests.jl")
