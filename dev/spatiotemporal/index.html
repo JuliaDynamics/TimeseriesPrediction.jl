@@ -405,7 +405,7 @@
 
 <p>Reconstruct the spatial timeseries <code>s</code> represented by a <code>Vector</code> of <code>AbstractArray</code> states using the embedding struct <code>em</code> of type <a href="./#TimeseriesPrediction.AbstractSpatialEmbedding"><code>AbstractSpatialEmbedding</code></a>.</p>
 <p>Returns the reconstruction in the form of a <code>Dataset</code> (from <code>DelayEmbeddings</code>) where each row is a reconstructed state and they are ordered first through linear indexing into each state and then incrementing in time.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/reconstruct.jl#L6-L14' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/reconstruct.jl#L6-L14' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.AbstractSpatialEmbedding' href='#TimeseriesPrediction.AbstractSpatialEmbedding'>#</a>
 <strong><code>TimeseriesPrediction.AbstractSpatialEmbedding</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>AbstractSpatialEmbedding &lt;: AbstractEmbedding
@@ -417,7 +417,7 @@
 <li><code>SpatioTemporalEmbedding</code></li>
 <li><code>PCAEmbedding</code></li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L15-L20' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/spatiotemporalembedding.jl#L15-L20' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.SpatioTemporalEmbedding' href='#TimeseriesPrediction.SpatioTemporalEmbedding'>#</a>
 <strong><code>TimeseriesPrediction.SpatioTemporalEmbedding</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>SpatioTemporalEmbedding{T,Φ,BC,X} → embedding
@@ -450,7 +450,7 @@
 <li><code>bc::BC</code> : boundary condition.</li>
 <li><code>fsize::NTuple{Φ, Int}</code> : Size of each state in the timeseries.</li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L87-L116' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/spatiotemporalembedding.jl#L87-L116' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.cubic_shell_embedding' href='#TimeseriesPrediction.cubic_shell_embedding'>#</a>
 <strong><code>TimeseriesPrediction.cubic_shell_embedding</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>cubic_shell_embedding(s, D, τ, B, k, bc) → embedding
@@ -476,7 +476,7 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L193-L232' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/spatiotemporalembedding.jl#L193-L232' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.light_cone_embedding' href='#TimeseriesPrediction.light_cone_embedding'>#</a>
 <strong><code>TimeseriesPrediction.light_cone_embedding</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>light_cone_embedding(s, D, τ, r₀, c, bc) → embedding
@@ -499,7 +499,7 @@ n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 
 
 <p>Besides this example, in the official documentation we show a function <code>explain_light_cone</code> which produces a plot of the light cone for 2 spatial dimensions (great for understanding!).</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L268-L304' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/spatiotemporalembedding.jl#L268-L304' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.PCAEmbedding' href='#TimeseriesPrediction.PCAEmbedding'>#</a>
 <strong><code>TimeseriesPrediction.PCAEmbedding</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span><span class="nt">PCAEmbedding</span><span class="o">(</span><span class="nt">s</span><span class="o">,</span> <span class="nt">em</span><span class="p">::</span><span class="nd">SpatioTemporalEmbedding</span><span class="o">;</span> <span class="nt">kwargs</span><span class="o">...)</span> <span class="err">→</span> <span class="nt">embedding</span>
@@ -521,7 +521,7 @@ n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 <li><code>every_α = 1</code> : Speed up computation further by only using every n-th point in space (linear indexing).</li>
 </ul>
 <p>To set the output dimension to a certain value <code>X</code>, pass <code>pratio=1, maxoutdim=X</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/pcaembedding.jl#L5-L28' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/pcaembedding.jl#L5-L28' class='documenter-source'>source</a><br></p>
 <p>Here is a function that visualizes how the <code>light_cone_embedding</code> works in 2 spatial dimensions:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">PyPlot</span><span class="p">,</span> <span class="n">TimeseriesPrediction</span>
 <span class="k">using</span> <span class="n">LinearAlgebra</span><span class="o">:</span> <span class="n">norm</span>
@@ -570,7 +570,7 @@ n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 
 
 <p>Constant boundary condition type. Enforces constant boundary conditions when passed to <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> by filling missing out-of-bounds values in the reconstruction with parameter <code>c</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L31-L37' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/spatiotemporalembedding.jl#L31-L37' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.PeriodicBoundary' href='#TimeseriesPrediction.PeriodicBoundary'>#</a>
 <strong><code>TimeseriesPrediction.PeriodicBoundary</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>PeriodicBoundary &lt;: AbstractBoundaryCondition
@@ -578,7 +578,7 @@ n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 
 
 <p>Periodic boundary condition struct. Enforces periodic boundary conditions when passed to <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> in the reconstruction.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/spatiotemporalembedding.jl#L42-L46' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/spatiotemporalembedding.jl#L42-L46' class='documenter-source'>source</a><br></p>
 <p><a id='Prediction-functions-1'></a></p>
 <h2 id="prediction-functions">Prediction functions</h2>
 <p><a id='TimeseriesPrediction.temporalprediction' href='#TimeseriesPrediction.temporalprediction'>#</a>
@@ -603,7 +603,7 @@ n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 <p>Be careful when choosing embedding parameters as memory usage and computation time depend strongly on the resulting embedding dimension.</p>
 <p><strong>References</strong></p>
 <p>[1] : U. Parlitz &amp; C. Merkwirth, <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890">Phys. Rev. Lett. <strong>84</strong>, pp 1890 (2000)</a></p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/temporalprediction.jl#L22-L56' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/temporalprediction.jl#L22-L56' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.crossprediction' href='#TimeseriesPrediction.crossprediction'>#</a>
 <strong><code>TimeseriesPrediction.crossprediction</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span><span class="nt">crossprediction</span><span class="o">(</span><span class="nt">source_train</span><span class="o">,</span> <span class="nt">target_train</span><span class="o">,</span> <span class="nt">source_pred</span><span class="o">,</span>
@@ -636,7 +636,7 @@ n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 <p>Be careful when choosing embedding parameters as memory usage and computation time depend strongly on the resulting embedding dimension.</p>
 <p><strong>References</strong></p>
 <p>[1] : U. Parlitz &amp; C. Merkwirth, <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890">Phys. Rev. Lett. <strong>84</strong>, pp 1890 (2000)</a></p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/ef7fe56eb3ba3d074e0d8a00fca55862982609ec/src/crossprediction.jl#L7-L53' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/crossprediction.jl#L7-L53' class='documenter-source'>source</a><br></p>
                 
                   
                 
