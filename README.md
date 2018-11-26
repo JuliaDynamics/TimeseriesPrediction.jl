@@ -3,7 +3,7 @@ timeseries analysis. It uses [`DelayEmbeddings`](https://github.com/JuliaDynamic
 
 | **Documentation**   |  **Travis**     | **AppVeyor** | Gitter |
 |:--------:|:-------------------:|:-----:|:-----:|
-|[pending... | [![Build Status](https://travis-ci.org/JuliaDynamics/TimeseriesPrediction.jl.svg?branch=master)](https://travis-ci.org/JuliaDynamics/TimeseriesPrediction.jl) | [![Build status](https://ci.appveyor.com/api/projects/status/amgkws9l1cng2aov?svg=true)](https://ci.appveyor.com/project/JuliaDynamics/timeseriesprediction-jl) | [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/JuliaDynamics/Lobby)
+|[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliadynamics.github.io/TimeseriesPrediction.jl/latest) | [![Build Status](https://travis-ci.org/JuliaDynamics/TimeseriesPrediction.jl.svg?branch=master)](https://travis-ci.org/JuliaDynamics/TimeseriesPrediction.jl) | [![Build status](https://ci.appveyor.com/api/projects/status/amgkws9l1cng2aov?svg=true)](https://ci.appveyor.com/project/JuliaDynamics/timeseriesprediction-jl) | [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/JuliaDynamics/Lobby)
 
 All exported names have detailed documentation strings!
 
