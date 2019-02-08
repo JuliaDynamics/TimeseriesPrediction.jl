@@ -267,7 +267,7 @@ end
     @testset "γ=3 and multi τ" begin
         γ = 3;
         τ=[15 15; 30 29; 45 45]
-        source_train = reconstruct(sm_train,γ,τ)45000,
+        source_train = reconstruct(sm_train,γ,τ)
         source_pred = reconstruct(sm_pred,γ,τ)
         method = AverageLocalModel()
         ntype = FixedMassNeighborhood(2)
