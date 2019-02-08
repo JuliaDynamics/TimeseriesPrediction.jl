@@ -607,14 +607,14 @@
 <span class="n">pool</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="n">Ntrain</span><span class="p">]</span>
 <span class="n">test</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">Ntrain</span><span class="o">:</span><span class="n">N</span><span class="p">]</span>
 
-<span class="n">D</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="nb">γ</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">τ</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">B</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">ntype</span> <span class="o">=</span> <span class="n">FixedMassNeighborhood</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 <span class="n">method</span> <span class="o">=</span> <span class="n">AverageLocalModel</span><span class="p">()</span>
 
-<span class="n">em</span> <span class="o">=</span> <span class="n">cubic_shell_embedding</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span><span class="n">τ</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">PeriodicBoundary</span><span class="p">())</span>
+<span class="n">em</span> <span class="o">=</span> <span class="n">cubic_shell_embedding</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="nb">γ</span><span class="p">,</span><span class="n">τ</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">PeriodicBoundary</span><span class="p">())</span>
 <span class="n">pcaem</span><span class="o">=</span> <span class="n">PCAEmbedding</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span><span class="n">em</span><span class="p">)</span>
 
 <span class="nd">@time</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">temporalprediction</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span><span class="n">pcaem</span><span class="p">,</span> <span class="n">p</span><span class="p">;</span><span class="n">ntype</span><span class="o">=</span><span class="n">ntype</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">progress</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
@@ -624,7 +624,7 @@
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span>  3.045345 seconds (2.73 M allocations: 256.572 MiB, 8.61% gc time)
+<div class="codehilite"><pre><span></span>  2.880423 seconds (3.07 M allocations: 274.506 MiB, 7.41% gc time)
 Maximum error: 7.489722699875898
 </pre></div>
 
@@ -729,7 +729,7 @@ Maximum error: 7.489722699875898
 
 <p><a id='Cross-predict-field-U-from-field-V-1'></a></p>
 <h3 id="cross-predict-field-u-from-field-v">Cross predict field U from field V</h3>
-<div class="codehilite"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="mi">5</span>
+<div class="codehilite"><pre><span></span><span class="nb">γ</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">τ</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span>
@@ -737,10 +737,10 @@ Maximum error: 7.489722699875898
 
 <span class="n">source_train</span> <span class="o">=</span> <span class="n">V</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span> <span class="n">Ttrain</span><span class="p">]</span>
 <span class="n">target_train</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span> <span class="n">Ttrain</span><span class="p">]</span>
-<span class="n">source_pred</span>  <span class="o">=</span> <span class="n">V</span><span class="p">[</span><span class="n">Ttrain</span>  <span class="o">-</span> <span class="n">D</span><span class="o">*</span><span class="n">τ</span> <span class="o">+</span> <span class="mi">1</span><span class="o">:</span>  <span class="n">T</span><span class="p">]</span>
+<span class="n">source_pred</span>  <span class="o">=</span> <span class="n">V</span><span class="p">[</span><span class="n">Ttrain</span>  <span class="o">-</span> <span class="nb">γ</span><span class="o">*</span><span class="n">τ</span> <span class="o">+</span> <span class="mi">1</span><span class="o">:</span>  <span class="n">T</span><span class="p">]</span>
 <span class="n">target_test</span>  <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">Ttrain</span>        <span class="o">+</span> <span class="mi">1</span><span class="o">:</span>  <span class="n">T</span><span class="p">]</span>
 
-<span class="n">em</span> <span class="o">=</span> <span class="n">cubic_shell_embedding</span><span class="p">(</span><span class="n">source_train</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span><span class="n">τ</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">bc</span><span class="p">)</span>
+<span class="n">em</span> <span class="o">=</span> <span class="n">cubic_shell_embedding</span><span class="p">(</span><span class="n">source_train</span><span class="p">,</span> <span class="nb">γ</span><span class="p">,</span><span class="n">τ</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">bc</span><span class="p">)</span>
 <span class="n">pcaem</span> <span class="o">=</span> <span class="n">PCAEmbedding</span><span class="p">(</span><span class="n">source_train</span><span class="p">,</span> <span class="n">em</span><span class="p">;</span> <span class="n">maxoutdim</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="c"># PCA speeds things up!</span>
 
 <span class="nd">@time</span> <span class="n">target_pred</span> <span class="o">=</span> <span class="n">crossprediction</span><span class="p">(</span><span class="n">source_train</span><span class="p">,</span> <span class="n">target_train</span><span class="p">,</span> <span class="n">source_pred</span><span class="p">,</span> <span class="n">em</span><span class="p">;</span>
@@ -752,8 +752,8 @@ Maximum error: 7.489722699875898
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span> 55.597706 seconds (1.91 M allocations: 1.179 GiB, 1.28% gc time)
-Maximum error: 0.3501152187355337
+<div class="codehilite"><pre><span></span>  8.582125 seconds (1.90 M allocations: 1.179 GiB, 5.93% gc time)
+Maximum error: 4.2659194427377654e-13
 </pre></div>
 
 
@@ -834,16 +834,16 @@ Maximum error: 0.3501152187355337
 
 <p><a id='Temporal-prediction-of-field-U-2'></a></p>
 <h3 id="temporal-prediction-of-field-u_1">Temporal prediction of field U</h3>
-<div class="codehilite"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="mi">2</span>
+<div class="codehilite"><pre><span></span><span class="nb">γ</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">τ</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">r₀</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">r</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">c</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">bc</span> <span class="o">=</span> <span class="n">PeriodicBoundary</span><span class="p">()</span>
 
 <span class="n">pool</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="mi">1</span> <span class="o">:</span> <span class="n">Ttrain</span><span class="p">]</span>
 <span class="n">test</span>  <span class="o">=</span> <span class="n">U</span><span class="p">[</span> <span class="n">Ttrain</span> <span class="o">:</span> <span class="n">T</span><span class="p">]</span>
 
-<span class="n">em</span> <span class="o">=</span> <span class="n">light_cone_embedding</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span><span class="n">τ</span><span class="p">,</span><span class="n">r₀</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">bc</span><span class="p">)</span>
+<span class="n">em</span> <span class="o">=</span> <span class="n">light_cone_embedding</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="nb">γ</span><span class="p">,</span><span class="n">τ</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">bc</span><span class="p">)</span>
 <span class="n">pcaem</span> <span class="o">=</span> <span class="n">PCAEmbedding</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="n">em</span><span class="p">;</span> <span class="n">maxoutdim</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="c"># PCA speeds things up!</span>
 
 <span class="nd">@time</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">temporalprediction</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="n">em</span><span class="p">,</span> <span class="n">Ttest</span><span class="p">;</span> <span class="n">progress</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
@@ -854,7 +854,7 @@ Maximum error: 0.3501152187355337
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span> 22.870086 seconds (1.73 M allocations: 931.278 MiB, 1.51% gc time)
+<div class="codehilite"><pre><span></span> 19.911891 seconds (1.73 M allocations: 931.140 MiB, 1.46% gc time)
 Maximum error: 0.2934269941090367
 </pre></div>
 

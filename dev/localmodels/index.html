@@ -457,7 +457,7 @@
 <p>The algorithm is applied iteratively until a prediction of length <code>p</code> has been created, starting with the query point to be the last point of the timeseries.</p>
 <p><strong>References</strong></p>
 <p>[1] : D. Engster &amp; U. Parlitz, <em>Handbook of Time Series Analysis</em> Ch. 1, VCH-Wiley (2006)</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/localmodeling.jl#L289-L321' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/3b66e96256b5d56140cc1ff2a6ef56d122c2fad7/src/localmodeling.jl#L289-L321' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.AbstractLocalModel' href='#TimeseriesPrediction.AbstractLocalModel'>#</a>
 <strong><code>TimeseriesPrediction.AbstractLocalModel</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>AbstractLocalModel
@@ -538,7 +538,7 @@ f(\sigma) = \begin{cases} 0, & \sigma < s_{min}\\
 </ul>
 <p><strong>References</strong></p>
 <p>[1] : D. Engster &amp; U. Parlitz, <em>Handbook of Time Series Analysis</em> Ch. 1, VCH-Wiley (2006)</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/localmodeling.jl#L10-L75' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/3b66e96256b5d56140cc1ff2a6ef56d122c2fad7/src/localmodeling.jl#L10-L75' class='documenter-source'>source</a><br></p>
 <p><a id='Single-Timeseries-Example-1'></a></p>
 <h2 id="single-timeseries-example">Single Timeseries Example</h2>
 <p>We will predict the future of a (relatively simple) timeseries:</p>
@@ -648,44 +648,37 @@ MSE_p = \frac{1}{p|T_{ref}|}\sum_{t\in T_{ref}}\sum_{i=1}^{p} \left(y_{t+i}
 <p>where <span><span class="MathJax_Preview">|T_{ref}|</span><script type="math/tex">|T_{ref}|</script></span> is the number of subsets of <code>R_test</code> used.</p>
 <p><strong>References</strong></p>
 <p>See <a href="./#TimeseriesPrediction.localmodel_tsp"><code>localmodel_tsp</code></a>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/01f90522144459736dd2bb98e5d575d51aa10f30/src/localmodeling.jl#L457-L479' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/3b66e96256b5d56140cc1ff2a6ef56d122c2fad7/src/localmodeling.jl#L457-L479' class='documenter-source'>source</a><br></p>
 <p>Here is an example function that employs <code>MSEp</code> to find good parameters. It takes in a timeseries <code>s</code> and ranges for the dimensions, delays and number of nearest neighbors to  try. Keyword arguments are <code>valid_len</code>, which is the number of prediction steps, and <code>num_tries</code> the number of different starting points to choose.</p>
 <p>It then calculates <code>MSEp</code> for all parameter combinations and returns the best parameter set.</p>
-<div class="codehilite"><pre><span></span><span class="k">function</span> <span class="n">estimate_param</span><span class="p">(</span><span class="n">s</span><span class="o">::</span><span class="kt">AbstractVector</span><span class="p">,</span>
-    <span class="n">dims</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">K</span><span class="p">;</span> <span class="n">valid_len</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">num_tries</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="kt">Dict</span><span class="p">{</span><span class="n">NamedTuple</span><span class="p">,</span><span class="kt">Float64</span><span class="p">}()</span>
-    <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">for</span> <span class="n">D</span> <span class="o">∈</span> <span class="n">dims</span><span class="p">,</span> <span class="n">τ</span> <span class="o">∈</span> <span class="n">delay</span>
-        <span class="n">s_train</span> <span class="o">=</span> <span class="nd">@view</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="k">end</span><span class="o">-</span><span class="n">D</span><span class="o">*</span><span class="n">τ</span><span class="o">-</span><span class="n">valid_len</span><span class="o">-</span><span class="n">num_tries</span><span class="o">-</span><span class="mi">50</span><span class="p">]</span>
-        <span class="n">s_test</span> <span class="o">=</span> <span class="nd">@view</span> <span class="n">s</span><span class="p">[</span><span class="k">end</span><span class="o">-</span><span class="p">(</span><span class="n">D</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">τ</span><span class="o">-</span><span class="n">valid_len</span><span class="o">-</span><span class="n">num_tries</span><span class="o">:</span><span class="k">end</span><span class="p">]</span>
-        <span class="n">R</span> <span class="o">=</span> <span class="n">reconstruct</span><span class="p">(</span><span class="n">s_train</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">τ</span><span class="p">)</span>
-        <span class="n">R_test</span> <span class="o">=</span> <span class="n">reconstruct</span><span class="p">(</span><span class="n">s_test</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">τ</span><span class="p">)</span>
-        <span class="n">tree</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="o">∈</span> <span class="n">K</span>
-            <span class="n">ntype</span> <span class="o">=</span> <span class="n">FixedMassNeighborhood</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[(</span><span class="n">D</span><span class="o">=</span><span class="n">D</span><span class="p">,</span><span class="n">τ</span><span class="o">=</span><span class="n">τ</span><span class="p">,</span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span>
-            <span class="n">MSEp</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">tree</span><span class="p">,</span> <span class="n">R_test</span><span class="p">,</span> <span class="n">valid_len</span><span class="p">;</span> <span class="n">ntype</span><span class="o">=</span><span class="n">ntype</span><span class="p">)</span>
-        <span class="k">end</span>
-    <span class="k">end</span>
-    <span class="n">best_param</span> <span class="o">=</span> <span class="n">collect</span><span class="p">(</span><span class="n">keys</span><span class="p">(</span><span class="n">result</span><span class="p">))[</span><span class="n">findmin</span><span class="p">(</span><span class="n">collect</span><span class="p">(</span><span class="n">values</span><span class="p">(</span><span class="n">result</span><span class="p">)))[</span><span class="mi">2</span><span class="p">]]</span>
-    <span class="k">return</span> <span class="n">best_param</span>
-<span class="k">end</span>
-
-<span class="n">ds</span> <span class="o">=</span> <span class="n">Systems</span><span class="o">.</span><span class="n">roessler</span><span class="p">(</span><span class="mf">0.1</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-<span class="n">dt</span> <span class="o">=</span> <span class="mf">0.1</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">trajectory</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="mi">1000</span><span class="p">;</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
-<span class="n">N_train</span> <span class="o">=</span> <span class="mi">6001</span>
-<span class="n">s_train</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="n">N_train</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="n">s_test</span>  <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">N_train</span><span class="o">:</span><span class="k">end</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
-
-<span class="n">D</span><span class="p">,</span> <span class="n">τ</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">estimate_param</span><span class="p">(</span><span class="n">s_train</span><span class="p">,</span> <span class="mi">1</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="mi">2</span><span class="o">:</span><span class="mi">4</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="codehilite"><pre><span></span>(D = 2, τ = 15, k = 2)
-</pre></div>
-
-
+<p>```@example tspred
+function estimate_param(s::AbstractVector,
+    dims, delay, K; valid_len=100, num_tries=50)
+    result = Dict{NamedTuple,Float64}()
+    step = 1
+    for γ ∈ dims, τ ∈ delay
+        s_train = @view s[1:end-(γ+1)<em>τ-valid_len-num_tries-50]
+        s_test = @view s[end-γ</em>τ-valid_len-num_tries:end]
+        R = reconstruct(s_train,γ,τ)
+        R_test = reconstruct(s_test,γ,τ)
+        tree = KDTree(R[1:end-1])
+        for k ∈ K
+            ntype = FixedMassNeighborhood(k)
+            result[(D=D,τ=τ,k=k)] =
+            MSEp(R, tree, R_test, valid_len; ntype=ntype)
+        end
+    end
+    best_param = collect(keys(result))[findmin(collect(values(result)))[2]]
+    return best_param
+end</p>
+<p>ds = Systems.roessler(0.1ones(3))
+dt = 0.1
+data = trajectory(ds, 1000; dt=dt)
+N_train = 6001
+s_train = data[1:N_train, 1]
+s_test  = data[N_train:end,1]</p>
+<p>D, τ, k = estimate_param(s_train, 1:4, [10, 15, 30], 2:4)
+```</p>
 <p><a id='Cool-animation!-1'></a></p>
 <h2 id="cool-animation">Cool animation!</h2>
 <p>This is an animation of timeseries prediction of the <code>z</code> variable of the Roessler system. On the left you can see the time evolution of the whole system with the chaotic attractor indicated in gray. The right side is a plot of the <code>z</code> component of the system. The actual values are displayed in green. In red you can see the iteratively predicted version. As training set it used part of the attractor shown in gray on the left.</p>
