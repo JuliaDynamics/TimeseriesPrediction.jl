@@ -31,14 +31,14 @@ Q = length(U[1]) # spatial length
 pool = U[1:Ntrain]
 test = U[Ntrain:N]
 
-D = 10
+γ = 10
 τ = 1
 B = 10
 k = 1
 ntype = FixedMassNeighborhood(4)
 method = AverageLocalModel()
 
-em = cubic_shell_embedding(pool, D,τ,B,k,PeriodicBoundary())
+em = cubic_shell_embedding(pool, γ,τ,B,k,PeriodicBoundary())
 pcaem= PCAEmbedding(pool,em)
 
 @time pred = temporalprediction(pool,pcaem, p;ntype=ntype, method=method, progress = false)

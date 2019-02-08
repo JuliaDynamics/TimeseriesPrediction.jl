@@ -29,8 +29,8 @@ U,V = coupled_henon1D(M, N+p)
 pool = U[1:N]
 test  = U[N:N+p]
 
-D = 2; τ = 1; B = 1; k = 1;
-em = cubic_shell_embedding(pool,D,τ,B,k,ConstantBoundary(10.))
+γ = 2; τ = 1; B = 1; k = 1;
+em = cubic_shell_embedding(pool,γ,τ,B,k,ConstantBoundary(10.))
 
 pred = temporalprediction(pool,em, p; progress = false)
 

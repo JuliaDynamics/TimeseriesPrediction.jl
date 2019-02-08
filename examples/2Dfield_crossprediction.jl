@@ -24,7 +24,7 @@ U, V = barkley(T;tskip=100, ssize=(50,50))
 summary(U)
 
 # ### Cross predict field U from field V
-D = 5
+γ = 5
 τ = 1
 B = 1
 k = 1
@@ -32,10 +32,10 @@ bc = PeriodicBoundary()
 
 source_train = V[1: Ttrain]
 target_train = U[1: Ttrain]
-source_pred  = V[Ttrain  - D*τ + 1:  T]
+source_pred  = V[Ttrain  - γ*τ + 1:  T]
 target_test  = U[Ttrain        + 1:  T]
 
-em = cubic_shell_embedding(source_train, D,τ,B,k,bc)
+em = cubic_shell_embedding(source_train, γ,τ,B,k,bc)
 pcaem = PCAEmbedding(source_train, em; maxoutdim=5) # PCA speeds things up!
 
 @time target_pred = crossprediction(source_train, target_train, source_pred, em;
