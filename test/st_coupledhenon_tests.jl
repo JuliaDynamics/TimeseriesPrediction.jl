@@ -16,8 +16,8 @@ include("system_defs.jl")
     utest  = U[N_train:N_train+p]
     vtest  = V[N_train:N_train+p]
 
-    @testset "ALM D=$D, B=$B" for D=2:3, B=1:2
-        em = cubic_shell_embedding(utrain,D,1,B,1,ConstantBoundary(10.))
+    @testset "ALM γ=$γ, B=$B" for γ=2:3, B=1:2
+        em = cubic_shell_embedding(utrain,γ,1,B,1,ConstantBoundary(10.))
         upred = temporalprediction(utrain,em, p)
 
         @test upred[1] == utrain[end]
@@ -26,8 +26,8 @@ include("system_defs.jl")
         @test sum(ε)/M / p < 0.15
     end
     @testset "1D Henon with offset start of pred" begin
-        D=3; B=2
-        em = cubic_shell_embedding(utrain,D,1,B,1,ConstantBoundary(10.))
+        γ=3; B=2
+        em = cubic_shell_embedding(utrain,γ,1,B,1,ConstantBoundary(10.))
         ustart = U[N_train+100-4:N_train+100]
         utest_off  = U[N_train+100:N_train+p+100]
         upred = temporalprediction(utrain,em, p; initial_ts=ustart)
@@ -38,9 +38,9 @@ include("system_defs.jl")
         @test sum(ε)/M / p < 0.15
     end
 
-    @testset "LLM D=$D, B=$B" for D=2:3, B=1:2
+    @testset "LLM γ=$γ, B=$B" for γ=2:3, B=1:2
         method = LinearLocalModel(TimeseriesPrediction.ω_safe, 0.001, 1.)
-        em = cubic_shell_embedding(utrain, D, 1, B,1, ConstantBoundary(10.))
+        em = cubic_shell_embedding(utrain, γ, 1, B,1, ConstantBoundary(10.))
         upred = temporalprediction(utrain,em,p; method=method)
 
         @test upred[1] == utrain[end]
@@ -64,8 +64,8 @@ end
     utest  = U[N_train:N_train+p]
     vtest  = V[N_train:N_train+p]
 
-    @testset "D=$D, B=$B" for D=2:3, B=1:2
-        em = cubic_shell_embedding(utrain,D,1,B,1,ConstantBoundary(10.))
+    @testset "γ=$γ, B=$B" for γ=2:3, B=1:2
+        em = cubic_shell_embedding(utrain,γ,1,B,1,ConstantBoundary(10.))
         upred = temporalprediction(utrain,em,p)
 
         @test upred[1] == utrain[end]

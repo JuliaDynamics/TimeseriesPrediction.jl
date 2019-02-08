@@ -6,15 +6,15 @@ const MS = MultivariateStats
 
 println("Reconstruction Tests")
 @testset "cubic_shell_embedding" begin
-    for D=[0,4], τ ∈ [1,20], B=[1,3], k=[1,3], Φ=1:4
+    for γ=[0,4], τ ∈ [1,20], B=[1,3], k=[1,3], Φ=1:4
         BC=ConstantBoundary(10.)
-        @testset "D=$D, τ=$τ, B=$B, k=$k, Φ=$Φ" begin
+        @testset "γ=$γ, τ=$τ, B=$B, k=$k, Φ=$Φ" begin
                 #Ugly way of creating Φ dim array
                 s = [rand(Float64,([10 for i=1:Φ]...,)) for i=1:10]
-                emb = cubic_shell_embedding(s,D,τ,B,k,BC)
-                @test emb ==  SpatioTemporalEmbedding(s,(D=D,τ=τ,B=B,k=k,bc=BC))
+                emb = cubic_shell_embedding(s,γ,τ,B,k,BC)
+                @test emb ==  SpatioTemporalEmbedding(s,(γ=γ,τ=τ,B=B,k=k,bc=BC))
                 #Check Embedding Dimension X
-                X = (D+1)*(2B+1)^Φ
+                X = (γ+1)*(2B+1)^Φ
                 @test typeof(emb) <: SpatioTemporalEmbedding{Φ,ConstantBoundary{Float64},X}
                 @test length(emb.τ) == X
                 @test length(emb.β) == X
@@ -30,9 +30,9 @@ println("Reconstruction Tests")
 
     #Checking a few individual Reconstructions
     @testset "Order of rec. points" begin
-        D=1; τ=1; B=1; k=1; c=10; BC=ConstantBoundary(c); Φ=2
+        γ=1; τ=1; B=1; k=1; c=10; BC=ConstantBoundary(c); Φ=2
         data = [reshape(1+i:9+i, 3,3) for i∈[0,9]]
-        emb = cubic_shell_embedding(data, D,τ,B,k,BC)
+        emb = cubic_shell_embedding(data, γ,τ,B,k,BC)
         t = 1
         α = CartesianIndex(2,2)
         rvec = zeros(18);
@@ -78,7 +78,7 @@ end
     em = light_cone_embedding(s, 2, 2, 2, 1, bc)
     @test em.β == vcat(CI.(-6:6), CI.(-4:4), CI.(-2:2))
 
-    @test light_cone_embedding(s, 2, 2, 2, 1, bc) == STE(s,(D=2, τ=2, r₀=2, c=1, bc=bc))
+    @test light_cone_embedding(s, 2, 2, 2, 1, bc) == STE(s,(γ=2, τ=2, r=2, c=1, bc=bc))
 end
 
 @testset "light_cone_embedding 2D" begin
@@ -117,9 +117,9 @@ include("system_defs.jl")
 println("Testing PCA Functions")
 @testset "PCAEmbedding" begin
     U,V = barkley(400;tskip=200)
-    let D=5, τ=1, B=1,k=1
+    let γ=5, τ=1, B=1,k=1
         BC = PeriodicBoundary()
-        em = cubic_shell_embedding(U,D,τ,B,k,BC)
+        em = cubic_shell_embedding(U,γ,τ,B,k,BC)
         RR = reconstruct(U, em)
         meanv = mean(mean.(U))
         R = reshape(reinterpret(Float64, RR.data), (size(RR)[2], size(RR)[1]))
