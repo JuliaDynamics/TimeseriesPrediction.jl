@@ -1,5 +1,25 @@
 export SymmetricEmbedding
+"""
+	SymmetricEmbedding(ste::SpatioTemporalEmbedding, sym)
 
+A `SymmetricEmbedding` is intended as a means of dimension reduction
+for a [`SpatioTemporalEmbedding`](@ref) by exploiting symmetries in the system.
+All points at a time step equivalent to each other according to the symmetries
+passed in `sym` will be averaged to a single entry.
+Parameter `sym` has to be passed as a vector of independent symmetries.
+
+A few examples for clarification:
+ * 2D space with mirror symmetry along first dimension : `sym = [ [1] ]` → maps points  to `(s[t][+n, m] + s[t][-n, m])/2`
+ * 2D space with mirror symmetry along each dimension : `sym = [ [1], [2] ]` → averages over points with `(+- n, +- m)`
+ * 2D space with point symmetry in both dimensions : `sym = [ [1,2] ]` → groups points with equal distance to the origin such as `(1,2), (-1,2), (2,1),...`
+ * 3D space with point symmetry in dim 1 & 3 and mirror in 2: `sym = [ [1,3], [2]]` → groups points with equal distance to the origin along dimension 1 & 3 and +-2
+
+To further explain the last example: The following points form one such group
+`(+-2,1,0), (0,1,+-2), (-2,-1,0), (0,-1,-2)`
+
+The resulting structure can be used for reconstructing datasets in
+the same way as a [`SpatioTemporalEmbedding`](@ref).
+"""
 struct SymmetricEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
     #em::SpatioTemporalEmbedding
     τ::Vector{Int}
