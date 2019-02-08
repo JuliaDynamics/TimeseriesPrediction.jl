@@ -30,16 +30,16 @@ U, V = barkley(T; tskip=100, ssize=(50,50), init = init)
 summary(U)
 
 # ### Temporal prediction of field U
-D = 2
+γ = 2
 τ = 1
-r₀ = 1
+r = 1
 c = 1
 bc = PeriodicBoundary()
 
 pool = U[1 : Ttrain]
 test  = U[ Ttrain : T]
 
-em = light_cone_embedding(pool, D,τ,r₀,c,bc)
+em = light_cone_embedding(pool, γ,τ,r,c,bc)
 pcaem = PCAEmbedding(pool, em; maxoutdim=5) # PCA speeds things up!
 
 @time pred = temporalprediction(pool, em, Ttest; progress = false)

@@ -191,7 +191,7 @@ end
 #                                   CONSTRUCTORS                                    #
 #####################################################################################
 """
-    cubic_shell_embedding(s, D, τ, B, k, bc) → embedding
+    cubic_shell_embedding(s, γ, τ, B, k, bc) → embedding
 Create a [`SpatioTemporalEmbedding`](@ref) instance that
 includes spatial neighbors in hypercubic *shells*.
 The embedding is to be used with data from `s`.
@@ -206,12 +206,12 @@ by `k ≥ 1` points apart (i.e. dropping `k-1` in-between points).
 In short, in each spatial dimension of the system the cartesian
 offset indices are `-B*k : k : k*B`.
 
-`D` is the number of temporal steps in the past to be included in the embedding,
+`γ` is the number of temporal steps in the past to be included in the embedding,
 where each step in the past has additional delay time `τ::Int`.
-`D=0` corresponds to using only the present. Notice that **all** embedded
+`γ=0` corresponds to using only the present. Notice that **all** embedded
 time frames have the same spatial structure, in contrast to [`light_cone_embedding`](@ref).
 
-As an example, consider one of the `D` embedded frames (all are the same) of a system
+As an example, consider one of the `γ` embedded frames (all are the same) of a system
 with 2 spatial dimensions (`□` = current point, (included *by definition* in the
 embedding), `n` = included points in the embedding coming from `n`-th shell,
 `.` = points not included in the embedding)
@@ -232,18 +232,18 @@ embedding), `n` = included points in the embedding coming from `n`-th shell,
 """
 function cubic_shell_embedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
-		D, τ, B, k, boundary::BC
+		γ, τ, B, k, boundary::BC
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
     if (BC <: ConstantBoundary) && typeof(boundary.c) != T
 	     throw(ArgumentError(
 		"Boundary value must be same element type as the timeseries data."))
 	end
     @assert k ≥ 1
-	X = (D+1)*(2B+1)^Φ
+	X = (γ+1)*(2B+1)^Φ
 	τs = Vector{Int}(undef,X)
 	βs = Vector{CartesianIndex{Φ}}(undef,X)
 	n = 1
-	for d=0:D, α = Iterators.product([-B*k:k:B*k for φ=1:Φ]...)
+	for d=0:γ, α = Iterators.product([-B*k:k:B*k for φ=1:Φ]...)
 		τs[n] = d*τ
 		βs[n] = CartesianIndex(α)
 		n +=1
@@ -266,7 +266,7 @@ function indices_within_sphere(radius, dimension)
 end
 
 """
-    light_cone_embedding(s, D, τ, r₀, c, bc) → embedding
+    light_cone_embedding(s, γ, τ, r, c, bc) → embedding
 Create a [`SpatioTemporalEmbedding`](@ref) instance that
 includes spatial and temporal neighbors of a point based on the notion of
 a *light cone*.
@@ -277,14 +277,14 @@ The embedding is to be used with data from `s`.
 Information does not travel instantly but with some finite speed `c ≥ 0.0`.
 This constructor creates a cone-like embedding including all points in
 space and time, whose value can influence a prediction based on the
-information speed `c`. `D` is the number of temporal steps in the past to be
+information speed `c`. `γ` is the number of temporal steps in the past to be
 included in the embedding, where each step in the past has additional delay time `τ::Int`.
-`D=0` corresponds to using only the present. `r₀` is the initial radius at the top of
+`γ=0` corresponds to using only the present. `r` is the initial radius at the top of
 the cone, i.e. the radius of influence at the present. `bc` is the boundary condition.
 
-The radius of the light cone evolves as: `r = i*τ*c + r₀` for each step `i ∈ 0:D`.
+The radius of the light cone evolves as: `r = i*τ*c + r` for each step `i ∈ 0:γ`.
 
-As an example, in a one-dimensional system with `D = 1, τ = 2, r₀ = 1`,
+As an example, in a one-dimensional system with `γ = 1, τ = 2, r = 1`,
 the embedding looks like (`□` = current point (included *by definition* in the embedding),
 `o` point to be predicted using
 [`temporalprediction`](@ref), `x` = points included in the embedding,
@@ -304,9 +304,9 @@ which produces a plot of the light cone for 2 spatial dimensions
 """
 function light_cone_embedding(
     s::AbstractArray{<:AbstractArray{T,Φ}},
-    D,
+    γ,
     τ,
-    r₀,
+    r,
     c,
     bc::BC
     ) where {T,Φ, BC<:AbstractBoundaryCondition}
@@ -316,9 +316,9 @@ function light_cone_embedding(
     end
     τs = Int[]
     βs = CartesianIndex{Φ}[]
-    maxτ = τ*D
-    for delay = τ*(D:-1:0) # Backwards for forward embedding
-        radius = c*delay + r₀
+    maxτ = τ*γ
+    for delay = τ*(γ:-1:0) # Backwards for forward embedding
+        radius = c*delay + r
         β = indices_within_sphere(radius, Φ)
         push!(βs, β...)
         push!(τs, repeat([maxτ - delay], length(β))...)
@@ -328,11 +328,11 @@ function light_cone_embedding(
 end
 
 
-SpatioTemporalEmbedding(s, p::NamedTuple{(:D, :τ, :B, :k, :bc)}) =
-    cubic_shell_embedding(s, p.D, p.τ, p.B, p.k, p.bc)
+SpatioTemporalEmbedding(s, p::NamedTuple{(:γ, :τ, :B, :k, :bc)}) =
+    cubic_shell_embedding(s, p.γ, p.τ, p.B, p.k, p.bc)
 
-SpatioTemporalEmbedding(s, p::NamedTuple{(:D, :τ, :r₀, :c, :bc)}) =
-    light_cone_embedding(s, p.D, p.τ, p.r₀, p.c, p.bc)
+SpatioTemporalEmbedding(s, p::NamedTuple{(:γ, :τ, :r, :c, :bc)}) =
+    light_cone_embedding(s, p.γ, p.τ, p.r, p.c, p.bc)
 
 Base.:(==)(em1::T, em2::T) where {T <: AbstractSpatialEmbedding} =
     all(( eval(:($em1.$name == $em2.$name)) for name ∈ fieldnames(T)))

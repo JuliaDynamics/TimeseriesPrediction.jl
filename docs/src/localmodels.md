@@ -108,11 +108,11 @@ function estimate_param(s::AbstractVector,
     dims, delay, K; valid_len=100, num_tries=50)
     result = Dict{NamedTuple,Float64}()
     step = 1
-    for D ∈ dims, τ ∈ delay
-        s_train = @view s[1:end-D*τ-valid_len-num_tries-50]
-        s_test = @view s[end-(D-1)*τ-valid_len-num_tries:end]
-        R = reconstruct(s_train,D,τ)
-        R_test = reconstruct(s_test,D,τ)
+    for γ ∈ dims, τ ∈ delay
+        s_train = @view s[1:end-(γ+1)*τ-valid_len-num_tries-50]
+        s_test = @view s[end-γ*τ-valid_len-num_tries:end]
+        R = reconstruct(s_train,γ,τ)
+        R_test = reconstruct(s_test,γ,τ)
         tree = KDTree(R[1:end-1])
         for k ∈ K
             ntype = FixedMassNeighborhood(k)

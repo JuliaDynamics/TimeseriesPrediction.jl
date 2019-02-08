@@ -23,7 +23,7 @@ Here is a function that visualizes how the `light_cone_embedding` works in 2 spa
 using PyPlot, TimeseriesPrediction
 using LinearAlgebra: norm
 
-function explain_light_cone(;D = 2, τ = 2, r0 = 1, c = 1)
+function explain_light_cone(;γ = 2, τ = 2, r = 1, c = 1)
 
     maxr = D*τ*c + r0
 
@@ -31,8 +31,8 @@ function explain_light_cone(;D = 2, τ = 2, r0 = 1, c = 1)
     xticks(-maxr:maxr)
     yticks(-maxr:maxr)
 
-    for i in D:-1:0
-        r = i*τ*c + r0
+    for i in γ:-1:0
+        r = i*τ*c + r
         points = TimeseriesPrediction.indices_within_sphere(r, 2)
         radius = maximum(norm(Tuple(p)) for p in points)
 
@@ -44,10 +44,10 @@ function explain_light_cone(;D = 2, τ = 2, r0 = 1, c = 1)
 
         x = map(xy -> xy[1], points)
         y = map(xy -> xy[2], points)
-        scatter(x,y, c = "C$i", s=100, zorder = 3, label = "within \$r = r_0 + $i \\tau c\$")
+        scatter(x,y, c = "C$i", s=100, zorder = 3, label = "within \$r = r + $i \\tau c\$")
 
     end
-    title("D = $D, τ = $τ, r₀ = $r0, c = $c")
+    title("γ = $γ, τ = $τ, r = $r, c = $c")
     PyPlot.grid(zorder = -1)
     legend(loc = "upper right")
     xlabel("x")
