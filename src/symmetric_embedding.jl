@@ -30,9 +30,7 @@ struct SymmetricEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
 end
 
 function SymmetricEmbedding(ste::SpatioTemporalEmbedding{Φ,BC}, sym) where {Φ,BC}
-    #Symmetries of shape
-    # ( (1,), (2,4), (3,) )
-
+	check_symmetry(sym, Φ)
     # Mapping dimension for dimension
     # single dim symmetry : x₁ → |x₁|
     # two dim symmetry : (x₁, x₂) → (y₁, y₂) = (|x₁|, |x₂|)
@@ -78,6 +76,13 @@ function groupbymap(f, v; by=norm)
         haskey(d, w) ? push!(d[w], e) : d[w] = [e]
     end
     map(k-> d[k], sort!(collect(keys(d)); by=by) )
+end
+
+function check_symmetry(sym, Φ)
+	s = vcat(sym...)
+	unique(s) == s || throw(ArgumentError("Dimension may not be passed more than once."))
+	maximum(s) > Φ && throw(ArgumentError("Invalid dimension was passed."))
+	minimum(s) < 1 && throw(ArgumentError("Invalid dimension was passed."))
 end
 
 function Base.show(io::IO, em::SymmetricEmbedding{Φ,BC, X}) where {Φ,BC,X}
