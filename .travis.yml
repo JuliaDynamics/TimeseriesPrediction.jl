@@ -4,8 +4,8 @@ os:
 #  - osx
 
 julia:
-  - 1.0
-  # - nightly
+  - 1.1
+  - nightly
 
 matrix:
   allow_failures:
@@ -21,7 +21,7 @@ notifications:
 jobs:
   include:
     - stage: "Documentation"
-      julia: 1.0
+      julia: 1.1
       os: linux
       script:
         - julia -e 'using Pkg; ENV["PYTHON"]=""; py="PyCall"; Pkg.add(py); Pkg.build(); Pkg.add("PyPlot"); Pkg.add("StaticArrays")'
@@ -29,4 +29,4 @@ jobs:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
                                                Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
-      #after_success: skip
+      after_success: skip
