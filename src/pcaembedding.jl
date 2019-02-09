@@ -81,7 +81,7 @@ Base.show(io::IO, em::PCAEmbedding) = (show(io, em.stem); show(io, em.drmodel))
 compute_pca(covmat::Matrix{T}, pratio, maxoutdim) where T=
 	pcacov(covmat, T[]; maxoutdim=maxoutdim, pratio=pratio)
 
-get_τmax(em::PCAEmbedding) = get_τmax(em.stem)::Int64 #somehow type inference doesn't figure this out
-get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)::Int64
+get_τmax(em::PCAEmbedding) = get_τmax(em.stem)::Int #somehow type inference doesn't figure this out
+get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)::Int
 
 outdim(em::PCAEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X
