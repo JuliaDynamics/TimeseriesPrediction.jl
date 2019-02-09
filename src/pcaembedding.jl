@@ -3,7 +3,7 @@ import IterTools: takenth, product
 export PCAEmbedding
 
 """
-	PCAEmbedding(s, em::SpatioTemporalEmbedding; kwargs...) → embedding
+	PCAEmbedding(s, em::AbstractSpatialEmbedding; kwargs...) → embedding
 A spatio temporal delay coordinates structure with
 Principal Component Analysis as a means of dimension reduction,
 `embedding` can be used as a functor:
