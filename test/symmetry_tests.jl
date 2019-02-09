@@ -3,7 +3,7 @@ using TimeseriesPrediction
 using Statistics, LinearAlgebra
 
 @testset "SymmetricEmbedding" begin
-    @testset "Ordering in β" begin
+    @testset "Ordering in β_groups" begin
         γ = 0; τ = 1; r = 4; c = 0; bc = ConstantBoundary(10.);
         dummy_data = [rand(10,10,10) for _ in 1:10]
         em = light_cone_embedding(dummy_data, γ, τ, r, c, bc)
@@ -12,12 +12,12 @@ using Statistics, LinearAlgebra
         @testset "Symmetry $sym" for sym in symmetries
             sem = SymmetricEmbedding(em, sym)
             # Check that first entry is always origin
-            @test sem.β[1] == [CartesianIndex(0,0,0)]
+            @test sem.β_groups[1] == [CartesianIndex(0,0,0)]
 
             # Check that all points within group have the same distance to origin
             # Check that β groups are sorted
             let dist = -Inf
-                for group in sem.β
+                for group in sem.β_groups
                     @test dist <= norm(group[1].I)
                     dist = norm(group[1].I)
                     @test 1 == length(unique(norm(getproperty.(group, :I))))
@@ -40,7 +40,7 @@ using Statistics, LinearAlgebra
             @test all( sem.τ .∈ Ref(em.τ))
 
             #Check that points are not accidentally moved to wrong timstep
-            for (t,group) in zip(sem.τ, sem.β)
+            for (t,group) in zip(sem.τ, sem.β_groups)
                 for g in group
                     @test (t,g) in zip(em.τ, em.β)
                 end
@@ -57,7 +57,7 @@ using Statistics, LinearAlgebra
         @testset "Symmetry $sym" for sym in symmetries
             sem = SymmetricEmbedding(em, sym)
 
-            all_points = vcat(sem.β...)
+            all_points = vcat(sem.β_groups...)
             @test all(all_points .∈ Ref(em.β))
             @test all(em.β .∈ Ref(all_points))
         end

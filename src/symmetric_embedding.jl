@@ -23,7 +23,7 @@ the same way as a [`SpatioTemporalEmbedding`](@ref).
 struct SymmetricEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
     #em::SpatioTemporalEmbedding
     τ::Vector{Int}
-    β::Vector{Vector{CartesianIndex{Φ}}}
+    β_groups::Vector{Vector{CartesianIndex{Φ}}}
 	inner::Region{Φ}
 	whole::Region{Φ}
     boundary::BC
@@ -40,17 +40,17 @@ function SymmetricEmbedding(ste::SpatioTemporalEmbedding{Φ,BC}, sym) where {Φ,
     τ = Vector{Int}()
     β_groups = []
 	#CartesianIndices are nice but difficult to manipulate
-	β_old = map(x-> x.I ,ste.β)
+	β = map(x-> x.I ,ste.β)
     #Repeat for every timestep
     for t in unique(ste.τ)
 		#Filter for β at delay t
-        β = β_old[ ste.τ .== t ]
+        β_t = β[ ste.τ .== t ]
 		#Map selected β to their symmetry reduced space
         #and combine into groups according to their mapped value
-        new_points = groupbymap(x->fold_up(x,sym), β)
+        groups_t = groupbymap( x->fold_up(x, sym) , β_t)
 		#Append results to new lists
-        append!(τ, fill(t, length(new_points)))
-        append!(β_groups, new_points)
+        append!(τ, fill(t, length(groups_t)))
+        append!(β_groups, groups_t)
     end
 	# convert β_groups back to cartesian indices
 	β_new = map(β_groups) do b
@@ -93,7 +93,7 @@ function Base.show(io::IO, em::SymmetricEmbedding{Φ,BC, X}) where {Φ,BC,X}
         println(io, " and ConstantBoundary condition with c = $(em.boundary.c).")
     end
     println(io, "The included neighboring points are (forward embedding):")
-    for (τ,β) in zip(em.τ,em.β)
+    for (τ,β) in zip(em.τ,em.β_groups)
         println(io, "τ = $τ , β = ", getproperty.(β,:I))
     end
 end
@@ -102,7 +102,7 @@ end
 function (r::SymmetricEmbedding{Φ,ConstantBoundary{T},X})(rvec, s, t, α) where {T,Φ,X}
 	if α in r.inner
 		@inbounds for n=1:X
-			β = r.β[n]
+			β = r.β_groups[n]
 			s_t = s[t + r.τ[n]]
 			rvec[n] = zero(T)
 			for m in eachindex(β)
@@ -112,7 +112,7 @@ function (r::SymmetricEmbedding{Φ,ConstantBoundary{T},X})(rvec, s, t, α) where
 		end
 	else
 		@inbounds for n=1:X
-			β = r.β[n]
+			β = r.β_groups[n]
 			s_t = s[t + r.τ[n]]
 			rvec[n] = zero(T)
 			for m in eachindex(β)
@@ -127,7 +127,7 @@ end
 function (r::SymmetricEmbedding{Φ,PeriodicBoundary,X})(rvec, s, t, α) where {Φ,X}
 	if α in r.inner
 		@inbounds for n=1:X
-			β = r.β[n]
+			β = r.β_groups[n]
 			s_t = s[t + r.τ[n]]
 			rvec[n] = zero(eltype(rvec))
 			for m in eachindex(β)
@@ -137,7 +137,7 @@ function (r::SymmetricEmbedding{Φ,PeriodicBoundary,X})(rvec, s, t, α) where {�
 		end
 	else
 		@inbounds for n=1:X
-			β = r.β[n]
+			β = r.β_groups[n]
 			s_t = s[t + r.τ[n]]
 			rvec[n] = zero(eltype(rvec))
 			for m in eachindex(β)
