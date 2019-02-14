@@ -1,5 +1,3 @@
-using Statistics
-using LinearAlgebra
 export AbstractSpatialEmbedding
 export SpatioTemporalEmbedding
 export outdim
@@ -85,7 +83,7 @@ function project_inside(α::CartesianIndex{Φ}, r::Region{Φ}) where Φ
 end
 
 """
-	SpatioTemporalEmbedding{T,Φ,BC,X} → embedding
+	SpatioTemporalEmbedding{Φ,BC,X} → embedding
 A spatio temporal delay coordinates structure to be used as a functor. Applies
 to data of `Φ` spatial dimensions and gives an embedding of dimensionality `X`.
 
@@ -164,13 +162,13 @@ end
 
 
 
-get_num_pt(em::SpatioTemporalEmbedding) = prod(em.whole.maxi)
-get_τmax(em::SpatioTemporalEmbedding{Φ,BC,X}) where {Φ,BC,X} = em.τ[X]
-outdim(em::SpatioTemporalEmbedding{Φ,BC,X}) where {Φ,BC,X} = X
+get_num_pt(em::AbstractSpatialEmbedding) = prod(em.whole.maxi)
+get_τmax(em::AbstractSpatialEmbedding{Φ,BC,X}) where {Φ,BC,X} = em.τ[X]
+outdim(em::AbstractSpatialEmbedding{Φ,BC,X}) where {Φ,BC,X} = X
 
-get_usable_idxs(em::SpatioTemporalEmbedding{Φ,PeriodicBoundary,X}) where {Φ,X} =
+get_usable_idxs(em::AbstractSpatialEmbedding{Φ,PeriodicBoundary,X}) where {Φ,X} =
 			CartesianIndices(em.whole)
-get_usable_idxs(em::SpatioTemporalEmbedding{Φ,<:ConstantBoundary,X}) where {Φ,X} =
+get_usable_idxs(em::AbstractSpatialEmbedding{Φ,<:ConstantBoundary,X}) where {Φ,X} =
 			CartesianIndices(em.inner)
 
 
