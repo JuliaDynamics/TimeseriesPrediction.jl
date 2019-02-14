@@ -26,7 +26,7 @@ Literate.markdown("src/stexamples.jl", "src/";
 
 
 makedocs(modules=[TimeseriesPrediction],
-doctest=false, root = @__DIR__, format = :markdown)
+doctest=false, root = @__DIR__, format = Markdown())
 
 close("all")
 
