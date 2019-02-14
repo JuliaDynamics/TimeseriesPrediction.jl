@@ -8,6 +8,3 @@ Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 TimeseriesPrediction = "f218859d-9706-56aa-9ebf-1fa4ed7b8020"
-
-[compat]
-Documenter = "~0.20"
