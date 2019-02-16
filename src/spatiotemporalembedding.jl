@@ -280,7 +280,7 @@ included in the embedding, where each step in the past has additional delay time
 `γ=0` corresponds to using only the present. `r` is the initial radius at the top of
 the cone, i.e. the radius of influence at the present. `bc` is the boundary condition.
 
-The radius of the light cone evolves as: `r = i*τ*c + r` for each step `i ∈ 0:γ`.
+The radius of the light cone evolves as: `r_i = i*τ*c + r` for each step `i ∈ 0:γ`.
 
 As an example, in a one-dimensional system with `γ = 1, τ = 2, r = 1`,
 the embedding looks like (`□` = current point (included *by definition* in the embedding),
