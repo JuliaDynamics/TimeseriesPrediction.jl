@@ -318,8 +318,8 @@ function light_cone_embedding(
     for delay = τ*(γ:-1:0) # Backwards for forward embedding
         radius = c*delay + r
         β = indices_within_sphere(radius, Φ)
-        push!(βs, β...)
-        push!(τs, repeat([maxτ - delay], length(β))...)
+        append!(βs, β)
+        append!(τs, repeat([maxτ - delay], length(β)))
     end
     X = length(τs)
     return SpatioTemporalEmbedding{X}(τs, βs, bc, size(s[1]))
