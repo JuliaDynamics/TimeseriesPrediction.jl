@@ -1,5 +1,5 @@
 julia 1.0
-DynamicalSystemsBase 1.0.0
+DelayEmbeddings
 IterTools
 MultivariateStats 0.06
 NearestNeighbors 0.1.0

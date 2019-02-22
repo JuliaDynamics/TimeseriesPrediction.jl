@@ -20,10 +20,11 @@ Ttrain = 500
 Ttest = 10
 T = Ttrain + Ttest
 
-U, V = barkley(T;tskip=100, size=(50,50))
+U, V = barkley(T;tskip=100, ssize=(50,50))
+summary(U)
 
 # ### Cross predict field U from field V
-D = 5
+γ = 5
 τ = 1
 B = 1
 k = 1
@@ -31,10 +32,10 @@ bc = PeriodicBoundary()
 
 source_train = V[1: Ttrain]
 target_train = U[1: Ttrain]
-source_pred  = V[Ttrain  - D*τ + 1:  T]
+source_pred  = V[Ttrain  - γ*τ + 1:  T]
 target_test  = U[Ttrain        + 1:  T]
 
-em = cubic_shell_embedding(source_train, D,τ,B,k,bc)
+em = cubic_shell_embedding(source_train, γ,τ,B,k,bc)
 pcaem = PCAEmbedding(source_train, em; maxoutdim=5) # PCA speeds things up!
 
 @time target_pred = crossprediction(source_train, target_train, source_pred, em;
@@ -70,7 +71,6 @@ for i in [1, length(err)÷2, length(err)]
         ax[:get_xaxis]()[:set_ticks]([])
         ax[:get_yaxis]()[:set_ticks]([])
         colorbar(im, ax = ax, fraction=0.046, pad=0.04)#, format="%.1f")
-        # ax[:minorticks_off]()
     end
     ax1[:set_title]("Source")
     ax2[:set_title]("Target Test")
@@ -79,3 +79,5 @@ for i in [1, length(err)÷2, length(err)]
     tight_layout(w_pad=0.6, h_pad=0.00001)
     suptitle("frame $i")
 end
+#md savefig("barkley_cross.png"); nothing # hide
+#md # ![barkley_cross](barkley_cross.png)

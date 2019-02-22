@@ -16,23 +16,30 @@ testdir = dirname(dirname(pathof(TimeseriesPrediction)))*"/test"
 @assert isdir(testdir)
 include(testdir*"/system_defs.jl")
 
-Ttrain = 600
-Ttest = 10
-T = Tskip + Ttrain + Ttest
+Ttrain = 300
+Ttest = 5
+T = Ttrain + Ttest
 
-U, V = barkley(T; tskip=100, size=(50,50))
+init = [ 0.6241    0.589685  0.668221   0.194882    0.687645
+         0.656243  0.702544  0.476963   0.00236098  0.636111
+         0.821854  0.868514  0.242682   0.2588      0.30552
+         0.580972  0.355305  0.0805268  0.501724    0.728142
+         0.297559  0.708676  0.583552   0.65363     0.555639]
+
+U, V = barkley(T; tskip=100, ssize=(50,50), init = init)
+summary(U)
 
 # ### Temporal prediction of field U
-D = 2
+γ = 2
 τ = 1
-r₀ = 1
+r = 1
 c = 1
 bc = PeriodicBoundary()
 
 pool = U[1 : Ttrain]
 test  = U[ Ttrain : T]
 
-em = light_cone_embedding(pool, D,τ,r₀,c,bc)
+em = light_cone_embedding(pool, γ,τ,r,c,bc)
 pcaem = PCAEmbedding(pool, em; maxoutdim=5) # PCA speeds things up!
 
 @time pred = temporalprediction(pool, em, Ttest; progress = false)
@@ -64,7 +71,6 @@ for i in [1, length(err)÷2, length(err)]
         ax[:get_xaxis]()[:set_ticks]([])
         ax[:get_yaxis]()[:set_ticks]([])
         colorbar(im, ax = ax, fraction=0.046, pad=0.04)#, format="%.1f")
-        # ax[:minorticks_off]()
     end
     ax1[:set_title]("Prediction")
     ax2[:set_title]("Real evolution")
@@ -73,3 +79,5 @@ for i in [1, length(err)÷2, length(err)]
     tight_layout(w_pad=0.6, h_pad=0.00001)
     subplots_adjust(top=0.75)
 end
+#md savefig("barkley_tempo.png"); nothing # hide
+#md # ![barkley_tempo](barkley_tempo.png)

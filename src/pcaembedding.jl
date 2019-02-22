@@ -2,7 +2,7 @@ import IterTools: takenth, product
 export PCAEmbedding
 
 """
-	PCAEmbedding(s, em::SpatioTemporalEmbedding; kwargs...) → embedding
+	PCAEmbedding(s, em::AbstractSpatialEmbedding; kwargs...) → embedding
 A spatio temporal delay coordinates structure with
 Principal Component Analysis as a means of dimension reduction,
 `embedding` can be used as a functor:
@@ -26,7 +26,7 @@ instance of [`SpatioTemporalEmbedding`](@ref) to `PCAEmbedding`.
 To set the output dimension to a certain value `X`, pass `pratio=1, maxoutdim=X`.
 """
 struct PCAEmbedding{T,Φ,BC,X,Y} <: AbstractSpatialEmbedding{Φ,BC,X}
-	stem::SpatioTemporalEmbedding{Φ,BC,Y}
+	stem::AbstractSpatialEmbedding{Φ,BC,Y}
 	meanv::T
 	covmat::Matrix{T}
 	drmodel::PCA{T}
@@ -36,7 +36,7 @@ end
 
 function PCAEmbedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
-		stem::SpatioTemporalEmbedding{Φ,BC,Y};
+		stem::AbstractSpatialEmbedding{Φ,BC,Y};
 		pratio   = 0.99,
 		maxoutdim= 25,
 		every_t::Int    = 1,
@@ -80,7 +80,7 @@ Base.show(io::IO, em::PCAEmbedding) = (show(io, em.stem); show(io, em.drmodel))
 compute_pca(covmat::Matrix{T}, pratio, maxoutdim) where T=
 	pcacov(covmat, T[]; maxoutdim=maxoutdim, pratio=pratio)
 
-get_τmax(em::PCAEmbedding) = get_τmax(em.stem)
-get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)
+get_τmax(em::PCAEmbedding) = get_τmax(em.stem)::Int #somehow type inference doesn't figure this out
+get_num_pt(em::PCAEmbedding) = get_num_pt(em.stem)::Int
 
 outdim(em::PCAEmbedding{T,Φ,BC,X}) where {T,Φ,BC,X} = X

@@ -2,3 +2,5 @@
 *.jl.*.cov
 *.jl.mem
 docs/build
+docs/src/stexamples.md
+Manifest.toml

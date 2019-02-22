@@ -24,20 +24,21 @@ p = 100
 N = Ntrain + p
 
 U, T = KuramotoSivashinsky(64, 22, N÷4, 0.25)
+summary(U)
 
 # ### Temporal prediction of field U
 Q = length(U[1]) # spatial length
 pool = U[1:Ntrain]
 test = U[Ntrain:N]
 
-D = 10
+γ = 10
 τ = 1
 B = 10
 k = 1
 ntype = FixedMassNeighborhood(4)
 method = AverageLocalModel()
 
-em = cubic_shell_embedding(pool, D,τ,B,k,PeriodicBoundary())
+em = cubic_shell_embedding(pool, γ,τ,B,k,PeriodicBoundary())
 pcaem= PCAEmbedding(pool,em)
 
 @time pred = temporalprediction(pool,pcaem, p;ntype=ntype, method=method, progress = false)
@@ -85,3 +86,5 @@ ax3[:set_title]("Absolute error")
 ax2[:set_ylabel]("space")
 ax3[:set_xlabel]("time")
 tight_layout(w_pad=0.1, h_pad=0.00001)
+#md savefig("ksprediction.png"); nothing # hide
+#md # ![ksprediction](ksprediction.png)
