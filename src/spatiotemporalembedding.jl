@@ -27,14 +27,14 @@ Use `subtypes(AbstractBoundaryCondition)` for available methods.
 abstract type AbstractBoundaryCondition end
 
 """
-	ConstantBoundary(c) <: AbstractBoundaryCondition
+	ConstantBoundary(b) <: AbstractBoundaryCondition
 Constant boundary condition type. Enforces constant boundary conditions
 when passed to [`SpatioTemporalEmbedding`](@ref)
 by filling missing out-of-bounds values in the reconstruction with
-parameter `c`.
+parameter `b`.
 """
 struct ConstantBoundary{T} <: AbstractBoundaryCondition
-    c::T
+    b::T
 end
 
 """
@@ -141,7 +141,7 @@ function (r::SpatioTemporalEmbedding{Φ,ConstantBoundary{T},X})(rvec,s,t,α) whe
 		end
 	else
 		@inbounds for n=1:X
-			rvec[n] = α + r.β[n] in r.whole ? s[ t+r.τ[n] ][ α+r.β[n] ] : r.boundary.c
+			rvec[n] = α + r.β[n] in r.whole ? s[ t+r.τ[n] ][ α+r.β[n] ] : r.boundary.b
 		end
 	end
 	return nothing
