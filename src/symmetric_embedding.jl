@@ -116,7 +116,7 @@ function (r::SymmetricEmbedding{Φ,ConstantBoundary{T},X})(rvec, s, t, α) where
 			s_t = s[t + r.τ[n]]
 			rvec[n] = zero(T)
 			for m in eachindex(β)
-				rvec[n] += α + β[m] in r.whole ? s_t[ α + β[m] ] : r.boundary.c
+				rvec[n] += α + β[m] in r.whole ? s_t[ α + β[m] ] : r.boundary.b
 			end
 			rvec[n] /= length(β)
 		end
