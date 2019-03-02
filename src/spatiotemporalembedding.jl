@@ -232,7 +232,7 @@ function cubic_shell_embedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
 		γ, τ, B, k, boundary::BC
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
-    if (BC <: ConstantBoundary) && typeof(boundary.c) != T
+    if (BC <: ConstantBoundary) && typeof(boundary.b) != T
 	     throw(ArgumentError(
 		"Boundary value must be same element type as the timeseries data."))
 	end
@@ -308,7 +308,7 @@ function light_cone_embedding(
     c,
     bc::BC
     ) where {T,Φ, BC<:AbstractBoundaryCondition}
-    if (BC <: ConstantBoundary) && typeof(bc.c) != T
+    if (BC <: ConstantBoundary) && typeof(bc.b) != T
         throw(ArgumentError(
         "Boundary value must be same element type as the timeseries data."))
     end
