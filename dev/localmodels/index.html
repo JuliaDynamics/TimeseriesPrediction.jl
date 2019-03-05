@@ -457,7 +457,7 @@
 <p>The algorithm is applied iteratively until a prediction of length <code>p</code> has been created, starting with the query point to be the last point of the timeseries.</p>
 <p><strong>References</strong></p>
 <p>[1] : D. Engster &amp; U. Parlitz, <em>Handbook of Time Series Analysis</em> Ch. 1, VCH-Wiley (2006)</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/40327842c312cf479c287e6b46b9c456188d9031/src/localmodeling.jl#L289-L321' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/cefd8f05970c20ad892d7b97eb5a0ce528e97328/src/localmodeling.jl#L289-L321' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.AbstractLocalModel' href='#TimeseriesPrediction.AbstractLocalModel'>#</a>
 <strong><code>TimeseriesPrediction.AbstractLocalModel</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>AbstractLocalModel
@@ -538,7 +538,7 @@ f(\sigma) = \begin{cases} 0, & \sigma < s_{min}\\
 </ul>
 <p><strong>References</strong></p>
 <p>[1] : D. Engster &amp; U. Parlitz, <em>Handbook of Time Series Analysis</em> Ch. 1, VCH-Wiley (2006)</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/40327842c312cf479c287e6b46b9c456188d9031/src/localmodeling.jl#L10-L75' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/cefd8f05970c20ad892d7b97eb5a0ce528e97328/src/localmodeling.jl#L10-L75' class='documenter-source'>source</a><br></p>
 <p><a id='Single-Timeseries-Example-1'></a></p>
 <h2 id="single-timeseries-example">Single Timeseries Example</h2>
 <p>We will predict the future of a (relatively simple) timeseries:</p>
@@ -648,7 +648,7 @@ MSE_p = \frac{1}{p|T_{ref}|}\sum_{t\in T_{ref}}\sum_{i=1}^{p} \left(y_{t+i}
 <p>where <span><span class="MathJax_Preview">|T_{ref}|</span><script type="math/tex">|T_{ref}|</script></span> is the number of subsets of <code>R_test</code> used.</p>
 <p><strong>References</strong></p>
 <p>See <a href="./#TimeseriesPrediction.localmodel_tsp"><code>localmodel_tsp</code></a>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/40327842c312cf479c287e6b46b9c456188d9031/src/localmodeling.jl#L457-L479' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/cefd8f05970c20ad892d7b97eb5a0ce528e97328/src/localmodeling.jl#L457-L479' class='documenter-source'>source</a><br></p>
 <p>Here is an example function that employs <code>MSEp</code> to find good parameters. It takes in a timeseries <code>s</code> and ranges for the dimensions, delays and number of nearest neighbors to  try. Keyword arguments are <code>valid_len</code>, which is the number of prediction steps, and <code>num_tries</code> the number of different starting points to choose.</p>
 <p>It then calculates <code>MSEp</code> for all parameter combinations and returns the best parameter set.</p>
 <p>```@example tspred
