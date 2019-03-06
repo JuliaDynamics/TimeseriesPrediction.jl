@@ -13,6 +13,8 @@ include("localmodeling.jl")
 include("spatiotemporalembedding.jl")
 include("pcaembedding.jl")
 include("symmetric_embedding.jl")
+include("inhomogeneous_embedding.jl")
+
 include("reconstruct.jl")
 
 include("temporalprediction.jl")
