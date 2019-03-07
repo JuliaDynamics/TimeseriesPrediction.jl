@@ -1,4 +1,4 @@
-2using Test
+using Test
 using TimeseriesPrediction
 
 @testset "InhomogeneousEmbedding" begin
