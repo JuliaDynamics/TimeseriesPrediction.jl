@@ -90,7 +90,7 @@ function Base.show(io::IO, em::SymmetricEmbedding{Φ,BC, X}) where {Φ,BC,X}
     if BC == PeriodicBoundary
         println(io, " and PeriodicBoundary condition.")
     else
-        println(io, " and ConstantBoundary condition with c = $(em.boundary.c).")
+        println(io, " and ConstantBoundary condition with b = $(em.boundary.b).")
     end
     println(io, "The included neighboring points are (forward embedding):")
     for (τ,β) in zip(em.τ,em.β_groups)
