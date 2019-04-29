@@ -86,7 +86,7 @@ function barkley(T;
         end
     end
 
-    function periodic_step()
+    function periodic_step!(u,v,Σ,a,b,Nx,Ny,s,r,D,Δt,h)
         for j=1:Ny, i=1:Nx
             uth = (v[i,j] + b)/a
             v[i,j] = v[i,j] + Δt*(u[i,j]^3 - v[i,j])
@@ -99,7 +99,7 @@ function barkley(T;
             Σ[i,j,r] = 0
         end
     end
-    function constant_step()
+    function constant_step!(u,v,Σ,a,b,Nx,Ny,s,r,D,Δt,h)
         for i=1:Nx, j=1:Ny
             uth = (v[i,j] + b)/a
             v[i,j] = v[i,j] + Δt*(u[i,j] - v[i,j])
@@ -114,7 +114,8 @@ function barkley(T;
     end
 
     for m=1:T+tskip
-        periodic ? periodic_step() : constant_step()
+        periodic ? periodic_step!(u,v,Σ,a,b,Nx,Ny,s,r,D,Δt,h) :
+                   constant_step!(u,v,Σ,a,b,Nx,Ny,s,r,D,Δt,h)
         r,s = s,r
         if m > tskip
             push!(U,copy(u))

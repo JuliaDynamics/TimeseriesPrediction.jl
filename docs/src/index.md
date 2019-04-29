@@ -1,5 +1,7 @@
 # Introduction
 
+![TimeseriesPredition.jl logo](https://github.com/JuliaDynamics/JuliaDynamics/blob/master/videos/tspred/tspred_logo.png?raw=true)
+
 Predicting timeseries of chaotic systems can be a very difficult task. Most methods employed for such a feat are typically relying on large neural networks and machine learning. One does not need them though! In the package `TimeseriesPrediction` we are presenting methods that instead take advantage of dynamical systems theory. Many such methods exist, like for example [Cluster weighted modelling](https://onlinelibrary.wiley.com/doi/pdf/10.1002/9783527609970.ch3) or [networks of dynamical systems](https://github.com/JuliaDynamics/TimeseriesPrediction.jl/issues/40). The first method included in `TimeseriesPrediction`, which is also simplest one, is called "local modelling".
 
 ## Local Modelling
