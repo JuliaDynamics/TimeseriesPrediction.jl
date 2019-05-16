@@ -2,21 +2,21 @@ export SymmetricEmbedding
 
 abstract type Symmetry end
 
-struct Rotation{N} <: Symmetry
-	d::NTuple{N, Int}
-	function Rotation(args...)
+struct Rotation <: Symmetry
+	d::Vector{Int}
+	function Rotation(args::Vector{Int})
 		@assert length(args) > 1 "Rotation symmetry needs at least 2 dimensions"
 		@assert length(args) == 2 "Only rotation symmetry in 2D is currently implemented"
-		new{length(args)}((args...,))
+		new(args)
 	end
 end
 
-struct Reflection{N} <: Symmetry
-	d::NTuple{N, Int}
+struct Reflection <: Symmetry
+	d::Vector{Int}
 end
 
-for sym in [:Reflection]
-	@eval $(sym)(args...) = $(sym){length(args)}((args...,))
+for sym in Symbol.(subtypes(Symmetry))
+	@eval $(sym)(x::Int, args...) = $(sym)([x, args...])
 end
 
 # internal translation to the nested vectors of integers
@@ -24,13 +24,12 @@ end
 # (if we ever encounter a different symmetry we want to use)
 function _nestedvec(syms::Tuple)
 	# This part of the code ensures no duplicate symmetries
-	N = sum(length(s.d) for s in syms)
-	allidx = vcat(collect([s.d...] for s in syms)...)
+	allidx = vcat(s.d for s in syms)
 	@assert unique(allidx) == allidx
 	# Now convert to nestedvec
 	v = Vector{Vector{Int}}()
 	for s in syms
-		push!(v, [s.d...])
+		push!(v, s.d)
 	end
 	return v
 end
