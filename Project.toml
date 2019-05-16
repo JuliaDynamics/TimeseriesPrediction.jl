@@ -1,9 +1,11 @@
 name = "TimeseriesPrediction"
 uuid = "f218859d-9706-56aa-9ebf-1fa4ed7b8020"
 repo = "https://github.com/JuliaDynamics/TimeseriesPrediction.jl.git"
+version = "0.7.0"
 
 [deps]
 DelayEmbeddings = "5732040d-69e3-5649-938a-b6b4f237613f"
+InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 IterTools = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
@@ -15,10 +17,10 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [extras]
+DynamicalSystemsBase = "6e36e845-645a-534a-86f2-f5d4aa5a06b4"
 MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-DynamicalSystemsBase = "6e36e845-645a-534a-86f2-f5d4aa5a06b4"
 
 [targets]
 test = ["MultivariateStats", "DynamicalSystemsBase"]

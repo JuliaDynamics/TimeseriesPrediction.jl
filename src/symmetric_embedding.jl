@@ -1,4 +1,6 @@
+using InteractiveUtils
 export SymmetricEmbedding
+export Reflection, Rotation
 
 abstract type Symmetry end
 
@@ -6,7 +8,6 @@ struct Rotation <: Symmetry
 	d::Vector{Int}
 	function Rotation(args::Vector{Int})
 		@assert length(args) > 1 "Rotation symmetry needs at least 2 dimensions"
-		@assert length(args) == 2 "Only rotation symmetry in 2D is currently implemented"
 		new(args)
 	end
 end
@@ -17,6 +18,14 @@ end
 
 for sym in Symbol.(subtypes(Symmetry))
 	@eval $(sym)(x::Int, args...) = $(sym)([x, args...])
+end
+
+# Overload `NTuple{N,T} where {N,T<:A}` for `show`
+_smallstr(::Rotation) = "rot"
+_smallstr(::Reflection) = "refl"
+function Base.show(io::IO, sym::Symmetry)
+	s = _smallstr(sym)*string(sym.d)
+	print(io, s)
 end
 
 # internal translation to the nested vectors of integers
@@ -67,7 +76,7 @@ end
 
 function SymmetricEmbedding(ste::SpatioTemporalEmbedding, sym::Tuple)
 	nv = _nestedvec(sym)
-	_SymmetricEmbedding(stem, nv)
+	_SymmetricEmbedding(ste, nv)
 end
 
 # Internal function, uses the nested vectors until we change it /
