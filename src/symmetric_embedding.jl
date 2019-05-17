@@ -1,9 +1,24 @@
 using InteractiveUtils
 export SymmetricEmbedding
-export Reflection, Rotation
+export Reflection, Rotation, Symmetry
 
+"""
+	Symmetry
+Supertype of all symmetries used in [`SymmetricEmbedding`](@ref).
+All symmetries are initialized like `Symmetry(n1, n2, ...)` with
+`ni` being the indices of the spatial dimensions that have the said symmetry.
+
+E.g. `Reflection(1,2)` means that spatial dimensions 1 and 2 have a reflection
+symmetry, while `Rotation(1,3)` means that spatial dimensions 1 and 3 have a
+(joint) rotation symmetry.
+"""
 abstract type Symmetry end
 
+"""
+	Rotation <: Symmetry
+Rotation symmetry (index sets at equal distance from the center point are
+equivalent), which is a joint symmetry between all input dimensions.
+"""
 struct Rotation <: Symmetry
 	d::Vector{Int}
 	function Rotation(args::Vector{Int})
@@ -12,6 +27,10 @@ struct Rotation <: Symmetry
 	end
 end
 
+"""
+	Reflection <: Symmetry
+Reflection symmetry: x and -x are equavalent (for the given dimension).
+"""
 struct Reflection <: Symmetry
 	d::Vector{Int}
 end
@@ -48,22 +67,20 @@ end
 
 A `SymmetricEmbedding` is intended as a means of dimension reduction
 for a [`SpatioTemporalEmbedding`](@ref) by exploiting spatial symmetries in
-the system, listed as a `Tuple` of `<:Symmetry`.
+the system, listed as a `Tuple` of `<:Symmetry` (see [`Symmetry`](@ref)) for
+all possible symmetries.
 
 All points at a time step equivalent to each other according to the symmetries
-passed in `sym` will be **averaged** to a single entry! See the documentation
-around [`Symmetry`](@ref) for all the symmetry types as well as examples.
+passed in `sym` will be **averaged** to a single entry! For example,
+the symmetry `Reflection(2)` means that the embedding won't have two entries
+`u[i, j+1], u[i, j-1]` but instead a single entry
+`(u[i, j+1] + u[i, j-1])/2`, with `i,j` being indices *relative to the
+central point of the embedding*. (the same process is
+done for any index offset `j+2, j+3`, etc., depending on how large the
+spatial radius `r` is)
 
-A few examples for clarification:
- * 2D space with mirror symmetry along first dimension : `sym = [ [1] ]` → maps points  to `(s[t][+n, m] + s[t][-n, m])/2`
- * 2D space with mirror symmetry along each dimension : `sym = [ [1], [2] ]` → averages over points with `(+- n, +- m)`
- * 2D space with point symmetry in both dimensions : `sym = [ [1,2] ]` → groups points with equal distance to the origin such as `(1,2), (-1,2), (2,1),...`
- * 3D space with point symmetry in dim 1 & 3 and mirror in 2: `sym = [ [1,3], [2]]` → groups points with equal distance to the origin along dimension 1 & 3 and +-2
-
-To further explain the last example: The following points form one such group
-`(+-2,1,0), (0,1,+-2), (-2,-1,0), (0,-1,-2)`
-
-The resulting structure can be used for reconstructing datasets in
+The resulting structure from `SymmetricEmbedding`
+can be used for reconstructing datasets in
 the same way as a [`SpatioTemporalEmbedding`](@ref).
 """
 struct SymmetricEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
