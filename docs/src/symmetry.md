@@ -1,11 +1,11 @@
 # Exploiting Spatial Symmetries
 
-Some systems have symmetries that apply to their spatial dimensions. For example, the Barkley model that we use an example has equations:
+Some systems have symmetries that apply to their spatial dimensions. For example, the cubic Barkley model has equations:
 ```math
 u_t = \frac{1}{\epsilon}u(1-u)(u-\frac{v+b}{a}) + \nabla^2 u \\
 v_t = u^3 - v
 ```
-The only spatial coupling component is the Laplacian operator, ``\nabla^2``. This means that the equations of of the Barkley model have rotational symmetry with respect to space.
+The only spatial coupling component is the Laplacian operator, ``\nabla^2``. This means that the equations of the Barkley model have rotational symmetry with respect to space.
 
 In principle one should be able to take advantage of these symmetries to reduce the embedded space dimension.
 
