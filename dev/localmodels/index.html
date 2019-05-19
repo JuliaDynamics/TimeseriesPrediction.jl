@@ -355,6 +355,18 @@
   </li>
 
     
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../symmetry/" title="Exploiting Spatial Symmetries" class="md-nav__link">
+      Exploiting Spatial Symmetries
+    </a>
+  </li>
+
+    
   </ul>
 </nav>
                   </div>
@@ -439,8 +451,8 @@
 <h2 id="local-model-prediction">Local Model Prediction</h2>
 <p><a id='TimeseriesPrediction.localmodel_tsp' href='#TimeseriesPrediction.localmodel_tsp'>#</a>
 <strong><code>TimeseriesPrediction.localmodel_tsp</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span><span class="nt">localmodel_tsp</span><span class="o">(</span><span class="nt">s</span><span class="o">,</span> <span class="err">γ</span><span class="p">::</span><span class="nd">Int</span><span class="o">,</span> <span class="err">τ</span><span class="o">,</span> <span class="nt">p</span><span class="p">::</span><span class="nd">Int</span><span class="o">;</span> <span class="nt">method</span><span class="o">,</span> <span class="nt">ntype</span><span class="o">,</span> <span class="nt">stepsize</span><span class="o">)</span>
-<span class="nt">localmodel_tsp</span><span class="o">(</span><span class="nt">s</span><span class="o">,</span> <span class="nt">p</span><span class="p">::</span><span class="nd">Int</span><span class="o">;</span> <span class="nt">method</span><span class="o">,</span> <span class="nt">ntype</span><span class="o">,</span> <span class="nt">stepsize</span><span class="o">)</span>
+<div class="codehilite"><pre><span></span><span class="n">localmodel_tsp</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">γ</span><span class="o">::</span><span class="kt">Int</span><span class="p">,</span> <span class="n">τ</span><span class="p">,</span> <span class="n">p</span><span class="o">::</span><span class="kt">Int</span><span class="p">;</span> <span class="n">method</span><span class="p">,</span> <span class="n">ntype</span><span class="p">,</span> <span class="n">stepsize</span><span class="p">)</span>
+<span class="n">localmodel_tsp</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="o">::</span><span class="kt">Int</span><span class="p">;</span> <span class="n">method</span><span class="p">,</span> <span class="n">ntype</span><span class="p">,</span> <span class="n">stepsize</span><span class="p">)</span>
 </pre></div>
 
 
@@ -457,10 +469,10 @@
 <p>The algorithm is applied iteratively until a prediction of length <code>p</code> has been created, starting with the query point to be the last point of the timeseries.</p>
 <p><strong>References</strong></p>
 <p>[1] : D. Engster &amp; U. Parlitz, <em>Handbook of Time Series Analysis</em> Ch. 1, VCH-Wiley (2006)</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/localmodeling.jl#L289-L321' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/localmodeling.jl#L289-L321' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.AbstractLocalModel' href='#TimeseriesPrediction.AbstractLocalModel'>#</a>
 <strong><code>TimeseriesPrediction.AbstractLocalModel</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span>AbstractLocalModel
+<div class="codehilite"><pre><span></span><span class="n">AbstractLocalModel</span>
 </pre></div>
 
 
@@ -481,7 +493,7 @@
 <p>with <span><span class="MathJax_Preview">d_i = ||x_{nn,i} -q||_2</span><script type="math/tex">d_i = ||x_{nn,i} -q||_2</script></span> being the distance of each neighbor from the query point.</p>
 <p>You can also provide your own function or give <code>ω_safe(d, dmax) = dmax &gt; 0 ? (1.1 - (d/dmax)^2)^4 : 1.0</code> for a safe version of <span><span class="MathJax_Preview">ω</span><script type="math/tex">ω</script></span> that takes into acount edge cases. Finally you can also give <code>nothing</code> in place of <code>ω</code>. In that case no weighting is done and direct average of neighbors is returned.</p>
 <p><strong>Average Local Model</strong></p>
-<div class="codehilite"><pre><span></span>AverageLocalModel(ω)
+<div class="codehilite"><pre><span></span><span class="n">AverageLocalModel</span><span class="p">(</span><span class="err">ω</span><span class="p">)</span>
 </pre></div>
 
 
@@ -499,8 +511,8 @@ y_{pred} = \frac{\sum{\omega_i y_{nn,i}}}{\sum{\omega_i}}
 </script>
 </div>
 <p><strong>Linear Local Model</strong></p>
-<div class="codehilite"><pre><span></span>LinearLocalModel([ω ], μ::Real=2.])
-LinearLocalModel([ω ], s_min::Real, s_max::Real)
+<div class="codehilite"><pre><span></span><span class="n">LinearLocalModel</span><span class="p">([</span><span class="err">ω</span> <span class="p">],</span> <span class="err">μ</span><span class="p">::</span><span class="nb">Real</span><span class="o">=</span><span class="mi">2</span><span class="p">.])</span>
+<span class="n">LinearLocalModel</span><span class="p">([</span><span class="err">ω</span> <span class="p">],</span> <span class="n">s_min</span><span class="p">::</span><span class="nb">Real</span><span class="p">,</span> <span class="n">s_max</span><span class="p">::</span><span class="nb">Real</span><span class="p">)</span>
 </pre></div>
 
 
@@ -538,7 +550,7 @@ f(\sigma) = \begin{cases} 0, & \sigma < s_{min}\\
 </ul>
 <p><strong>References</strong></p>
 <p>[1] : D. Engster &amp; U. Parlitz, <em>Handbook of Time Series Analysis</em> Ch. 1, VCH-Wiley (2006)</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/localmodeling.jl#L10-L75' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/localmodeling.jl#L10-L75' class='documenter-source'>source</a><br></p>
 <p><a id='Single-Timeseries-Example-1'></a></p>
 <h2 id="single-timeseries-example">Single Timeseries Example</h2>
 <p>We will predict the future of a (relatively simple) timeseries:</p>
@@ -624,7 +636,7 @@ f(\sigma) = \begin{cases} 0, & \sigma < s_{min}\\
 <p>Being able to evaluate model performance without looking at plots can be very helpful when trying to quantify its error as well as finding good parameters in the first place.</p>
 <p><a id='TimeseriesPrediction.MSEp' href='#TimeseriesPrediction.MSEp'>#</a>
 <strong><code>TimeseriesPrediction.MSEp</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span><span class="nt">MSEp</span><span class="o">(</span><span class="nt">R</span><span class="p">::</span><span class="nd">AbstractDataset</span><span class="p">{</span><span class="err">D,T</span><span class="p">}</span><span class="o">,</span> <span class="nt">R_test</span><span class="o">,</span> <span class="nt">p</span><span class="o">;</span> <span class="nt">method</span><span class="o">,</span> <span class="nt">ntype</span><span class="o">,</span> <span class="nt">stepsize</span><span class="o">)</span> <span class="nt">-</span><span class="o">&gt;</span> <span class="nt">error</span>
+<div class="codehilite"><pre><span></span><span class="n">MSEp</span><span class="p">(</span><span class="n">R</span><span class="o">::</span><span class="n">AbstractDataset</span><span class="p">{</span><span class="n">D</span><span class="p">,</span><span class="n">T</span><span class="p">},</span> <span class="n">R_test</span><span class="p">,</span> <span class="n">p</span><span class="p">;</span> <span class="n">method</span><span class="p">,</span> <span class="n">ntype</span><span class="p">,</span> <span class="n">stepsize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">error</span>
 </pre></div>
 
 
@@ -648,7 +660,7 @@ MSE_p = \frac{1}{p|T_{ref}|}\sum_{t\in T_{ref}}\sum_{i=1}^{p} \left(y_{t+i}
 <p>where <span><span class="MathJax_Preview">|T_{ref}|</span><script type="math/tex">|T_{ref}|</script></span> is the number of subsets of <code>R_test</code> used.</p>
 <p><strong>References</strong></p>
 <p>See <a href="./#TimeseriesPrediction.localmodel_tsp"><code>localmodel_tsp</code></a>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/localmodeling.jl#L457-L479' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/localmodeling.jl#L457-L479' class='documenter-source'>source</a><br></p>
 <p>Here is an example function that employs <code>MSEp</code> to find good parameters. It takes in a timeseries <code>s</code> and ranges for the dimensions, delays and number of nearest neighbors to  try. Keyword arguments are <code>valid_len</code>, which is the number of prediction steps, and <code>num_tries</code> the number of different starting points to choose.</p>
 <p>It then calculates <code>MSEp</code> for all parameter combinations and returns the best parameter set.</p>
 <p>```@example tspred

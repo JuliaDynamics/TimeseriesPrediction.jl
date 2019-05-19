@@ -422,6 +422,18 @@
   </li>
 
     
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../symmetry/" title="Exploiting Spatial Symmetries" class="md-nav__link">
+      Exploiting Spatial Symmetries
+    </a>
+  </li>
+
+    
   </ul>
 </nav>
                   </div>
@@ -597,7 +609,7 @@
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span>&quot;10101-element Array{Array{Float64,1},1}&quot;
+<div class="codehilite"><pre><span></span><span class="ss">&quot;10101-element Array{Array{Float64,1},1}&quot;</span>
 </pre></div>
 
 
@@ -624,8 +636,8 @@
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span>  3.220421 seconds (4.46 M allocations: 295.154 MiB, 8.41% gc time)
-Maximum error: 7.489722699875914
+<div class="codehilite"><pre><span></span>  <span class="mi">3</span><span class="p">.</span><span class="mi">580986</span> <span class="n">seconds</span> <span class="p">(</span><span class="mi">4</span><span class="p">.</span><span class="mi">46</span> <span class="n">M</span> <span class="n">allocations</span><span class="p">:</span> <span class="mi">295</span><span class="p">.</span><span class="mi">441</span> <span class="n">MiB</span><span class="p">,</span> <span class="mi">12</span><span class="p">.</span><span class="mi">43</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="p">)</span>
+<span class="n">Maximum</span> <span class="n">error</span><span class="p">:</span> <span class="mi">7</span><span class="p">.</span><span class="mi">489722699875914</span>
 </pre></div>
 
 
@@ -646,27 +658,27 @@ Maximum error: 7.489722699875914
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span>64×101 Array{Float64,2}:
- 0.0  0.117557     0.093332    0.0995133   …  0.176435  0.428045  1.12381
- 0.0  0.0844138    0.0624008   0.0627831      1.03725   0.634373  0.149066
- 0.0  0.0487361    0.0268789   0.0249753      1.51933   1.35378   1.12772
- 0.0  0.0430553    0.00531474  0.00402415     1.65941   1.72697   1.76369
- 0.0  0.0550993    0.00717697  0.00488774     1.54245   1.80927   2.07716
- 0.0  0.0513383    0.0131881   0.00198239  …  1.27599   1.69305   2.13234
- 0.0  0.0394528    0.0126422   0.0254385      0.977606  1.4845    2.02576
- 0.0  0.0222963    0.0454558   0.0583722      0.749201  1.27235   1.84884
- 0.0  0.0113543    0.0875975   0.102984       0.625136  1.10491   1.6342
- 0.0  0.000283291  0.121417    0.137955       0.64153   1.04758   1.47385
- ⋮                                         ⋱                      ⋮
- 0.0  0.0806688    0.0717503   0.0555449   …  3.34076   2.8054    2.20618
- 0.0  0.103009     0.0765522   0.0773288      4.80043   4.36622   3.83916
- 0.0  0.0407499    0.0130141   0.0274053      5.84244   5.59799   5.24194
- 0.0  0.00136207   0.0219034   0.084694       6.28648   6.2951    6.18903
- 0.0  0.0325506    0.0315577   0.0891074      6.06503   6.34578   6.52844
- 0.0  0.0460529    0.0990307   0.0424581   …  5.23427   5.75757   6.21841
- 0.0  0.0623423    0.114259    0.138285       3.96122   4.65298   5.33638
- 0.0  0.0751481    0.135083    0.139311       2.47919   3.24312   4.04871
- 0.0  0.100207     0.134398    0.130669       1.03333   1.76527   2.57602
+<div class="codehilite"><pre><span></span><span class="mi">64</span><span class="err">×</span><span class="mi">101</span> <span class="nb">Array</span><span class="err">{</span><span class="n">Float64</span><span class="p">,</span><span class="mi">2</span><span class="err">}</span><span class="p">:</span>
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">117557</span>     <span class="mi">0</span><span class="p">.</span><span class="mi">093332</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0995133</span>   <span class="err">…</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">176435</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">428045</span>  <span class="mi">1</span><span class="p">.</span><span class="mi">12381</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0844138</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0624008</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">0627831</span>      <span class="mi">1</span><span class="p">.</span><span class="mi">03725</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">634373</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">149066</span>
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0487361</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0268789</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">0249753</span>      <span class="mi">1</span><span class="p">.</span><span class="mi">51933</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">35378</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">12772</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0430553</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">00531474</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">00402415</span>     <span class="mi">1</span><span class="p">.</span><span class="mi">65941</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">72697</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">76369</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0550993</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">00717697</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">00488774</span>     <span class="mi">1</span><span class="p">.</span><span class="mi">54245</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">80927</span>   <span class="mi">2</span><span class="p">.</span><span class="mi">07716</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0513383</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0131881</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">00198239</span>  <span class="err">…</span>  <span class="mi">1</span><span class="p">.</span><span class="mi">27599</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">69305</span>   <span class="mi">2</span><span class="p">.</span><span class="mi">13234</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0394528</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0126422</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">0254385</span>      <span class="mi">0</span><span class="p">.</span><span class="mi">977606</span>  <span class="mi">1</span><span class="p">.</span><span class="mi">4845</span>    <span class="mi">2</span><span class="p">.</span><span class="mi">02576</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0222963</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0454558</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">0583722</span>      <span class="mi">0</span><span class="p">.</span><span class="mi">749201</span>  <span class="mi">1</span><span class="p">.</span><span class="mi">27235</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">84884</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0113543</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0875975</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">102984</span>       <span class="mi">0</span><span class="p">.</span><span class="mi">625136</span>  <span class="mi">1</span><span class="p">.</span><span class="mi">10491</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">6342</span>  
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">000283291</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">121417</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">137955</span>       <span class="mi">0</span><span class="p">.</span><span class="mi">64153</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">04758</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">47385</span> 
+ <span class="err">⋮</span>                                         <span class="err">⋱</span>                      <span class="err">⋮</span>       
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0806688</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0717503</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">0555449</span>   <span class="err">…</span>  <span class="mi">3</span><span class="p">.</span><span class="mi">34076</span>   <span class="mi">2</span><span class="p">.</span><span class="mi">8054</span>    <span class="mi">2</span><span class="p">.</span><span class="mi">20618</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">103009</span>     <span class="mi">0</span><span class="p">.</span><span class="mi">0765522</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">0773288</span>      <span class="mi">4</span><span class="p">.</span><span class="mi">80043</span>   <span class="mi">4</span><span class="p">.</span><span class="mi">36622</span>   <span class="mi">3</span><span class="p">.</span><span class="mi">83916</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0407499</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0130141</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">0274053</span>      <span class="mi">5</span><span class="p">.</span><span class="mi">84244</span>   <span class="mi">5</span><span class="p">.</span><span class="mi">59799</span>   <span class="mi">5</span><span class="p">.</span><span class="mi">24194</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">00136207</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">0219034</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">084694</span>       <span class="mi">6</span><span class="p">.</span><span class="mi">28648</span>   <span class="mi">6</span><span class="p">.</span><span class="mi">2951</span>    <span class="mi">6</span><span class="p">.</span><span class="mi">18903</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0325506</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0315577</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">0891074</span>      <span class="mi">6</span><span class="p">.</span><span class="mi">06503</span>   <span class="mi">6</span><span class="p">.</span><span class="mi">34578</span>   <span class="mi">6</span><span class="p">.</span><span class="mi">52844</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0460529</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">0990307</span>   <span class="mi">0</span><span class="p">.</span><span class="mi">0424581</span>   <span class="err">…</span>  <span class="mi">5</span><span class="p">.</span><span class="mi">23427</span>   <span class="mi">5</span><span class="p">.</span><span class="mi">75757</span>   <span class="mi">6</span><span class="p">.</span><span class="mi">21841</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0623423</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">114259</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">138285</span>       <span class="mi">3</span><span class="p">.</span><span class="mi">96122</span>   <span class="mi">4</span><span class="p">.</span><span class="mi">65298</span>   <span class="mi">5</span><span class="p">.</span><span class="mi">33638</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">0751481</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">135083</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">139311</span>       <span class="mi">2</span><span class="p">.</span><span class="mi">47919</span>   <span class="mi">3</span><span class="p">.</span><span class="mi">24312</span>   <span class="mi">4</span><span class="p">.</span><span class="mi">04871</span> 
+ <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">100207</span>     <span class="mi">0</span><span class="p">.</span><span class="mi">134398</span>    <span class="mi">0</span><span class="p">.</span><span class="mi">130669</span>       <span class="mi">1</span><span class="p">.</span><span class="mi">03333</span>   <span class="mi">1</span><span class="p">.</span><span class="mi">76527</span>   <span class="mi">2</span><span class="p">.</span><span class="mi">57602</span> 
 </pre></div>
 
 
@@ -699,33 +711,33 @@ Maximum error: 7.489722699875914
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span>┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:0
-└ @ Core none:0
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:0
-└ @ Core none:0
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:0
-└ @ Core none:0
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:5
-└ @ Core ./none:5
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:0
-└ @ Core none:0
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:0
-└ @ Core none:0
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:0
-└ @ Core none:0
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:0
-└ @ Core none:0
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:0
-└ @ Core none:0
+<div class="codehilite"><pre><span></span><span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">5</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">5</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="n">none</span><span class="p">:</span><span class="mi">0</span>
 </pre></div>
 
 
@@ -753,7 +765,7 @@ Maximum error: 7.489722699875914
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span>&quot;510-element Array{Array{Float64,2},1}&quot;
+<div class="codehilite"><pre><span></span><span class="ss">&quot;510-element Array{Array{Float64,2},1}&quot;</span>
 </pre></div>
 
 
@@ -782,8 +794,8 @@ Maximum error: 7.489722699875914
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span> 51.835176 seconds (1.89 M allocations: 1.179 GiB, 1.42% gc time)
-Maximum error: 0.23281081954878963
+<div class="codehilite"><pre><span></span> <span class="mi">59</span><span class="p">.</span><span class="mi">703499</span> <span class="n">seconds</span> <span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">89</span> <span class="n">M</span> <span class="n">allocations</span><span class="p">:</span> <span class="mi">1</span><span class="p">.</span><span class="mi">179</span> <span class="n">GiB</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">20</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="p">)</span>
+<span class="n">Maximum</span> <span class="n">error</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">32431089789518597</span>
 </pre></div>
 
 
@@ -826,42 +838,42 @@ Maximum error: 0.23281081954878963
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span>┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:8
-└ @ Core ./none:8
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:9
-└ @ Core ./none:9
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:10
-└ @ Core ./none:10
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:11
-└ @ Core ./none:11
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:13
-└ @ Core ./none:13
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:13
-└ @ Core ./none:13
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:14
-└ @ Core ./none:14
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:14
-└ @ Core ./none:14
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:17
-└ @ Core ./none:17
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:18
-└ @ Core ./none:18
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:19
-└ @ Core ./none:19
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:20
-└ @ Core ./none:20
+<div class="codehilite"><pre><span></span><span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">8</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">8</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">9</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">9</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">10</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">10</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">11</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">11</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">13</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">13</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">13</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">13</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">14</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">14</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">14</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">14</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">17</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">17</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">18</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">18</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">19</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">19</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">20</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">20</span>
 </pre></div>
 
 
@@ -895,9 +907,7 @@ Maximum error: 0.23281081954878963
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span>┌ Warning: Replacing docs for `Main.ex-stexamples.barkley :: Tuple{Any}` in module `Main.ex-stexamples`
-└ @ Base.Docs docs/Docs.jl:223
-&quot;305-element Array{Array{Float64,2},1}&quot;
+<div class="codehilite"><pre><span></span><span class="ss">&quot;305-element Array{Array{Float64,2},1}&quot;</span>
 </pre></div>
 
 
@@ -923,8 +933,8 @@ Maximum error: 0.23281081954878963
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span> 26.108393 seconds (1.75 M allocations: 932.603 MiB, 1.62% gc time)
-Maximum error: 0.2934269941090367
+<div class="codehilite"><pre><span></span> <span class="mi">26</span><span class="p">.</span><span class="mi">675747</span> <span class="n">seconds</span> <span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">75</span> <span class="n">M</span> <span class="n">allocations</span><span class="p">:</span> <span class="mi">932</span><span class="p">.</span><span class="mi">601</span> <span class="n">MiB</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">56</span><span class="o">%</span> <span class="n">gc</span> <span class="n">time</span><span class="p">)</span>
+<span class="n">Maximum</span> <span class="n">error</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">2934269941090367</span>
 </pre></div>
 
 
@@ -964,36 +974,36 @@ Maximum error: 0.2934269941090367
 </pre></div>
 
 
-<div class="codehilite"><pre><span></span>┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:8
-└ @ Core ./none:8
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:9
-└ @ Core ./none:9
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:10
-└ @ Core ./none:10
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:12
-└ @ Core ./none:12
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:12
-└ @ Core ./none:12
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:13
-└ @ Core ./none:13
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:13
-└ @ Core ./none:13
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:16
-└ @ Core ./none:16
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:17
-└ @ Core ./none:17
-┌ Warning: `getindex(o::PyObject, s::Symbol)` is deprecated in favor of dot overloading (`getproperty`) so elements should now be accessed as e.g. `o.s` instead of `o[:s]`.
-│   caller = top-level scope at none:18
-└ @ Core ./none:18
+<div class="codehilite"><pre><span></span><span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">8</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">8</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">9</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">9</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">10</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">10</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">12</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">12</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">12</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">12</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">13</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">13</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">13</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">13</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">16</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">16</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">17</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">17</span>
+<span class="err">┌</span> <span class="n">Warning</span><span class="p">:</span> <span class="ss">`getindex(o::PyObject, s::Symbol)`</span> <span class="k">is</span> <span class="n">deprecated</span> <span class="k">in</span> <span class="n">favor</span> <span class="n">of</span> <span class="n">dot</span> <span class="nf">overloading</span> <span class="p">(</span><span class="ss">`getproperty`</span><span class="p">)</span> <span class="n">so</span> <span class="n">elements</span> <span class="n">should</span> <span class="n">now</span> <span class="n">be</span> <span class="n">accessed</span> <span class="k">as</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="ss">`o.s`</span> <span class="n">instead</span> <span class="n">of</span> <span class="ss">`o[:s]`</span><span class="p">.</span>
+<span class="err">│</span>   <span class="n">caller</span> <span class="o">=</span> <span class="n">top</span><span class="o">-</span><span class="n">level</span> <span class="n">scope</span> <span class="n">at</span> <span class="n">none</span><span class="p">:</span><span class="mi">18</span>
+<span class="err">└</span> <span class="o">@</span> <span class="n">Core</span> <span class="p">.</span><span class="o">/</span><span class="n">none</span><span class="p">:</span><span class="mi">18</span>
 </pre></div>
 
 
@@ -1033,6 +1043,20 @@ Maximum error: 0.2934269941090367
             </div>
           </a>
         
+        
+          <a href="../symmetry/" title="Exploiting Spatial Symmetries" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Exploiting Spatial Symmetries
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
         
       </nav>
     </div>

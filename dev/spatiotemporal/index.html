@@ -334,6 +334,18 @@
   </li>
 
     
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../symmetry/" title="Exploiting Spatial Symmetries" class="md-nav__link">
+      Exploiting Spatial Symmetries
+    </a>
+  </li>
+
+    
   </ul>
 </nav>
                   </div>
@@ -399,16 +411,16 @@
 <p>some info here.</p>
 <p><a id='DelayEmbeddings.reconstruct' href='#DelayEmbeddings.reconstruct'>#</a>
 <strong><code>DelayEmbeddings.reconstruct</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>reconstruct(s::AbstractArray{&lt;:AbstractArray{T,Φ}}, em)
+<div class="codehilite"><pre><span></span><span class="n">reconstruct</span><span class="p">(</span><span class="n">s</span><span class="o">::</span><span class="kt">AbstractArray</span><span class="p">{</span><span class="o">&lt;:</span><span class="kt">AbstractArray</span><span class="p">{</span><span class="n">T</span><span class="p">,</span><span class="n">Φ</span><span class="p">}},</span> <span class="n">em</span><span class="p">)</span>
 </pre></div>
 
 
 <p>Reconstruct the spatial timeseries <code>s</code> represented by a <code>Vector</code> of <code>AbstractArray</code> states using the embedding struct <code>em</code> of type <a href="./#TimeseriesPrediction.AbstractSpatialEmbedding"><code>AbstractSpatialEmbedding</code></a>.</p>
 <p>Returns the reconstruction in the form of a <code>Dataset</code> (from <code>DelayEmbeddings</code>) where each row is a reconstructed state and they are ordered first through linear indexing into each state and then incrementing in time.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/reconstruct.jl#L6-L14' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/reconstruct.jl#L6-L14' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.AbstractSpatialEmbedding' href='#TimeseriesPrediction.AbstractSpatialEmbedding'>#</a>
 <strong><code>TimeseriesPrediction.AbstractSpatialEmbedding</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span>AbstractSpatialEmbedding &lt;: AbstractEmbedding
+<div class="codehilite"><pre><span></span><span class="n">AbstractSpatialEmbedding</span> <span class="o">&lt;:</span> <span class="n">AbstractEmbedding</span>
 </pre></div>
 
 
@@ -417,15 +429,15 @@
 <li><code>SpatioTemporalEmbedding</code></li>
 <li><code>PCAEmbedding</code></li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/spatiotemporalembedding.jl#L13-L18' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/spatiotemporalembedding.jl#L13-L18' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.SpatioTemporalEmbedding' href='#TimeseriesPrediction.SpatioTemporalEmbedding'>#</a>
 <strong><code>TimeseriesPrediction.SpatioTemporalEmbedding</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span>SpatioTemporalEmbedding{Φ,BC,X} → embedding
+<div class="codehilite"><pre><span></span><span class="n">SpatioTemporalEmbedding</span><span class="p">{</span><span class="n">Φ</span><span class="p">,</span><span class="n">BC</span><span class="p">,</span><span class="n">X</span><span class="p">}</span> <span class="n">→</span> <span class="n">embedding</span>
 </pre></div>
 
 
 <p>A spatio temporal delay coordinates structure to be used as a functor. Applies to data of <code>Φ</code> spatial dimensions and gives an embedding of dimensionality <code>X</code>.</p>
-<div class="codehilite"><pre><span></span>embedding(rvec, s, t, α)
+<div class="codehilite"><pre><span></span><span class="n">embedding</span><span class="p">(</span><span class="n">rvec</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="err">α</span><span class="p">)</span>
 </pre></div>
 
 
@@ -438,7 +450,7 @@
 <li><a href="./#TimeseriesPrediction.light_cone_embedding"><code>light_cone_embedding</code></a></li>
 </ul>
 <p>The "main" constructor is</p>
-<div class="codehilite"><pre><span></span>SpatioTemporalEmbedding{X}(τ, β, bc, fsize)
+<div class="codehilite"><pre><span></span><span class="n">SpatioTemporalEmbedding</span><span class="err">{</span><span class="n">X</span><span class="err">}</span><span class="p">(</span><span class="err">τ</span><span class="p">,</span> <span class="err">β</span><span class="p">,</span> <span class="n">bc</span><span class="p">,</span> <span class="n">fsize</span><span class="p">)</span>
 </pre></div>
 
 
@@ -450,10 +462,10 @@
 <li><code>bc::BC</code> : boundary condition.</li>
 <li><code>fsize::NTuple{Φ, Int}</code> : Size of each state in the timeseries.</li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/spatiotemporalembedding.jl#L85-L114' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/spatiotemporalembedding.jl#L85-L114' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.cubic_shell_embedding' href='#TimeseriesPrediction.cubic_shell_embedding'>#</a>
 <strong><code>TimeseriesPrediction.cubic_shell_embedding</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>cubic_shell_embedding(s, γ, τ, B, k, bc) → embedding
+<div class="codehilite"><pre><span></span><span class="n">cubic_shell_embedding</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">γ</span><span class="p">,</span> <span class="n">τ</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">bc</span><span class="p">)</span> <span class="n">→</span> <span class="n">embedding</span>
 </pre></div>
 
 
@@ -462,24 +474,24 @@
 <p>Points are participating in the embedding by forming hypercubic shells around the current point. The total shells formed are <code>B</code>. The points on the shells have spatial distance <code>k ≥ 1</code> (distance in indices, like a cityblock metric). <code>k = 1</code> means that all points of the shell participate. The points of the hypercubic grid can be separated by <code>k ≥ 1</code> points apart (i.e. dropping <code>k-1</code> in-between points). In short, in each spatial dimension of the system the cartesian offset indices are <code>-B*k : k : k*B</code>.</p>
 <p><code>γ</code> is the number of temporal steps in the past to be included in the embedding, where each step in the past has additional delay time <code>τ::Int</code>. <code>γ=0</code> corresponds to using only the present. Notice that <strong>all</strong> embedded time frames have the same spatial structure, in contrast to <a href="./#TimeseriesPrediction.light_cone_embedding"><code>light_cone_embedding</code></a>.</p>
 <p>As an example, consider one of the <code>γ</code> embedded frames (all are the same) of a system with 2 spatial dimensions (<code>□</code> = current point, (included <em>by definition</em> in the embedding), <code>n</code> = included points in the embedding coming from <code>n</code>-th shell, <code>.</code> = points not included in the embedding)</p>
-<div class="codehilite"><pre><span></span>      B = 2,  k = 1        |        B = 1,  k = 2        |        B = 2,  k = 2
-                           |                             |
-.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  2  .  2  .  2  .  2  .  2
-.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
-.  .  2  2  2  2  2  .  .  |  .  .  1  .  1  .  1  .  .  |  2  .  1  .  1  .  1  .  2
-.  .  2  1  1  1  2  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
-.  .  2  1  □  1  2  .  .  |  .  .  1  .  □  .  1  .  .  |  2  .  1  .  □  .  1  .  2
-.  .  2  1  1  1  2  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
-.  .  2  2  2  2  2  .  .  |  .  .  1  .  1  .  1  .  .  |  2  .  1  .  1  .  1  .  2
-.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .
-.  .  .  .  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  |  2  .  2  .  2  .  2  .  2
+<div class="codehilite"><pre><span></span>      <span class="n">B</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>  <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span>        <span class="o">|</span>        <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>  <span class="n">k</span> <span class="o">=</span> <span class="mi">2</span>        <span class="o">|</span>        <span class="n">B</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>  <span class="n">k</span> <span class="o">=</span> <span class="mi">2</span>
+                           <span class="o">|</span>                             <span class="o">|</span>
+<span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">2</span>
+<span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>
+<span class="p">.</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="mi">2</span>  <span class="mi">2</span>  <span class="mi">2</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">2</span>
+<span class="p">.</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>
+<span class="p">.</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="mi">1</span>  <span class="err">□</span>  <span class="mi">1</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="err">□</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="err">□</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">2</span>
+<span class="p">.</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>
+<span class="p">.</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="mi">2</span>  <span class="mi">2</span>  <span class="mi">2</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">1</span>  <span class="p">.</span>  <span class="mi">2</span>
+<span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>
+<span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="p">.</span>  <span class="o">|</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">2</span>  <span class="p">.</span>  <span class="mi">2</span>
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/spatiotemporalembedding.jl#L191-L230' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/spatiotemporalembedding.jl#L191-L230' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.light_cone_embedding' href='#TimeseriesPrediction.light_cone_embedding'>#</a>
 <strong><code>TimeseriesPrediction.light_cone_embedding</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>light_cone_embedding(s, γ, τ, r, c, bc) → embedding
+<div class="codehilite"><pre><span></span><span class="n">light_cone_embedding</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">γ</span><span class="p">,</span> <span class="n">τ</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">bc</span><span class="p">)</span> <span class="n">→</span> <span class="n">embedding</span>
 </pre></div>
 
 
@@ -489,20 +501,20 @@
 <p>Information does not travel instantly but with some finite speed <code>c ≥ 0.0</code>. This constructor creates a cone-like embedding including all points in space and time, whose value can influence a prediction based on the information speed <code>c</code>. <code>γ</code> is the number of temporal steps in the past to be included in the embedding, where each step in the past has additional delay time <code>τ::Int</code>. <code>γ=0</code> corresponds to using only the present. <code>r</code> is the initial radius at the top of the cone, i.e. the radius of influence at the present. <code>bc</code> is the boundary condition.</p>
 <p>The radius of the light cone evolves as: <code>r_i = i*τ*c + r</code> for each step <code>i ∈ 0:γ</code>.</p>
 <p>As an example, in a one-dimensional system with <code>γ = 1, τ = 2, r = 1</code>, the embedding looks like (<code>□</code> = current point (included <em>by definition</em> in the embedding), <code>o</code> point to be predicted using <a href="./#TimeseriesPrediction.temporalprediction"><code>temporalprediction</code></a>, <code>x</code> = points included in the embedding, <code>.</code> = points not included in the embedding)</p>
-<div class="codehilite"><pre><span></span>time  | c = 1.0               | c = 2.0               | c = 0.0
+<div class="codehilite"><pre><span></span><span class="n">time</span>  <span class="o">|</span> <span class="k">c</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span>               <span class="o">|</span> <span class="k">c</span> <span class="o">=</span> <span class="mi">2</span><span class="p">.</span><span class="mi">0</span>               <span class="o">|</span> <span class="k">c</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span>
 
-n + 1 | ..........o.......... | ..........o.......... | ..........o..........
-n     | .........x□x......... | .........x□x......... | .........x□x.........
-n - 1 | ..................... | ..................... | .....................
-n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
+<span class="n">n</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">|</span> <span class="p">..........</span><span class="n">o</span><span class="p">..........</span> <span class="o">|</span> <span class="p">..........</span><span class="n">o</span><span class="p">..........</span> <span class="o">|</span> <span class="p">..........</span><span class="n">o</span><span class="p">..........</span>
+<span class="n">n</span>     <span class="o">|</span> <span class="p">.........</span><span class="n">x</span><span class="err">□</span><span class="n">x</span><span class="p">.........</span> <span class="o">|</span> <span class="p">.........</span><span class="n">x</span><span class="err">□</span><span class="n">x</span><span class="p">.........</span> <span class="o">|</span> <span class="p">.........</span><span class="n">x</span><span class="err">□</span><span class="n">x</span><span class="p">.........</span>
+<span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">|</span> <span class="p">.....................</span> <span class="o">|</span> <span class="p">.....................</span> <span class="o">|</span> <span class="p">.....................</span>
+<span class="n">n</span> <span class="o">-</span> <span class="err">τ</span> <span class="o">|</span> <span class="p">.......</span><span class="n">xxxxxxx</span><span class="p">.......</span> <span class="o">|</span> <span class="p">.....</span><span class="n">xxxxxxxxxx</span><span class="p">......</span> <span class="o">|</span> <span class="p">.........</span><span class="n">xxx</span><span class="p">.........</span>
 </pre></div>
 
 
 <p>Besides this example, in the official documentation we show a function <code>explain_light_cone</code> which produces a plot of the light cone for 2 spatial dimensions (great for understanding!).</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/spatiotemporalembedding.jl#L266-L302' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/spatiotemporalembedding.jl#L266-L302' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.PCAEmbedding' href='#TimeseriesPrediction.PCAEmbedding'>#</a>
 <strong><code>TimeseriesPrediction.PCAEmbedding</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span><span class="nt">PCAEmbedding</span><span class="o">(</span><span class="nt">s</span><span class="o">,</span> <span class="nt">em</span><span class="p">::</span><span class="nd">AbstractSpatialEmbedding</span><span class="o">;</span> <span class="nt">kwargs</span><span class="o">...)</span> <span class="err">→</span> <span class="nt">embedding</span>
+<div class="codehilite"><pre><span></span><span class="n">PCAEmbedding</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">em</span><span class="o">::</span><span class="n">AbstractSpatialEmbedding</span><span class="p">;</span> <span class="n">kwargs</span><span class="o">...</span><span class="p">)</span> <span class="n">→</span> <span class="n">embedding</span>
 </pre></div>
 
 
@@ -521,7 +533,7 @@ n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 <li><code>every_α = 1</code> : Speed up computation further by only using every n-th point in space (linear indexing).</li>
 </ul>
 <p>To set the output dimension to a certain value <code>X</code>, pass <code>pratio=1, maxoutdim=X</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/pcaembedding.jl#L5-L28' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/pcaembedding.jl#L5-L28' class='documenter-source'>source</a><br></p>
 <p>Here is a function that visualizes how the <code>light_cone_embedding</code> works in 2 spatial dimensions:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">PyPlot</span><span class="p">,</span> <span class="n">TimeseriesPrediction</span>
 <span class="k">using</span> <span class="n">LinearAlgebra</span><span class="o">:</span> <span class="n">norm</span>
@@ -565,25 +577,25 @@ n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 <p>Boundary conditions</p>
 <p><a id='TimeseriesPrediction.ConstantBoundary' href='#TimeseriesPrediction.ConstantBoundary'>#</a>
 <strong><code>TimeseriesPrediction.ConstantBoundary</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span>ConstantBoundary(b) &lt;: AbstractBoundaryCondition
+<div class="codehilite"><pre><span></span><span class="n">ConstantBoundary</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">&lt;:</span> <span class="n">AbstractBoundaryCondition</span>
 </pre></div>
 
 
 <p>Constant boundary condition type. Enforces constant boundary conditions when passed to <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> by filling missing out-of-bounds values in the reconstruction with parameter <code>b</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/spatiotemporalembedding.jl#L29-L35' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/spatiotemporalembedding.jl#L29-L35' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.PeriodicBoundary' href='#TimeseriesPrediction.PeriodicBoundary'>#</a>
 <strong><code>TimeseriesPrediction.PeriodicBoundary</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span>PeriodicBoundary &lt;: AbstractBoundaryCondition
+<div class="codehilite"><pre><span></span><span class="n">PeriodicBoundary</span> <span class="o">&lt;:</span> <span class="n">AbstractBoundaryCondition</span>
 </pre></div>
 
 
 <p>Periodic boundary condition struct. Enforces periodic boundary conditions when passed to <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> in the reconstruction.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/spatiotemporalembedding.jl#L40-L44' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/spatiotemporalembedding.jl#L40-L44' class='documenter-source'>source</a><br></p>
 <p><a id='Prediction-functions-1'></a></p>
 <h2 id="prediction-functions">Prediction functions</h2>
 <p><a id='TimeseriesPrediction.temporalprediction' href='#TimeseriesPrediction.temporalprediction'>#</a>
 <strong><code>TimeseriesPrediction.temporalprediction</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span><span class="nt">temporalprediction</span><span class="o">(</span><span class="nt">U</span><span class="o">,</span> <span class="nt">em</span><span class="p">::</span><span class="nd">AbstractSpatialEmbedding</span><span class="o">,</span> <span class="nt">tsteps</span><span class="o">;</span> <span class="nt">kwargs</span><span class="o">...)</span>
+<div class="codehilite"><pre><span></span><span class="n">temporalprediction</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">em</span><span class="o">::</span><span class="n">AbstractSpatialEmbedding</span><span class="p">,</span> <span class="n">tsteps</span><span class="p">;</span> <span class="n">kwargs</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
 
 
@@ -603,11 +615,11 @@ n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 <p>Be careful when choosing embedding parameters as memory usage and computation time depend strongly on the resulting embedding dimension.</p>
 <p><strong>References</strong></p>
 <p>[1] : U. Parlitz &amp; C. Merkwirth, <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890">Phys. Rev. Lett. <strong>84</strong>, pp 1890 (2000)</a></p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/temporalprediction.jl#L22-L56' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/temporalprediction.jl#L22-L56' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.crossprediction' href='#TimeseriesPrediction.crossprediction'>#</a>
 <strong><code>TimeseriesPrediction.crossprediction</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span><span class="nt">crossprediction</span><span class="o">(</span><span class="nt">source_train</span><span class="o">,</span> <span class="nt">target_train</span><span class="o">,</span> <span class="nt">source_pred</span><span class="o">,</span>
-                <span class="nt">em</span><span class="p">::</span><span class="nd">AbstractSpatialEmbedding</span><span class="o">;</span> <span class="nt">kwargs</span><span class="o">...)</span>
+<div class="codehilite"><pre><span></span><span class="n">crossprediction</span><span class="p">(</span><span class="n">source_train</span><span class="p">,</span> <span class="n">target_train</span><span class="p">,</span> <span class="n">source_pred</span><span class="p">,</span>
+                <span class="n">em</span><span class="o">::</span><span class="n">AbstractSpatialEmbedding</span><span class="p">;</span> <span class="n">kwargs</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
 
 
@@ -636,7 +648,7 @@ n - τ | .......xxxxxxx....... | .....xxxxxxxxxx...... | .........xxx.........
 <p>Be careful when choosing embedding parameters as memory usage and computation time depend strongly on the resulting embedding dimension.</p>
 <p><strong>References</strong></p>
 <p>[1] : U. Parlitz &amp; C. Merkwirth, <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890">Phys. Rev. Lett. <strong>84</strong>, pp 1890 (2000)</a></p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/src/crossprediction.jl#L7-L53' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/47570bc65533eccfa8d395bf2ad3159d10274327/src/crossprediction.jl#L7-L53' class='documenter-source'>source</a><br></p>
                 
                   
                 
