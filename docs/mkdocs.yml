@@ -37,3 +37,4 @@ pages:
 - Local Modeling & Timeseries Prediction: localmodels.md
 - Spatio-Temporal Prediction: spatiotemporal.md
 - Spatio-Temporal Examples: stexamples.md
+- Exploiting Spatial Symmetries: symmetry.md

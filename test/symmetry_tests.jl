@@ -1,6 +1,10 @@
-using Test
 using TimeseriesPrediction
+using Test
 using Statistics, LinearAlgebra
+
+# Test:
+# For example, to have rotational 2D in x-z and reflection in y:
+syms = (Rotation(1,3), Reflection(2))
 
 @testset "SymmetricEmbedding" begin
     @testset "Ordering in β_groups" begin
@@ -8,7 +12,10 @@ using Statistics, LinearAlgebra
         dummy_data = [rand(10,10,10) for _ in 1:10]
         em = light_cone_embedding(dummy_data, γ, τ, r, c, bc)
 
-        symmetries = [ [[1]], [[2]], [[1,3]], [[1,2,3]], [[3,1], [2]] ]
+        symmetries = [(Reflection(1),), (Reflection(2),), (Rotation(1,3),),
+        (Rotation(1,2,3),), (Rotation(1,3), Reflection(2))]
+
+        # symmetries = [ [[1]], [[2]], [[1,3]], [[1,2,3]], [[3,1], [2]] ]
         @testset "Symmetry $sym" for sym in symmetries
             sem = SymmetricEmbedding(em, sym)
             # Check that first entry is always origin
@@ -32,7 +39,10 @@ using Statistics, LinearAlgebra
         dummy_data = [rand(10,10,10,10) for _ in 1:10]
         em = light_cone_embedding(dummy_data, γ, τ, r, c, bc)
 
-        symmetries = [ [[1,4]], [[1,2,3,4]], [[3,1], [2]] ]
+        symmetries = [(Rotation(1,4),), (Rotation(1,2,3,4),),
+                    (Rotation(1,3), Reflection(2))]
+
+        # symmetries = [ [[1,4]], [[1,2,3,4]], [[3,1], [2]] ]
         @testset "Symmetry $sym" for sym in symmetries
             sem = SymmetricEmbedding(em, sym)
 
@@ -53,7 +63,9 @@ using Statistics, LinearAlgebra
         dummy_data = [rand(10,10,10) for _ in 1:10]
         em = light_cone_embedding(dummy_data, γ, τ, r, c, bc)
 
-        symmetries = [ [[1]], [[2]], [[1,3]], [[1,2,3]], [[3,1], [2]] ]
+        symmetries = [(Reflection(1),), (Reflection(2),), (Rotation(1,3),),
+                      (Rotation(1,2,3),), (Rotation(1,3), Reflection(2))]
+        # symmetries = [ [[1]], [[2]], [[1,3]], [[1,2,3]], [[3,1], [2]] ]
         @testset "Symmetry $sym" for sym in symmetries
             sem = SymmetricEmbedding(em, sym)
 
@@ -68,7 +80,10 @@ using Statistics, LinearAlgebra
         dummy_data = [rand(10,10) for _ in 1:10]
         em = light_cone_embedding(dummy_data, γ, τ, r, c, bc)
 
-        symmetries = [ [[0]], [[3]], [[1,3]], [[2,0]], [[2,1], [2]] ]
+        symmetries = [(Reflection(0),), (Reflection(3),), (Rotation(1,3),),
+                      (Rotation(2,0),), (Rotation(1,2), Reflection(2))]
+        # symmetries = [ [[0]], [[3]], [[1,3]], [[2,0]], [[2,1], [2]] ]
+
         @testset "Symmetry $sym" for sym in symmetries
             @test_throws ArgumentError SymmetricEmbedding(em, sym)
         end
@@ -80,7 +95,8 @@ using Statistics, LinearAlgebra
             γ = 2; τ = 5; r = 1; c = 0;
             data = [rand(25,25) for _ in 1:50]
             em = light_cone_embedding(data, γ, τ, r, c, bc)
-            sem = SymmetricEmbedding(em, [[1,2]])
+            sem = SymmetricEmbedding(em, (Rotation(1,2),))
+            # sem = SymmetricEmbedding(em, [[1,2]])
 
             #Check wether this works in principle
             r1 = reconstruct(data, sem);

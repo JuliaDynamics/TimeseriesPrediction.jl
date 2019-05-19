@@ -1,27 +1,94 @@
+using InteractiveUtils
 export SymmetricEmbedding
+export Reflection, Rotation, Symmetry
+
 """
-	SymmetricEmbedding(ste::SpatioTemporalEmbedding, sym)
+	Symmetry
+Supertype of all symmetries used in [`SymmetricEmbedding`](@ref).
+All symmetries are initialized like `Symmetry(n1, n2, ...)` with
+`ni` being the indices of the spatial dimensions that have the said symmetry.
+
+Notice that the symmetries are defined with respect to the center point
+of the embedding.
+"""
+abstract type Symmetry end
+
+"""
+	Rotation <: Symmetry
+Index sets at equal distance from the center point are equivalent,
+for the given input dimensions. E.g. for `Rotation(1,3)` and given center
+point `u[i,j,k,...]` all indices `m, n` that satisfy
+```
+|i-m|^2 + |k-n|^2 = r^2
+```
+for a given ``r``, are equivalent.
+The same process generalizes to any number of input dimensions.
+"""
+struct Rotation <: Symmetry
+	d::Vector{Int}
+	function Rotation(args::Vector{Int})
+		@assert length(args) > 1 "Rotation symmetry needs at least 2 dimensions"
+		new(args)
+	end
+end
+
+"""
+	Reflection <: Symmetry
+Reflection symmetry: x and -x are equivalent (for all given dimensions).
+"""
+struct Reflection <: Symmetry
+	d::Vector{Int}
+end
+
+for sym in Symbol.(subtypes(Symmetry))
+	@eval $(sym)(x::Int, args...) = $(sym)([x, args...])
+end
+
+# Overload `NTuple{N,T} where {N,T<:A}` for `show`
+_smallstr(::Rotation) = "rot"
+_smallstr(::Reflection) = "refl"
+function Base.show(io::IO, sym::Symmetry)
+	s = _smallstr(sym)*string(sym.d)
+	print(io, s)
+end
+
+# internal translation to the nested vectors of integers
+# that will remain until we have time to properly re-write
+# (if we ever encounter a different symmetry we want to use)
+function _nestedvec(syms::Tuple)
+	# This part of the code ensures no duplicate symmetries
+	allidx = vcat(s.d for s in syms)
+	@assert unique(allidx) == allidx
+	# Now convert to nestedvec
+	v = Vector{Vector{Int}}()
+	for s in syms
+		push!(v, s.d)
+	end
+	return v
+end
+
+"""
+	SymmetricEmbedding(ste::SpatioTemporalEmbedding, sym::Tuple)
 
 A `SymmetricEmbedding` is intended as a means of dimension reduction
-for a [`SpatioTemporalEmbedding`](@ref) by exploiting symmetries in the system.
+for a [`SpatioTemporalEmbedding`](@ref) by exploiting spatial symmetries in
+the system, listed as a `Tuple` of `<:Symmetry` (see [`Symmetry`](@ref)) for
+all possible symmetries.
+
 All points at a time step equivalent to each other according to the symmetries
-passed in `sym` will be averaged to a single entry.
-Parameter `sym` has to be passed as a vector of independent symmetries.
+passed in `sym` will be **averaged** to a single entry! For example,
+the symmetry `Reflection(2)` means that the embedding won't have two entries
+`u[i, j+1], u[i, j-1]` but instead a single entry
+`(u[i, j+1] + u[i, j-1])/2`, with `i,j` being indices *relative to the
+central point of the embedding*. (the same process is
+done for any index offset `j+2, j+3`, etc., depending on how large the
+spatial radius `r` is)
 
-A few examples for clarification:
- * 2D space with mirror symmetry along first dimension : `sym = [ [1] ]` → maps points  to `(s[t][+n, m] + s[t][-n, m])/2`
- * 2D space with mirror symmetry along each dimension : `sym = [ [1], [2] ]` → averages over points with `(+- n, +- m)`
- * 2D space with point symmetry in both dimensions : `sym = [ [1,2] ]` → groups points with equal distance to the origin such as `(1,2), (-1,2), (2,1),...`
- * 3D space with point symmetry in dim 1 & 3 and mirror in 2: `sym = [ [1,3], [2]]` → groups points with equal distance to the origin along dimension 1 & 3 and +-2
-
-To further explain the last example: The following points form one such group
-`(+-2,1,0), (0,1,+-2), (-2,-1,0), (0,-1,-2)`
-
-The resulting structure can be used for reconstructing datasets in
+The resulting structure from `SymmetricEmbedding`
+can be used for reconstructing datasets in
 the same way as a [`SpatioTemporalEmbedding`](@ref).
 """
 struct SymmetricEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
-    #em::SpatioTemporalEmbedding
     τ::Vector{Int}
     β_groups::Vector{Vector{CartesianIndex{Φ}}}
 	inner::Region{Φ}
@@ -29,7 +96,14 @@ struct SymmetricEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
     boundary::BC
 end
 
-function SymmetricEmbedding(ste::SpatioTemporalEmbedding{Φ,BC}, sym) where {Φ,BC}
+function SymmetricEmbedding(ste::SpatioTemporalEmbedding, sym::Tuple)
+	nv = _nestedvec(sym)
+	_SymmetricEmbedding(ste, nv)
+end
+
+# Internal function, uses the nested vectors until we change it /
+# clean it up
+function _SymmetricEmbedding(ste::SpatioTemporalEmbedding{Φ,BC}, sym) where {Φ,BC}
 	check_symmetry(sym, Φ)
     # Mapping dimension for dimension
     # single dim symmetry : x₁ → |x₁|
