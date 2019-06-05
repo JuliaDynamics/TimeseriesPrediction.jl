@@ -2,10 +2,6 @@ using TimeseriesPrediction
 using Test
 using Statistics, LinearAlgebra
 
-# Test:
-# For example, to have rotational 2D in x-z and reflection in y:
-syms = (Rotation(1,3), Reflection(2))
-
 @testset "SymmetricEmbedding" begin
     @testset "Ordering in β_groups" begin
         γ = 0; τ = 1; r = 4; c = 0; bc = ConstantBoundary(10.);

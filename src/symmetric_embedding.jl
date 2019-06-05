@@ -1,4 +1,3 @@
-using InteractiveUtils
 export SymmetricEmbedding
 export Reflection, Rotation, Symmetry
 
@@ -21,7 +20,7 @@ point `u[i,j,k,...]` all indices `m, n` that satisfy
 ```
 |i-m|^2 + |k-n|^2 = r^2
 ```
-for a given ``r``, are equivalent.
+for a given `r`, are equivalent.
 The same process generalizes to any number of input dimensions.
 """
 struct Rotation <: Symmetry
@@ -40,11 +39,10 @@ struct Reflection <: Symmetry
 	d::Vector{Int}
 end
 
-for sym in Symbol.(subtypes(Symmetry))
+for sym in (:Rotation, :Reflection)
 	@eval $(sym)(x::Int, args...) = $(sym)([x, args...])
 end
 
-# Overload `NTuple{N,T} where {N,T<:A}` for `show`
 _smallstr(::Rotation) = "rot"
 _smallstr(::Reflection) = "refl"
 function Base.show(io::IO, sym::Symmetry)
