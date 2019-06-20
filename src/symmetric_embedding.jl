@@ -171,32 +171,7 @@ function Base.show(io::IO, em::SymmetricEmbedding{Φ,BC, X}) where {Φ,BC,X}
 end
 
 
-function (r::SymmetricEmbedding{Φ,ConstantBoundary{T},X})(rvec, s, t, α) where {T,Φ,X}
-	if α in r.inner
-		@inbounds for n=1:X
-			β = r.β_groups[n]
-			s_t = s[t + r.τ[n]]
-			rvec[n] = zero(T)
-			for m in eachindex(β)
-				rvec[n] += s_t[ α + β[m] ]
-			end
-			rvec[n] /= length(β)
-		end
-	else
-		@inbounds for n=1:X
-			β = r.β_groups[n]
-			s_t = s[t + r.τ[n]]
-			rvec[n] = zero(T)
-			for m in eachindex(β)
-				rvec[n] += α + β[m] in r.whole ? s_t[ α + β[m] ] : r.boundary.b
-			end
-			rvec[n] /= length(β)
-		end
-	end
-	return nothing
-end
-
-function (r::SymmetricEmbedding{Φ,PeriodicBoundary,X})(rvec, s, t, α) where {Φ,X}
+function (r::SymmetricEmbedding{Φ,BC,X})(rvec, s, t, α) where {Φ,BC,X}
 	if α in r.inner
 		@inbounds for n=1:X
 			β = r.β_groups[n]
@@ -210,10 +185,10 @@ function (r::SymmetricEmbedding{Φ,PeriodicBoundary,X})(rvec, s, t, α) where {�
 	else
 		@inbounds for n=1:X
 			β = r.β_groups[n]
-			s_t = s[t + r.τ[n]]
+			s_t = BoundaryWrapper(r, s[t + r.τ[n]])
 			rvec[n] = zero(eltype(rvec))
 			for m in eachindex(β)
-				rvec[n] = s_t[ project_inside(α + β[m], r.whole) ]
+				rvec[n] += s_t[ α + β[m] ]
 			end
 			rvec[n] /= length(β)
 		end

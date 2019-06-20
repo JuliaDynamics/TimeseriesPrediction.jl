@@ -19,30 +19,6 @@ Super-type of spatiotemporal embedding methods. Valid subtypes:
 abstract type AbstractSpatialEmbedding{Φ,BC,X} <: AbstractEmbedding end
 const ASE = AbstractSpatialEmbedding
 
-"""
-    AbstractBoundaryCondition
-Super-type of boundary conditions for [`SpatioTemporalEmbedding`](@ref).
-Use `subtypes(AbstractBoundaryCondition)` for available methods.
-"""
-abstract type AbstractBoundaryCondition end
-
-"""
-	ConstantBoundary(b) <: AbstractBoundaryCondition
-Constant boundary condition type. Enforces constant boundary conditions
-when passed to [`SpatioTemporalEmbedding`](@ref)
-by filling missing out-of-bounds values in the reconstruction with
-parameter `b`.
-"""
-struct ConstantBoundary{T} <: AbstractBoundaryCondition
-    b::T
-end
-
-"""
-	PeriodicBoundary <: AbstractBoundaryCondition
-Periodic boundary condition struct. Enforces periodic boundary conditions
-when passed to [`SpatioTemporalEmbedding`](@ref) in the reconstruction.
-"""
-struct PeriodicBoundary <: AbstractBoundaryCondition end
 
 
 """
@@ -78,9 +54,6 @@ function inner_region(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
 	return Region{Φ}((mini...,), (maxi...,))
 end
 
-function project_inside(α::CartesianIndex{Φ}, r::Region{Φ}) where Φ
-	CartesianIndex(mod.(α.I .-1, r.maxi).+1)
-end
 
 """
 	SpatioTemporalEmbedding{Φ,BC,X} → embedding
@@ -134,32 +107,19 @@ const STE = SpatioTemporalEmbedding
 
 
 #This function is not safe. If you call it directly with bad params - can fail
-function (r::SpatioTemporalEmbedding{Φ,ConstantBoundary{T},X})(rvec,s,t,α) where {T,Φ,X}
+function (r::SpatioTemporalEmbedding{Φ,BC,X})(rvec,s,t,α) where {Φ,BC,X}
+	bw = BoundaryWrapper(r, s)
 	if α in r.inner
 		@inbounds for n=1:X
 			rvec[n] = s[ t + r.τ[n] ][ α + r.β[n] ]
 		end
 	else
 		@inbounds for n=1:X
-			rvec[n] = α + r.β[n] in r.whole ? s[ t+r.τ[n] ][ α+r.β[n] ] : r.boundary.b
+			rvec[n] = bw[ t + r.τ[n], α + r.β[n]]
 		end
 	end
 	return nothing
 end
-
-function (r::SpatioTemporalEmbedding{Φ,PeriodicBoundary,X})(rvec,s,t,α) where {Φ,X}
-	if α in r.inner
-		@inbounds for n=1:X
-			rvec[n] = s[ t + r.τ[n] ][ α + r.β[n] ]
-		end
-	else
-		@inbounds for n=1:X
-			rvec[n] = s[ t + r.τ[n] ][ project_inside(α + r.β[n], r.whole) ]
-		end
-	end
-	return nothing
-end
-
 
 
 get_num_pt(em::AbstractSpatialEmbedding) = prod(em.whole.maxi)

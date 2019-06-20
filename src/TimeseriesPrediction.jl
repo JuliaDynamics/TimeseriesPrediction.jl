@@ -10,6 +10,8 @@ using Statistics, LinearAlgebra
 
 include("localmodeling.jl")
 
+include("boundaries.jl")
+
 include("spatiotemporalembedding.jl")
 include("pcaembedding.jl")
 include("symmetric_embedding.jl")
