@@ -1,3 +1,35 @@
+"""
+	Region{Φ}
+Internal struct for efficiently keeping track of region far from boundaries of field.
+Used to speed up reconstruction process.
+"""
+struct Region{Φ}
+	mini::NTuple{Φ,Int}
+	maxi::NTuple{Φ,Int}
+end
+
+Base.length(r::Region{Φ}) where Φ = prod(r.maxi .- r.mini .+1)
+function Base.in(idx, r::Region{Φ}) where Φ
+	for φ=1:Φ
+		r.mini[φ] <= idx[φ] <= r.maxi[φ] || return false
+ 	end
+ 	return true
+end
+Base.CartesianIndices(r::Region{Φ}) where Φ =
+	 CartesianIndices{Φ,NTuple{Φ,UnitRange{Int}}}(([r.mini[φ]:r.maxi[φ] for φ=1:Φ]...,))
+
+
+function inner_region(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
+	mini = Int[]
+	maxi = Int[]
+	for φ = 1:Φ
+		js = map(β -> β[φ], βs) # jth entries
+		mi,ma = extrema(js)
+		push!(mini, 1 - min(mi, 0))
+		push!(maxi,fsize[φ] - max(ma, 0))
+	end
+	return Region{Φ}((mini...,), (maxi...,))
+end
 
 
 """
@@ -35,18 +67,17 @@ end
 BoundaryWrapper(r, data) = BoundaryWrapper(r.boundary, r.whole, data)
 
 Base.@propagate_inbounds function Base.getindex(
-			A::BoundaryWrapper{ConstantBoundary}, t::Int ,α::CartesianIndex)
+			A::BoundaryWrapper{<:ConstantBoundary}, t::Int ,α::CartesianIndex)
     if α in A.region
         A.data[t][α]
     else
-        boundary.b
+        A.boundary.b
     end
 end
 
 Base.@propagate_inbounds function Base.getindex(
-			A::BoundaryWrapper{ConstantBoundary} ,α::CartesianIndex)
+			A::BoundaryWrapper{<:ConstantBoundary} ,α::CartesianIndex)
     α in A.region ? A.data[α] : boundary.b
-
 end
 
 function project_inside(α::CartesianIndex{Φ}, r::Region{Φ}) where Φ
@@ -65,4 +96,5 @@ end
 
 Base.@propagate_inbounds function Base.getindex(
 			A::BoundaryWrapper{PeriodicBoundary}, α::CartesianIndex)
-    α in A.region ? A.data[t][α] :  A.data[project_inside(α, A.region)]
+    α in A.region ? A.data[α] :  A.data[project_inside(α, A.region)]
+end

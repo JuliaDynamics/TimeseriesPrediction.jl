@@ -22,40 +22,6 @@ const ASE = AbstractSpatialEmbedding
 
 
 """
-	Region{Φ}
-Internal struct for efficiently keeping track of region far from boundaries of field.
-Used to speed up reconstruction process.
-"""
-struct Region{Φ}
-	mini::NTuple{Φ,Int}
-	maxi::NTuple{Φ,Int}
-end
-
-Base.length(r::Region{Φ}) where Φ = prod(r.maxi .- r.mini .+1)
-function Base.in(idx, r::Region{Φ}) where Φ
-	for φ=1:Φ
-		r.mini[φ] <= idx[φ] <= r.maxi[φ] || return false
- 	end
- 	return true
-end
-Base.CartesianIndices(r::Region{Φ}) where Φ =
-	 CartesianIndices{Φ,NTuple{Φ,UnitRange{Int}}}(([r.mini[φ]:r.maxi[φ] for φ=1:Φ]...,))
-
-
-function inner_region(βs::Vector{CartesianIndex{Φ}}, fsize) where Φ
-	mini = Int[]
-	maxi = Int[]
-	for φ = 1:Φ
-		js = map(β -> β[φ], βs) # jth entries
-		mi,ma = extrema(js)
-		push!(mini, 1 - min(mi, 0))
-		push!(maxi,fsize[φ] - max(ma, 0))
-	end
-	return Region{Φ}((mini...,), (maxi...,))
-end
-
-
-"""
 	SpatioTemporalEmbedding{Φ,BC,X} → embedding
 A spatio temporal delay coordinates structure to be used as a functor. Applies
 to data of `Φ` spatial dimensions and gives an embedding of dimensionality `X`.
