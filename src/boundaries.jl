@@ -1,4 +1,13 @@
 """
+    AbstractSpatialEmbedding <: AbstractEmbedding
+Super-type of spatiotemporal embedding methods. Valid subtypes:
+* `SpatioTemporalEmbedding`
+* `PCAEmbedding`
+"""
+abstract type AbstractSpatialEmbedding{Φ,BC,X} <: AbstractEmbedding end
+const ASE = AbstractSpatialEmbedding
+
+"""
 	Region{Φ}
 Internal struct for efficiently keeping track of region far from boundaries of field.
 Used to speed up reconstruction process.
@@ -59,13 +68,15 @@ struct PeriodicBoundary <: AbstractBoundaryCondition end
 
 
 
-struct BoundaryWrapper{BC <: AbstractBoundaryCondition, R ,V}
+struct BoundaryWrapper{BC <: AbstractBoundaryCondition, T, Φ, V}
     boundary::BC
-    region::R
+    region::Region{Φ}
     data::V
 end
-BoundaryWrapper(r, data) = BoundaryWrapper(r.boundary, r.whole, data)
-
+function BoundaryWrapper(r::AbstractSpatialEmbedding{Φ,BC}, data) where {Φ,BC}
+	T = eltype(data[1][1])
+	BoundaryWrapper{BC,T,Φ,typeof(data)}(r.boundary, r.whole, data)
+end
 Base.@propagate_inbounds function Base.getindex(
 			A::BoundaryWrapper{<:ConstantBoundary}, t::Int ,α::CartesianIndex)
     if α in A.region
@@ -77,7 +88,7 @@ end
 
 Base.@propagate_inbounds function Base.getindex(
 			A::BoundaryWrapper{<:ConstantBoundary} ,α::CartesianIndex)
-    α in A.region ? A.data[α] : boundary.b
+    α in A.region ? A.data[α] : A.boundary.b
 end
 
 function project_inside(α::CartesianIndex{Φ}, r::Region{Φ}) where Φ
@@ -98,3 +109,15 @@ Base.@propagate_inbounds function Base.getindex(
 			A::BoundaryWrapper{PeriodicBoundary}, α::CartesianIndex)
     α in A.region ? A.data[α] :  A.data[project_inside(α, A.region)]
 end
+
+#Base.@propagate_inbounds function Base.getindex(
+#			A::BoundaryWrapper{PeriodicBoundary}, I::AbstractRange, J::AbstractRange)
+#    [
+#		(α = CartesianIndex(i,j);
+#		α in A.region ? A.data[α] :  A.data[project_inside(α, A.region)])
+#		for i in I, j in J
+#	]
+#end
+
+
+Base.eltype(bw::BoundaryWrapper{BC, T}) where {BC, T} = T

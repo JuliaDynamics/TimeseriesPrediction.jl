@@ -13,6 +13,8 @@ include("localmodeling.jl")
 include("boundaries.jl")
 
 include("spatiotemporalembedding.jl")
+include("rotinvariantembedding.jl")
+
 include("pcaembedding.jl")
 include("symmetric_embedding.jl")
 include("reconstruct.jl")

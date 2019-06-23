@@ -10,14 +10,7 @@ export light_cone_embedding, cubic_shell_embedding
 #####################################################################################
 #                          Spatio Temporal Delay Embedding                          #
 #####################################################################################
-"""
-    AbstractSpatialEmbedding <: AbstractEmbedding
-Super-type of spatiotemporal embedding methods. Valid subtypes:
-* `SpatioTemporalEmbedding`
-* `PCAEmbedding`
-"""
-abstract type AbstractSpatialEmbedding{Φ,BC,X} <: AbstractEmbedding end
-const ASE = AbstractSpatialEmbedding
+
 
 
 
