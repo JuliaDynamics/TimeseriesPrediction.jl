@@ -58,7 +58,8 @@ depend strongly on the resulting embedding dimension.
 """
 function temporalprediction(s,
     em::AbstractSpatialEmbedding,
-    tsteps;
+    tsteps,
+    symmetry=nothing;
     method = AverageLocalModel(ω_safe),
     ntype = FixedMassNeighborhood(3),
     ttype=KDTree,
@@ -68,7 +69,7 @@ function temporalprediction(s,
     return temporalprediction(params, s, tsteps, symmetry; kwargs...)
 end
 
-function temporalprediction(params, s, tsteps; progress=true, kwargs...)
+function temporalprediction(params, s, tsteps, symmetry=nothing; progress=true, kwargs...)
     progress && println("Reconstructing")
     R = reconstruct(view(s, 1, length(s)-1),params.em)
     progress && println("Creating Tree")
