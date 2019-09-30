@@ -1,7 +1,7 @@
 name = "TimeseriesPrediction"
 uuid = "f218859d-9706-56aa-9ebf-1fa4ed7b8020"
 repo = "https://github.com/JuliaDynamics/TimeseriesPrediction.jl.git"
-version = "0.7.1"
+version = "0.7.2"
 
 [deps]
 DelayEmbeddings = "5732040d-69e3-5649-938a-b6b4f237613f"
@@ -23,4 +23,4 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["MultivariateStats", "DynamicalSystemsBase"]
+test = ["MultivariateStats", "DynamicalSystemsBase", "Test", "Random"]

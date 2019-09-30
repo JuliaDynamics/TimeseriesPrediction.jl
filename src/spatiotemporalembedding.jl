@@ -37,12 +37,19 @@ The "main" constructor is
 
 which allows full control over the spatio-temporal embedding.
 * `Χ == length(τ) == length(β)` : dimensionality of resulting reconstructed space.
-* `τ::Vector{Int}` = Vector of temporal delays *for each entry* of the reconstructed space
+* `τ::Vector{Int}` = Vector of temporal delays **for each entry** of the reconstructed space
   (sorted in ascending order).
 * `β::Vector{CartesianIndex{Φ}}` = vector of *relative* indices of spatial delays
   *for each entry* of the reconstructed space.
 * `bc::BC` : boundary condition.
 * `fsize::NTuple{Φ, Int}` : Size of each state in the timeseries.
+
+For example, if you want to have spatial neighbors [0, ±1] for time delays
+τ = 2, 4, then
+```
+τ = [2,2,2,4,4,4]
+β = CartesianIndex.([1, 0, -1, 1, 0, -1])
+```
 """
 struct SpatioTemporalEmbedding{Φ,BC,X} <: AbstractSpatialEmbedding{Φ,BC,X}
   	τ::Vector{Int}
@@ -183,7 +190,7 @@ function indices_within_sphere(radius, dimension)
 end
 
 """
-    light_cone_embedding(s, γ, τ, r, c, bc) → embedding
+    light_cone_embedding(s, γ, τ, r0, c, bc) → embedding
 Create a [`SpatioTemporalEmbedding`](@ref) instance that
 includes spatial and temporal neighbors of a point based on the notion of
 a *light cone*.
@@ -196,12 +203,12 @@ This constructor creates a cone-like embedding including all points in
 space and time, whose value can influence a prediction based on the
 information speed `c`. `γ` is the number of temporal steps in the past to be
 included in the embedding, where each step in the past has additional delay time `τ::Int`.
-`γ=0` corresponds to using only the present. `r` is the initial radius at the top of
+`γ=0` corresponds to using only the present. `r0` is the initial radius at the top of
 the cone, i.e. the radius of influence at the present. `bc` is the boundary condition.
 
-The radius of the light cone evolves as: `r_i = i*τ*c + r` for each step `i ∈ 0:γ`.
+The radius of the light cone evolves as: `r_i = i*τ*c + r0` for each step `i ∈ 0:γ`.
 
-As an example, in a one-dimensional system with `γ = 1, τ = 2, r = 1`,
+As an example, in a one-dimensional system with `γ = 1, τ = 2, r0 = 1`,
 the embedding looks like (`□` = current point (included *by definition* in the embedding),
 `o` point to be predicted using
 [`temporalprediction`](@ref), `x` = points included in the embedding,
@@ -223,7 +230,7 @@ function light_cone_embedding(
     s::AbstractArray{<:AbstractArray{T,Φ}},
     γ,
     τ,
-    r,
+    r0,
     c,
     bc::BC
     ) where {T,Φ, BC<:AbstractBoundaryCondition}
@@ -235,7 +242,7 @@ function light_cone_embedding(
     βs = CartesianIndex{Φ}[]
     maxτ = τ*γ
     for delay = τ*(γ:-1:0) # Backwards for forward embedding
-        radius = c*delay + r
+        radius = max(0, c*delay + r0)
         β = indices_within_sphere(radius, Φ)
         append!(βs, β)
         append!(τs, fill(maxτ - delay, length(β)))
