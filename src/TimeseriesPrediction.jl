@@ -21,4 +21,6 @@ include("reconstruct.jl")
 
 include("temporalprediction.jl")
 include("crossprediction.jl")
+
+include("rotinvariantsearches.jl")
 end

@@ -48,13 +48,26 @@ end
 
 
 function compute_gradient_at(U, α::CartesianIndex{1}) where T
-	(U[α+CartesianIndex(1)] - U[α-CartesianIndex(1)])
+	(U[α+CartesianIndex(5)] - U[α-CartesianIndex(5)])
 end
 
+# function compute_gradient_at(U, α::CartesianIndex{2})
+# 	g1 = g2 = zero(eltype(U))
+# 	kernel1 = @SMatrix [-1 -1 -1 -1 -1; -1 -1 -1 -1 -1; 0 0 0 0 0; 1 1 1 1 1; 1 1 1 1 1]
+# 	kernel2 = @SMatrix [-1 -1 0 1 1;-1 -1 0 1 1;-1 -1 0 1 1]
+# 	@inbounds for j = -2:2, i = -2:2
+# 		u = U[α + CartesianIndex(i,j)]
+# 		g1 += u*kernel1[i+2,j+2]
+# 		g2 += u*kernel2[i+2,j+2]
+# 	end
+# 	return g1, g2
+# end
 function compute_gradient_at(U, α::CartesianIndex{2})
 	g1 = g2 = zero(eltype(U))
-	kernel1 = @SMatrix [ -1 -1 -1; 0 0 0; 1 1 1]
-	kernel2 = @SMatrix [ -1 0 1; -1 0 1; -1 0 1]
+	#kernel1 = @SMatrix [ -1 -1 -1; 0 0 0; 1 1 1]
+	#kernel2 = @SMatrix [ -1 0 1; -1 0 1; -1 0 1]
+	kernel1 = @SMatrix [ -3 -10 -3; 0 0 0; 3 10 3]
+	kernel2 = @SMatrix [ -3 0 3; -10 0 10; -3 0 3]
 	@inbounds for j = -1:1, i = -1:1
 		u = U[α + CartesianIndex(i,j)]
 		g1 += u*kernel1[i+2,j+2]
@@ -111,7 +124,6 @@ end
 # 	return nothing
 # end
 function (r::RotationallyInvariantEmbedding{Φ,BC,X})(rvec,s,t,α) where {Φ,BC,X}
-	bw = BoundaryWrapper(r, s)
 	if α in r.inner
 		gradient = compute_gradient_at(s[t], α)
 		βs = choose_orientation(r, gradient)
@@ -123,6 +135,7 @@ function (r::RotationallyInvariantEmbedding{Φ,BC,X})(rvec,s,t,α) where {Φ,BC,
 		bw_t = BoundaryWrapper(r, s[t])
 		gradient = compute_gradient_at(bw_t, α)
 		βs = choose_orientation(r, gradient)
+		bw = BoundaryWrapper(r, s)
 		@inbounds for n=1:X
 			rvec[n] = bw[ t + r.τ[n], α + βs[n]]
 		end

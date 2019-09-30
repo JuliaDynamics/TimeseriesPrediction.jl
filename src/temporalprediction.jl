@@ -4,15 +4,17 @@ export KDTree
 export temporalprediction
 export PredictionParameters
 
+export FullSymmetry
 
-
-@with_kw_noshow struct PredictionParameters{Φ,BC,X,
+@with_kw_noshow struct PredictionParameters{ASE <: AbstractSpatialEmbedding,
         LM <: AbstractLocalModel, NT<:AbstractNeighborhood}
-    em::AbstractSpatialEmbedding{Φ,BC,X}
+    em::ASE
     method::LM = AverageLocalModel(ω_safe)
     ntype::NT = FixedMassNeighborhood(3)
     treetype = KDTree
 end
+
+struct FullSymmetry end
 
 
 ###########################################################################################
@@ -63,62 +65,66 @@ function temporalprediction(s,
     kwargs...)
 
     params = PredictionParameters(em, method, ntype, ttype)
-    return temporalprediction(params, s, tsteps; kwargs...)
+    return temporalprediction(params, s, tsteps, symmetry; kwargs...)
 end
 
 function temporalprediction(params, s, tsteps; progress=true, kwargs...)
     progress && println("Reconstructing")
-    R = reconstruct(s,params.em)
-
-    #Prepare tree but remove the last reconstructed states first
+    R = reconstruct(view(s, 1, length(s)-1),params.em)
     progress && println("Creating Tree")
-    L = length(R)
-    M = get_num_pt(params.em)
-
-    tree = params.treetype(R[1:L-M])
-    temporalprediction(params, s, tsteps, R, tree; progress=progress, kwargs...)
+    tree = params.treetype(R)
+    temporalprediction(params, s, tsteps, R, tree,symmetry; progress=progress, kwargs...)
 end
 
 
 
 function temporalprediction(params, s,tsteps, R, tree;
         initial_ts=s, #optional start for prediction
-        progress=true) where {T, Φ, BC, X}
+        progress=true,
+        symmetry=nothing,
+        kwargs...)
     em = params.em
     @assert outdim(em) == size(R,2)
     @assert length(initial_ts) > get_τmax(em)
-    num_pt = get_num_pt(em)
-    #New state that will be predicted, allocate once and reuse
-    state = similar(s[1])
 
     #Prepare starting point of prediction timeseries
-    spred = working_ts(initial_ts, params.em)
+    spred = working_ts(initial_ts, em)
 
+    #Prepare potential symmetry operations
+    prep = preparatory_computation(em, symmetry)
     for n=1:tsteps
         progress && println("Working on Frame $(n)/$(tsteps)")
-        queries = gen_queries(spred, em)
-
-        #Iterate over queries/ spatial points
-        for m=1:num_pt
-            q = queries[m]
-
-            #Find neighbors
-            idxs,dists = neighborhood_and_distances(q,R,tree,params.ntype)
-
-            xnn = R[idxs]
-            #Retrieve ynn
-            ynn = map(idxs) do idx
-                #Indices idxs are indices of R. Convert to indices of s
-                t,α = convert_idx(idx,em)
-                s[t+1][α]
-            end
-            state[m] = params.method(q,xnn,ynn,dists)[1]
-        end
-        push!(spred,copy(state))
+        predict_frame!(s, spred, params, R, tree, prep; kwargs...)
     end
 
     cut_off_beginning!(spred,tsteps)
     return spred
+end
+
+preparatory_computation(em,::Nothing) = nothing
+
+
+function predict_frame!(s, spred, params, R, tree, ::Nothing; kwargs...)
+    #New state that
+    state = similar(spred[1])
+    em = params.em
+    queries = gen_queries(spred, em)
+    #Iterate over queries/ spatial points
+    for m=1:get_num_pt(em)
+        q = queries[m]
+        #Find neighbors
+        idxs,dists = neighborhood_and_distances(q,R,tree,params.ntype)
+
+        xnn = R[idxs]
+        #Retrieve ynn
+        ynn = map(idxs) do idx
+            #Indices idxs are indices of R. Convert to indices of s
+            t,α = convert_idx(idx,em)
+            s[t+1][α]
+        end
+        state[m] = params.method(q,xnn,ynn,dists)[1]
+    end
+    push!(spred,state)
 end
 
 
