@@ -345,5 +345,8 @@ SpatioTemporalEmbedding(s, p::NamedTuple{(:γ, :τ, :B, :k)}) =
 SpatioTemporalEmbedding(s, p::NamedTuple{(:γ, :τ, :r, :c)}) =
     light_cone_embedding(s, p.γ, p.τ, p.r, p.c, PeriodicBoundary())
 
+SpatioTemporalEmbedding(s, p::NamedTuple{(:γ, :τ, :r0, :c)}) =
+    light_cone_embedding(s, p.γ, p.τ, p.r, p.c, PeriodicBoundary())
+
 Base.:(==)(em1::T, em2::T) where {T <: AbstractSpatialEmbedding} =
     all(( eval(:($em1.$name == $em2.$name)) for name ∈ fieldnames(T)))
