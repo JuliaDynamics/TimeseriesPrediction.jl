@@ -196,7 +196,7 @@ end
 #                                   CONSTRUCTORS                                    #
 #####################################################################################
 """
-    cubic_shell_embedding(s, γ, τ, B, k, bc) → embedding
+    cubic_shell_embedding(s, γ, τ, B, k, bc=PeriodicBoundary()) → embedding
 Create a [`SpatioTemporalEmbedding`](@ref) instance that
 includes spatial neighbors in hypercubic *shells*.
 The embedding is to be used with data from `s`.
@@ -271,7 +271,7 @@ function indices_within_sphere(radius, dimension)
 end
 
 """
-    light_cone_embedding(s, γ, τ, r0, c, bc) → embedding
+    light_cone_embedding(s, γ, τ, r0, c, bc=PeriodicBoundary()) → embedding
 Create a [`SpatioTemporalEmbedding`](@ref) instance that
 includes spatial and temporal neighbors of a point based on the notion of
 a *light cone*.
@@ -338,6 +338,12 @@ SpatioTemporalEmbedding(s, p::NamedTuple{(:γ, :τ, :B, :k, :bc)}) =
 
 SpatioTemporalEmbedding(s, p::NamedTuple{(:γ, :τ, :r, :c, :bc)}) =
     light_cone_embedding(s, p.γ, p.τ, p.r, p.c, p.bc)
+
+SpatioTemporalEmbedding(s, p::NamedTuple{(:γ, :τ, :B, :k)}) =
+    cubic_shell_embedding(s, p.γ, p.τ, p.B, p.k, PeriodicBoundary())
+
+SpatioTemporalEmbedding(s, p::NamedTuple{(:γ, :τ, :r, :c)}) =
+    light_cone_embedding(s, p.γ, p.τ, p.r, p.c, PeriodicBoundary())
 
 Base.:(==)(em1::T, em2::T) where {T <: AbstractSpatialEmbedding} =
     all(( eval(:($em1.$name == $em2.$name)) for name ∈ fieldnames(T)))
