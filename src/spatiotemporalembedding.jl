@@ -237,7 +237,7 @@ embedding), `n` = included points in the embedding coming from `n`-th shell,
 """
 function cubic_shell_embedding(
 		s::AbstractArray{<:AbstractArray{T,Φ}},
-		γ, τ, B, k, boundary::BC
+		γ, τ, B, k, boundary::BC = PeriodicBoundary()
 		) where {T,Φ, BC<:AbstractBoundaryCondition}
     if (BC <: ConstantBoundary) && typeof(boundary.b) != T
 	     throw(ArgumentError(
@@ -313,7 +313,7 @@ function light_cone_embedding(
     τ,
     r0,
     c,
-    bc::BC
+    bc::BC = PeriodicBoundary()
     ) where {T,Φ, BC<:AbstractBoundaryCondition}
     if (BC <: ConstantBoundary) && typeof(bc.b) != T
         throw(ArgumentError(
