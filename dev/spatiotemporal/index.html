@@ -417,7 +417,7 @@
 
 <p>Reconstruct the spatial timeseries <code>s</code> represented by a <code>Vector</code> of <code>AbstractArray</code> states using the embedding struct <code>em</code> of type <a href="./#TimeseriesPrediction.AbstractSpatialEmbedding"><code>AbstractSpatialEmbedding</code></a>.</p>
 <p>Returns the reconstruction in the form of a <code>Dataset</code> (from <code>DelayEmbeddings</code>) where each row is a reconstructed state and they are ordered first through linear indexing into each state and then incrementing in time.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/9a170eec6d83bda5c61757a072e760d66c067a98/src/reconstruct.jl#L6-L14' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/reconstruct.jl#L6-L14' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.AbstractSpatialEmbedding' href='#TimeseriesPrediction.AbstractSpatialEmbedding'>#</a>
 <strong><code>TimeseriesPrediction.AbstractSpatialEmbedding</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span><span class="n">AbstractSpatialEmbedding</span> <span class="o">&lt;:</span> <span class="n">AbstractEmbedding</span>
@@ -429,7 +429,7 @@
 <li><code>SpatioTemporalEmbedding</code></li>
 <li><code>PCAEmbedding</code></li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/9a170eec6d83bda5c61757a072e760d66c067a98/src/spatiotemporalembedding.jl#L13-L18' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/spatiotemporalembedding.jl#L13-L18' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.SpatioTemporalEmbedding' href='#TimeseriesPrediction.SpatioTemporalEmbedding'>#</a>
 <strong><code>TimeseriesPrediction.SpatioTemporalEmbedding</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span><span class="n">SpatioTemporalEmbedding</span><span class="p">{</span><span class="n">Φ</span><span class="p">,</span><span class="n">BC</span><span class="p">,</span><span class="n">X</span><span class="p">}</span> <span class="n">→</span> <span class="n">embedding</span>
@@ -468,10 +468,10 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/9a170eec6d83bda5c61757a072e760d66c067a98/src/spatiotemporalembedding.jl#L85-L121' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/spatiotemporalembedding.jl#L85-L121' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.cubic_shell_embedding' href='#TimeseriesPrediction.cubic_shell_embedding'>#</a>
 <strong><code>TimeseriesPrediction.cubic_shell_embedding</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span><span class="n">cubic_shell_embedding</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">γ</span><span class="p">,</span> <span class="n">τ</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">bc</span><span class="p">)</span> <span class="n">→</span> <span class="n">embedding</span>
+<div class="codehilite"><pre><span></span><span class="n">cubic_shell_embedding</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">γ</span><span class="p">,</span> <span class="n">τ</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">bc</span><span class="o">=</span><span class="n">PeriodicBoundary</span><span class="p">())</span> <span class="n">→</span> <span class="n">embedding</span>
 </pre></div>
 
 
@@ -494,10 +494,10 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/9a170eec6d83bda5c61757a072e760d66c067a98/src/spatiotemporalembedding.jl#L198-L237' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/spatiotemporalembedding.jl#L198-L237' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.light_cone_embedding' href='#TimeseriesPrediction.light_cone_embedding'>#</a>
 <strong><code>TimeseriesPrediction.light_cone_embedding</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span><span class="n">light_cone_embedding</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">γ</span><span class="p">,</span> <span class="n">τ</span><span class="p">,</span> <span class="n">r0</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">bc</span><span class="p">)</span> <span class="n">→</span> <span class="n">embedding</span>
+<div class="codehilite"><pre><span></span><span class="n">light_cone_embedding</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">γ</span><span class="p">,</span> <span class="n">τ</span><span class="p">,</span> <span class="n">r0</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">bc</span><span class="o">=</span><span class="n">PeriodicBoundary</span><span class="p">())</span> <span class="n">→</span> <span class="n">embedding</span>
 </pre></div>
 
 
@@ -517,7 +517,7 @@
 
 
 <p>Besides this example, in the official documentation we show a function <code>explain_light_cone</code> which produces a plot of the light cone for 2 spatial dimensions (great for understanding!).</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/9a170eec6d83bda5c61757a072e760d66c067a98/src/spatiotemporalembedding.jl#L273-L309' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/spatiotemporalembedding.jl#L273-L309' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.PCAEmbedding' href='#TimeseriesPrediction.PCAEmbedding'>#</a>
 <strong><code>TimeseriesPrediction.PCAEmbedding</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span><span class="n">PCAEmbedding</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">em</span><span class="o">::</span><span class="n">AbstractSpatialEmbedding</span><span class="p">;</span> <span class="n">kwargs</span><span class="o">...</span><span class="p">)</span> <span class="n">→</span> <span class="n">embedding</span>
@@ -539,7 +539,7 @@
 <li><code>every_α = 1</code> : Speed up computation further by only using every n-th point in space (linear indexing).</li>
 </ul>
 <p>To set the output dimension to a certain value <code>X</code>, pass <code>pratio=1, maxoutdim=X</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/9a170eec6d83bda5c61757a072e760d66c067a98/src/pcaembedding.jl#L5-L28' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/pcaembedding.jl#L5-L28' class='documenter-source'>source</a><br></p>
 <p>Here is a function that visualizes how the <code>light_cone_embedding</code> works in 2 spatial dimensions:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">PyPlot</span><span class="p">,</span> <span class="n">TimeseriesPrediction</span>
 <span class="k">using</span> <span class="n">LinearAlgebra</span><span class="o">:</span> <span class="n">norm</span>
@@ -588,7 +588,7 @@
 
 
 <p>Constant boundary condition type. Enforces constant boundary conditions when passed to <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> by filling missing out-of-bounds values in the reconstruction with parameter <code>b</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/9a170eec6d83bda5c61757a072e760d66c067a98/src/spatiotemporalembedding.jl#L29-L35' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/spatiotemporalembedding.jl#L29-L35' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.PeriodicBoundary' href='#TimeseriesPrediction.PeriodicBoundary'>#</a>
 <strong><code>TimeseriesPrediction.PeriodicBoundary</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span><span class="n">PeriodicBoundary</span> <span class="o">&lt;:</span> <span class="n">AbstractBoundaryCondition</span>
@@ -596,7 +596,7 @@
 
 
 <p>Periodic boundary condition struct. Enforces periodic boundary conditions when passed to <a href="./#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> in the reconstruction.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/9a170eec6d83bda5c61757a072e760d66c067a98/src/spatiotemporalembedding.jl#L40-L44' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/spatiotemporalembedding.jl#L40-L44' class='documenter-source'>source</a><br></p>
 <p><a id='Prediction-functions-1'></a></p>
 <h2 id="prediction-functions">Prediction functions</h2>
 <p><a id='TimeseriesPrediction.temporalprediction' href='#TimeseriesPrediction.temporalprediction'>#</a>
@@ -621,7 +621,7 @@
 <p>Be careful when choosing embedding parameters as memory usage and computation time depend strongly on the resulting embedding dimension.</p>
 <p><strong>References</strong></p>
 <p>[1] : U. Parlitz &amp; C. Merkwirth, <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890">Phys. Rev. Lett. <strong>84</strong>, pp 1890 (2000)</a></p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/9a170eec6d83bda5c61757a072e760d66c067a98/src/temporalprediction.jl#L22-L56' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/temporalprediction.jl#L22-L56' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.crossprediction' href='#TimeseriesPrediction.crossprediction'>#</a>
 <strong><code>TimeseriesPrediction.crossprediction</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span><span class="n">crossprediction</span><span class="p">(</span><span class="n">source_train</span><span class="p">,</span> <span class="n">target_train</span><span class="p">,</span> <span class="n">source_pred</span><span class="p">,</span>
@@ -654,7 +654,7 @@
 <p>Be careful when choosing embedding parameters as memory usage and computation time depend strongly on the resulting embedding dimension.</p>
 <p><strong>References</strong></p>
 <p>[1] : U. Parlitz &amp; C. Merkwirth, <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.84.1890">Phys. Rev. Lett. <strong>84</strong>, pp 1890 (2000)</a></p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/9a170eec6d83bda5c61757a072e760d66c067a98/src/crossprediction.jl#L7-L53' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/crossprediction.jl#L7-L53' class='documenter-source'>source</a><br></p>
                 
                   
                 
