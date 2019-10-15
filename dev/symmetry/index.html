@@ -425,7 +425,7 @@ v_t = u^3 - v
 
 <p>Supertype of all symmetries used in <a href="./#TimeseriesPrediction.SymmetricEmbedding"><code>SymmetricEmbedding</code></a>. All symmetries are initialized like <code>Symmetry(n1, n2, ...)</code> with <code>ni</code> being the indices of the spatial dimensions that have the said symmetry.</p>
 <p>Notice that the symmetries are defined with respect to the center point of the embedding.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/symmetric_embedding.jl#L4-L12' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/a84df9e203c5a79947fbfc9ed2e043755b635f96/src/symmetric_embedding.jl#L4-L12' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.Reflection' href='#TimeseriesPrediction.Reflection'>#</a>
 <strong><code>TimeseriesPrediction.Reflection</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span><span class="n">Reflection</span> <span class="o">&lt;:</span> <span class="n">Symmetry</span>
@@ -433,7 +433,7 @@ v_t = u^3 - v
 
 
 <p>Reflection symmetry: x and -x are equivalent (for all given dimensions).</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/symmetric_embedding.jl#L34-L37' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/a84df9e203c5a79947fbfc9ed2e043755b635f96/src/symmetric_embedding.jl#L34-L37' class='documenter-source'>source</a><br></p>
 <p><a id='TimeseriesPrediction.Rotation' href='#TimeseriesPrediction.Rotation'>#</a>
 <strong><code>TimeseriesPrediction.Rotation</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span><span class="n">Rotation</span> <span class="o">&lt;:</span> <span class="n">Symmetry</span>
@@ -446,7 +446,7 @@ v_t = u^3 - v
 
 
 <p>for a given <code>r</code>, are equivalent. The same process generalizes to any number of input dimensions.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/symmetric_embedding.jl#L15-L25' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/a84df9e203c5a79947fbfc9ed2e043755b635f96/src/symmetric_embedding.jl#L15-L25' class='documenter-source'>source</a><br></p>
 <p><a id='Symmetric-Embedding-1'></a></p>
 <h2 id="symmetric-embedding">Symmetric Embedding</h2>
 <p>You can use the symmetries in the following embedding:</p>
@@ -459,7 +459,7 @@ v_t = u^3 - v
 <p>A <code>SymmetricEmbedding</code> is intended as a means of dimension reduction for a <a href="../spatiotemporal/#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a> by exploiting spatial symmetries in the system, listed as a <code>Tuple</code> of <code>&lt;:Symmetry</code> (see <a href="./#TimeseriesPrediction.Symmetry"><code>Symmetry</code></a>) for all possible symmetries.</p>
 <p>All points at a time step equivalent to each other according to the symmetries passed in <code>sym</code> will be <strong>averaged</strong> to a single entry! For example, the symmetry <code>Reflection(2)</code> means that the embedding won't have two entries <code>u[i, j+1], u[i, j-1]</code> but instead a single entry <code>(u[i, j+1] + u[i, j-1])/2</code>, with <code>i,j</code> being indices <em>relative to the central point of the embedding</em>. (the same process is done for any index offset <code>j+2, j+3</code>, etc., depending on how large the spatial radius <code>r</code> is)</p>
 <p>The resulting structure from <code>SymmetricEmbedding</code> can be used for reconstructing datasets in the same way as a <a href="../spatiotemporal/#TimeseriesPrediction.SpatioTemporalEmbedding"><code>SpatioTemporalEmbedding</code></a>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/4df9017d9a16f1ec1ea5f30a9a78b2e69e201e8e/src/symmetric_embedding.jl#L68-L88' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/a84df9e203c5a79947fbfc9ed2e043755b635f96/src/symmetric_embedding.jl#L68-L88' class='documenter-source'>source</a><br></p>
                 
                   
                 
