@@ -23,3 +23,11 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["MultivariateStats", "DynamicalSystemsBase", "Test", "Random"]
+
+
+[compat]
+julia = "1"
+DelayEmbeddings = ">= 1.4.2"
+MultivariateStats = ">= 0.6"
+NearestNeighbors = "0.4"
+StatsBase = "0.32, 0.33"
