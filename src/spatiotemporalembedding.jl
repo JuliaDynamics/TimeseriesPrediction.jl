@@ -4,7 +4,7 @@ export outdim
 export AbstractBoundaryCondition, PeriodicBoundary, ConstantBoundary
 export indices_within_sphere
 export light_cone_embedding, cubic_shell_embedding
-
+using DelayEmbeddings: AbstractEmbedding
 
 
 #####################################################################################
