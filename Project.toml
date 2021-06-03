@@ -27,7 +27,7 @@ test = ["MultivariateStats", "DynamicalSystemsBase", "Test", "Random"]
 
 [compat]
 julia = "1"
-DelayEmbeddings = ">= 1.4.2"
-MultivariateStats = ">= 0.6"
+DelayEmbeddings = "^1.4.2"
+MultivariateStats = "0.6, 0.7, 0.8"
 NearestNeighbors = "0.4"
 StatsBase = "0.32, 0.33"
