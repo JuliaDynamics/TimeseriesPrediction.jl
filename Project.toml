@@ -1,7 +1,7 @@
 name = "TimeseriesPrediction"
 uuid = "f218859d-9706-56aa-9ebf-1fa4ed7b8020"
 repo = "https://github.com/JuliaDynamics/TimeseriesPrediction.jl.git"
-version = "0.7.2"
+version = "0.7.3"
 
 [deps]
 DelayEmbeddings = "5732040d-69e3-5649-938a-b6b4f237613f"
