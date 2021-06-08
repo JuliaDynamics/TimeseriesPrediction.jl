@@ -5,7 +5,7 @@ os:
   - windows
 
 julia:
-  - 1.4
+  - 1.6
 
 before_script:
   - git config --global user.name "GitUser"
@@ -21,7 +21,7 @@ notifications:
 jobs:
   include:
     - stage: "Documentation"
-      julia: 1.4
+      julia: 1.6
       os: linux
       script:
         - julia -e 'using Pkg; ENV["PYTHON"]=""; py="PyCall"; Pkg.add(py); Pkg.build(); Pkg.add("PyPlot"); Pkg.add("StaticArrays")'
