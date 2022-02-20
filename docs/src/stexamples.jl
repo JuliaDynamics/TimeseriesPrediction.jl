@@ -5,7 +5,7 @@
 # This is how you can (programmatically) find this folder:
 # ```julia
 # using TimeseriesPrediction
-# exdir = dirname(dirname(pathof(TimeseriesPrediction)))*"/examples"
+# exdir = pkgdir(TimeseriesPrediction)*"/examples"
 # ```
 
 # ## Temporal Prediction: Kuramoto-Sivashinsky

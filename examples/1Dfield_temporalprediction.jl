@@ -15,7 +15,7 @@
 using PyPlot
 using TimeseriesPrediction
 
-testdir = dirname(dirname(pathof(TimeseriesPrediction)))*"/test"
+testdir = pkgdir(TimeseriesPrediction)*"/test"
 @assert isdir(testdir)
 include(testdir*"/ks_solver.jl")
 

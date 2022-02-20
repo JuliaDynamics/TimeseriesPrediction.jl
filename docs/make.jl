@@ -10,7 +10,7 @@ function replace_includes(str)
     included = ["1Dfield_temporalprediction.jl",
     "2Dfield_crossprediction.jl", "2Dfield_temporalprediction.jl"]
 
-    path = dirname(dirname(pathof(TimeseriesPrediction)))*"/examples/"
+    path = pkgdir(TimeseriesPrediction)*"/examples/"
 
     for ex in included
         content = read(path*ex, String)
